@@ -12,11 +12,8 @@
         <div class="copyright">
           Copyright©{{ startYear }}-{{ currentYear }} {{ $store.state.webSiteInfo.name }}
           <span class="divider">·</span>
-          <a href="https://beian.miit.gov.cn/" 
-             target="_blank" 
-             rel="noopener"
-             class="record">
-             {{$store.state.webSiteInfo.recordNum}}
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="record">
+            {{ $store.state.webSiteInfo.recordNum }}
           </a>
         </div>
       </div>
@@ -29,13 +26,13 @@ export default {
   name: 'TheFooter',
   data() {
     return {
-      startYear: 2021,
+      startYear: 2025,
       days: 0,
       hours: 0,
       minutes: 0,
       seconds: 0,
       timer: null,
-      startDate: new Date('2021-08-31')
+      startDate: new Date('2025-4-10')
     }
   },
   computed: {
@@ -47,7 +44,7 @@ export default {
     calculateRunningTime() {
       const now = new Date()
       const diff = now - this.startDate
-      
+
       this.days = Math.floor(diff / (1000 * 60 * 60 * 24))
       this.hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
       this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
@@ -90,12 +87,12 @@ export default {
 .running-time {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  
+
   .time-value {
     color: #ff6b81;
     font-family: 'Fira Code', monospace;
   }
-  
+
   .icon {
     color: #4CAF50;
     margin-right: 4px;
@@ -117,7 +114,7 @@ export default {
     color: inherit;
     text-decoration: none;
     transition: color 0.2s ease;
-    
+
     &:hover {
       color: $primary;
     }
@@ -137,9 +134,9 @@ export default {
     font-size: 0.8125rem;
     gap: $spacing-xs;
   }
-  
+
   .running-time {
     font-size: 0.8125rem;
   }
 }
-</style> 
+</style>

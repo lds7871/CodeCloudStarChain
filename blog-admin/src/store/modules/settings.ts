@@ -18,7 +18,7 @@ export interface SettingsState {
 
 export const useSettingsStore = defineStore({
   id: 'settings',
-  
+
   state: (): SettingsState => ({
     theme: 'light',
     themeColor: '#409EFF',
@@ -31,7 +31,7 @@ export const useSettingsStore = defineStore({
     dynamicTitle: false,
     greyMode: false,
     showFooter: true,
-    title: '拾壹博客管理系统',
+    title: '码云星链管理系统',
     sidebarStyle: 'dark'
   }),
 
@@ -48,7 +48,7 @@ export const useSettingsStore = defineStore({
           document.documentElement.style.setProperty(key, value)
         })
       }
-      
+
       // 添加字体大小设置
       if (settings.fontSize) {
         document.documentElement.setAttribute('data-size', settings.fontSize)
@@ -124,7 +124,7 @@ export const useSettingsStore = defineStore({
       Object.assign(this, settings)
       // 保存到 sessionStorage
       sessionStorage.setItem('settings', JSON.stringify(this.$state))
-      
+
       // 应用灰色模式
       if ('greyMode' in settings) {
         if (settings.greyMode) {
@@ -133,7 +133,7 @@ export const useSettingsStore = defineStore({
           document.documentElement.classList.remove('grey-mode')
         }
       }
-      
+
       // 初始化深色模式
       if (settings.theme === 'dark') {
         document.documentElement.classList.add('dark')
