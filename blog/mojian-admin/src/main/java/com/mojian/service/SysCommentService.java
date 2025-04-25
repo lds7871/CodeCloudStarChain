@@ -14,10 +14,10 @@ public interface SysCommentService extends IService<SysComment> {
 
     /**
      * 获取评论列表
+     *
      * @return
      */
     Page<SysCommentVO> selectList();
-
 
 
 }

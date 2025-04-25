@@ -5,6 +5,7 @@ import com.mojian.common.RedisConstants;
 import com.mojian.exception.ServiceException;
 import com.mojian.utils.IpUtil;
 import com.mojian.utils.RedisUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -12,7 +13,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,7 +43,7 @@ public class AccessLimitAspect {
         }
         if (maxTimes == null) {
             // 如果redis中没有该ip对应的时间则表示第一次调用，保存key到redis
-            redisUtil.set(key,"1",time, TimeUnit.SECONDS);
+            redisUtil.set(key, "1", time, TimeUnit.SECONDS);
         } else if (maxTimes < accessLimit.count()) {
             // 如果redis中的时间比注解上的时间小则表示可以允许访问,这是修改redis的value时间
             redisUtil.set(key, (maxTimes + 1) + "", time, TimeUnit.SECONDS);

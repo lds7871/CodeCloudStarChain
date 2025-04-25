@@ -1,5 +1,7 @@
 package com.mojian.service.impl;
 
+import cn.dev33.satoken.secure.BCrypt;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -7,29 +9,26 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mojian.common.Constants;
 import com.mojian.common.RedisConstants;
 import com.mojian.dto.user.SysUserAddAndUpdateDto;
-import com.mojian.mapper.SysRoleMapper;
-import com.mojian.utils.PageUtil;
+import com.mojian.dto.user.UpdatePwdDTO;
 import com.mojian.entity.SysUser;
 import com.mojian.exception.ServiceException;
+import com.mojian.mapper.SysRoleMapper;
 import com.mojian.mapper.SysUserMapper;
 import com.mojian.service.SysUserService;
+import com.mojian.utils.PageUtil;
 import com.mojian.utils.RedisUtil;
 import com.mojian.vo.user.OnlineUserVo;
-import com.mojian.vo.user.SysUserVo;
 import com.mojian.vo.user.SysUserProfileVo;
+import com.mojian.vo.user.SysUserVo;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import cn.dev33.satoken.secure.BCrypt;
-import cn.dev33.satoken.stp.StpUtil;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import com.mojian.dto.user.UpdatePwdDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public IPage<SysUserVo> listUsers(SysUser sysUser) {
-        return baseMapper.selectUserPage(PageUtil.getPage(),sysUser);
+        return baseMapper.selectUserPage(PageUtil.getPage(), sysUser);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (baseMapper.selectByUsername(user.getUsername()) != null) {
             throw new RuntimeException("用户名已存在");
         }
-        user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt()));
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
         save(user);
 
         //保存角色信息
@@ -89,7 +88,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new ServiceException("用户不存在");
         }
 
-        if(!StpUtil.hasRole(Constants.ADMIN) && user.getId() != StpUtil.getLoginIdAsLong()) {
+        if (!StpUtil.hasRole(Constants.ADMIN) && user.getId() != StpUtil.getLoginIdAsLong()) {
             throw new ServiceException("只能修改自己的密码！");
         }
 
@@ -97,7 +96,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new ServiceException("旧密码错误");
         }
 
-        user.setPassword(BCrypt.hashpw(updatePwdDTO.getNewPassword(),BCrypt.gensalt()));
+        user.setPassword(BCrypt.hashpw(updatePwdDTO.getNewPassword(), BCrypt.gensalt()));
         this.updateById(user);
     }
 
@@ -125,7 +124,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public Boolean resetPassword(SysUser user) {
-        user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt()));
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
         baseMapper.updateById(user);
         return true;
     }
@@ -136,7 +135,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         Integer pageSize = PageUtil.getPageQuery().getPageSize();
 
         // 返回数据对象
-        Collection<String> keys = redisUtil.keys(RedisConstants.LOGIN_TOKEN.concat( "*"));
+        Collection<String> keys = redisUtil.keys(RedisConstants.LOGIN_TOKEN.concat("*"));
 
         List<OnlineUserVo> totalList = new ArrayList<>();
         for (String key : keys) {

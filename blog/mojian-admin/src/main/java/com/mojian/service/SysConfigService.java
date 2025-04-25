@@ -1,8 +1,9 @@
 package com.mojian.service;
 
-import com.mojian.entity.SysConfig;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mojian.entity.SysConfig;
+
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ public interface SysConfigService extends IService<SysConfig> {
 
     /**
      * 根据key获取参数配置详情
+     *
      * @param key
      * @return
      */

@@ -2,10 +2,11 @@ package com.mojian.utils;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mojian.common.PageQuery;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+
 import java.util.Objects;
 
 public class PageUtil {

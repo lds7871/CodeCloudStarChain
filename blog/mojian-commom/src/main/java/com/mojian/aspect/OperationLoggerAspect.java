@@ -11,6 +11,7 @@ import com.mojian.mapper.SysOperateLogMapper;
 import com.mojian.utils.AspectUtil;
 import com.mojian.utils.DateUtil;
 import com.mojian.utils.IpUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -22,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;

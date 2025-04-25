@@ -1,8 +1,8 @@
 package com.mojian.service;
 
-import com.mojian.entity.SysDictData;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mojian.entity.SysDictData;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +28,7 @@ public interface SysDictDataService extends IService<SysDictData> {
 
     /**
      * 根据字典类型查询字典数据
+     *
      * @param dictTypes
      * @return
      */
@@ -35,6 +36,7 @@ public interface SysDictDataService extends IService<SysDictData> {
 
     /**
      * 根据字典类型获取字典数据-缓存版
+     *
      * @param dictType
      * @return
      */

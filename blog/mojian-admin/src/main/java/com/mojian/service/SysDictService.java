@@ -8,18 +8,18 @@ public interface SysDictService extends IService<SysDict> {
     /**
      * 分页查询字典
      */
-    IPage<SysDict> getDictPageList(String name,Integer status);
-    
+    IPage<SysDict> getDictPageList(String name, Integer status);
+
     /**
      * 新增字典
      */
     void addDict(SysDict dict);
-    
+
     /**
      * 更新字典
      */
     void updateDict(SysDict dict);
-    
+
     /**
      * 删除字典
      */

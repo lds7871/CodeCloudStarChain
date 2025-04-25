@@ -10,12 +10,12 @@ import com.mojian.utils.IpUtil;
 import com.mojian.utils.RedisUtil;
 import com.mojian.utils.UserAgentUtil;
 import com.mojian.vo.user.OnlineUserVo;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 

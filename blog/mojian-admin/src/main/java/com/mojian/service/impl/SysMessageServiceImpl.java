@@ -22,6 +22,6 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     @Override
     public Page<SysMessage> selectList() {
         LambdaQueryWrapper<SysMessage> wrapper = new LambdaQueryWrapper<SysMessage>().orderByDesc(SysMessage::getCreateTime);
-        return baseMapper.selectPage(PageUtil.getPage(),wrapper);
+        return baseMapper.selectPage(PageUtil.getPage(), wrapper);
     }
 }

@@ -17,7 +17,7 @@ import com.mojian.mapper.SysArticleMapper;
 import com.mojian.mapper.SysCategoryMapper;
 import com.mojian.mapper.SysTagMapper;
 import com.mojian.service.SysArticleService;
-import com.mojian.utils.AiUtil;
+//import com.mojian.utils.AiUtil;
 import com.mojian.utils.PageUtil;
 import com.mojian.vo.article.ArticleListVo;
 import com.mojian.vo.article.SysArticleDetailVo;
@@ -43,7 +43,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
 
     private final SysTagMapper sysTagMapper;
 
-    private final AiUtil aiUtil;
+//    private final AiUtil aiUtil;
     private final SysCategoryMapper sysCategoryMapper;
 
     @Override
@@ -82,16 +82,15 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
         addTags(sysArticle, obj);
 
         ThreadUtil.execAsync(() -> {
-            String res = aiUtil.send(obj.getContent() + "请提供一段简短的介绍描述该文章的内容");
-            if (StringUtils.isNotBlank(res)) {
-                obj.setAiDescribe(res);
-                baseMapper.updateById(obj);
-            }
+            // TODO: 2025/4/24 注释:ai模块未知原因用不了
+//            String res = aiUtil.send(obj.getContent() + "请提供一段简短的介绍描述该文章的内容");
+//            if (StringUtils.isNotBlank(res)) {
+//                obj.setAiDescribe(res);
+//                baseMapper.updateById(obj);
+//            }
         });
         return true;
     }
-
-
 
 
     @Override
@@ -142,9 +141,9 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
     public void reptile(String url) {
         try {
             Document document = Jsoup.connect(url).get();
-            Elements title  = document.getElementsByClass("title-article");
-            Elements tags  = document.getElementsByClass("tag-link");
-            Elements content  = document.getElementsByClass("article_content");
+            Elements title = document.getElementsByClass("title-article");
+            Elements tags = document.getElementsByClass("tag-link");
+            Elements content = document.getElementsByClass("article_content");
             if (StringUtils.isBlank(content.toString())) {
                 throw new ServiceException(ResultCode.CRAWLING_ARTICLE_FAILED.getDesc());
             }
@@ -152,7 +151,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
             //爬取的是HTML内容，需要转成MD格式的内容
             String newContent = content.get(0).toString().replaceAll("<code>", "<code class=\"lang-java\">");
             String markdown = FlexmarkHtmlConverter.builder(new MutableDataSet()).build().convert(newContent)
-                    .replace("lang-java","java");
+                    .replace("lang-java", "java");
 
             SysArticle entity = SysArticle.builder().userId(StpUtil.getLoginIdAsLong()).contentMd(markdown)
                     .isOriginal(Constants.NO).originalUrl(url)
@@ -161,16 +160,16 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
             baseMapper.insert(entity);
             //为该文章添加标签
             List<Integer> tagIds = new ArrayList<>();
-            tags.forEach(item ->{
+            tags.forEach(item -> {
                 String tag = item.text();
-                SysTag result = sysTagMapper.selectOne(new LambdaQueryWrapper<SysTag>().eq(SysTag::getName,tag ));
-                if (result == null){
+                SysTag result = sysTagMapper.selectOne(new LambdaQueryWrapper<SysTag>().eq(SysTag::getName, tag));
+                if (result == null) {
                     result = SysTag.builder().name(tag).build();
                     sysTagMapper.insert(result);
                 }
                 tagIds.add(result.getId());
             });
-            sysTagMapper.addArticleTagRelations(entity.getId(),tagIds);
+            sysTagMapper.addArticleTagRelations(entity.getId(), tagIds);
 
             System.out.println("文章抓取成功，内容为:" + JSON.toJSONString(entity));
         } catch (IOException e) {

@@ -22,65 +22,66 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.0</version>
+        <version>3.1.0</version>
     </parent>
 
     <properties>
-        <java.version>1.8</java.version>
-        <mybatis-plus.version>3.5.2</mybatis-plus.version>
+        <java.version>18</java.version>
+        <mybatis-plus.version>3.5.9</mybatis-plus.version>
         <sa-token.version>1.39.0</sa-token.version>
         <package.version>1.0-SNAPSHOT</package.version>
+        <hutool.version>5.8.36</hutool.version>
     </properties>
 
 
-    <build>
-        <!-- 注：maven默认是不编译，因此加上如下resources才会生产对应的xml文件 目的：解决mybatis映射关系不对应问题  start =============== -->
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </testResource>
-        </testResources>
-        <!-- 注：maven默认是不编译，因此加上如下resources才会生产对应的xml文件 目的：解决mybatis映射关系不对应问题  end =============== -->
+<!--    <build>-->
+<!--        &lt;!&ndash; 注：maven默认是不编译，因此加上如下resources才会生产对应的xml文件 目的：解决mybatis映射关系不对应问题  start =============== &ndash;&gt;-->
+<!--        <resources>-->
+<!--            <resource>-->
+<!--                <directory>src/main/java</directory>-->
+<!--                <includes>-->
+<!--                    <include>**/*.xml</include>-->
+<!--                </includes>-->
+<!--                <filtering>false</filtering>-->
+<!--            </resource>-->
+<!--            <resource>-->
+<!--                <directory>src/main/resources</directory>-->
+<!--            </resource>-->
+<!--        </resources>-->
+<!--        <testResources>-->
+<!--            <testResource>-->
+<!--                <directory>src/main/java</directory>-->
+<!--                <includes>-->
+<!--                    <include>**/*.xml</include>-->
+<!--                </includes>-->
+<!--                <filtering>false</filtering>-->
+<!--            </testResource>-->
+<!--        </testResources>-->
+<!--        &lt;!&ndash; 注：maven默认是不编译，因此加上如下resources才会生产对应的xml文件 目的：解决mybatis映射关系不对应问题  end =============== &ndash;&gt;-->
 
-        <plugins>
-            <!-- maven打包插件 -> 将整个工程打成一个 fatjar -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <!-- 作用:项目打成jar，同时把本地jar包也引入进去 -->
-                <configuration>
-                    <includeSystemScope>true</includeSystemScope>
-                    <mainClass>com.mojian.NeatAdminApplication</mainClass>
-                </configuration>
-            </plugin>
-            <!--添加配置跳过测试-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-        </plugins>
+<!--        <plugins>-->
+<!--            &lt;!&ndash; maven打包插件 -> 将整个工程打成一个 fatjar &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                &lt;!&ndash; 作用:项目打成jar，同时把本地jar包也引入进去 &ndash;&gt;-->
+<!--                <configuration>-->
+<!--                    <includeSystemScope>true</includeSystemScope>-->
+<!--                    <mainClass>com.mojian.NeatAdminApplication</mainClass>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--            &lt;!&ndash;添加配置跳过测试&ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-surefire-plugin</artifactId>-->
+<!--                <version>2.22.1</version>-->
+<!--                <configuration>-->
+<!--                    <skipTests>true</skipTests>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
 
-        <!-- 固定Jar包名字 -->
-        <finalName>mojian-blog</finalName>
-    </build>
+<!--        &lt;!&ndash; 固定Jar包名字 &ndash;&gt;-->
+<!--        <finalName>mojian-blog</finalName>-->
+<!--    </build>-->
 </project> 

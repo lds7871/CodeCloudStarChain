@@ -1,11 +1,11 @@
 package com.mojian.service;
 
-import com.mojian.entity.SysOperateLog;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mojian.entity.SysOperateLog;
 
 /**
- *  服务接口
+ * 服务接口
  */
 public interface SysOperateLogService extends IService<SysOperateLog> {
     /**

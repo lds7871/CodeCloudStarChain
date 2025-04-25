@@ -1,20 +1,21 @@
 package com.mojian.service.impl;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mojian.entity.SysConfig;
 import com.mojian.exception.ServiceException;
+import com.mojian.mapper.SysConfigMapper;
+import com.mojian.service.SysConfigService;
+import com.mojian.utils.PageUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import com.mojian.mapper.SysConfigMapper;
-import com.mojian.entity.SysConfig;
-import com.mojian.service.SysConfigService;
-import com.mojian.utils.PageUtil;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 参数配置表 服务实现类
@@ -41,7 +42,8 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig
      */
     @Override
     public List<SysConfig> selectList(SysConfig sysConfig) {
-        return list(null);
+        // TODO: 2025/4/24 插眼，俩调用方法，不知是否会导致错误
+        return list((Wrapper<SysConfig>) null);
     }
 
     /**

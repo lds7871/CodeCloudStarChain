@@ -30,6 +30,7 @@ public interface SysRoleService extends IService<SysRole> {
 
     /**
      * 获取角色所拥有的菜单权限
+     *
      * @param id
      * @return
      */
@@ -37,6 +38,7 @@ public interface SysRoleService extends IService<SysRole> {
 
     /**
      * 分配角色权限
+     *
      * @param id
      * @param menuIds
      * @return

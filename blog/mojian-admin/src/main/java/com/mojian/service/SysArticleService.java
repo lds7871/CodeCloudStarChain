@@ -13,6 +13,7 @@ public interface SysArticleService extends IService<SysArticle> {
 
     /**
      * 分页查询
+     *
      * @param articleQueryDto
      * @return
      */
@@ -20,6 +21,7 @@ public interface SysArticleService extends IService<SysArticle> {
 
     /**
      * 文章详情
+     *
      * @param id
      * @return
      */
@@ -27,6 +29,7 @@ public interface SysArticleService extends IService<SysArticle> {
 
     /**
      * 新增
+     *
      * @param sysArticle
      * @return
      */
@@ -34,6 +37,7 @@ public interface SysArticleService extends IService<SysArticle> {
 
     /**
      * 修改
+     *
      * @param sysArticle
      * @return
      */
@@ -42,6 +46,7 @@ public interface SysArticleService extends IService<SysArticle> {
 
     /**
      * 删除
+     *
      * @param ids
      * @return
      */
@@ -49,6 +54,7 @@ public interface SysArticleService extends IService<SysArticle> {
 
     /**
      * 爬取文章
+     *
      * @param url
      */
     void reptile(String url);

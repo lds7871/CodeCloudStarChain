@@ -1,32 +1,30 @@
 package com.mojian.service.impl;
 
+import com.mojian.common.Constants;
 import com.mojian.config.VelocityInitializer;
-import com.mojian.service.GenTableService;
-import com.mojian.utils.PageUtil;
 import com.mojian.entity.GenTable;
 import com.mojian.entity.GenTableColumn;
+import com.mojian.exception.ServiceException;
 import com.mojian.mapper.GenTableMapper;
-import com.mojian.common.Constants;
+import com.mojian.service.GenTableService;
 import com.mojian.utils.GenUtil;
+import com.mojian.utils.PageUtil;
 import com.mojian.utils.VelocityUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.io.FileUtils;
-import java.io.IOException;
-import com.mojian.exception.ServiceException;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.io.ByteArrayOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import org.apache.commons.io.IOUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +47,8 @@ public class GenTableServiceImpl implements GenTableService {
         GenTable table = genTableMapper.selectGenTableById(tableId);
         List<GenTableColumn> columns = genTableMapper.selectGenTableColumns(tableId);
 
-        for (GenTableColumn column : columns)
-        {
-            if (column.getIsPk() != null && "1".equals(column.getIsPk()))
-            {
+        for (GenTableColumn column : columns) {
+            if (column.getIsPk() != null && "1".equals(column.getIsPk())) {
                 table.setPkColumn(column);
                 break;
             }

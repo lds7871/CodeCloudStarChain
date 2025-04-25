@@ -3,14 +3,14 @@ package com.mojian.config.interceptor;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -36,7 +36,7 @@ public class ApiAccessLogInterceptor implements HandlerInterceptor {
             Map<String, String> params = getParameters(request);
             if (params.isEmpty()) {
                 logger.info("[preHandle][开始请求 URL({}) 方法({}) 无参数]", request.getRequestURI(), method);
-            }else {
+            } else {
                 logger.info("[preHandle][开始请求 URL({}) 方法({}) 参数({})]", request.getRequestURI(), method, params);
             }
 
@@ -70,7 +70,6 @@ public class ApiAccessLogInterceptor implements HandlerInterceptor {
         }
         return params;
     }
-
 
 
     /**

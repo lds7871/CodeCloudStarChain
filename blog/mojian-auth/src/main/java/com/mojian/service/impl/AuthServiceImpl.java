@@ -25,6 +25,9 @@ import com.mojian.mapper.SysMenuMapper;
 import com.mojian.mapper.SysRoleMapper;
 import com.mojian.mapper.SysUserMapper;
 import com.mojian.utils.*;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
@@ -36,13 +39,11 @@ import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.*;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;

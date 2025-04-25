@@ -1,18 +1,18 @@
 package com.mojian.service.impl;
 
-import java.util.List;
-
 import cn.dev33.satoken.secure.BCrypt;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import com.mojian.mapper.SysAlbumMapper;
-import com.mojian.entity.SysAlbum;
-import com.mojian.service.SysAlbumService;
-import com.mojian.utils.PageUtil;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mojian.entity.SysAlbum;
+import com.mojian.mapper.SysAlbumMapper;
+import com.mojian.service.SysAlbumService;
+import com.mojian.utils.PageUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 相册 服务实现类
@@ -29,7 +29,7 @@ public class SysAlbumServiceImpl extends ServiceImpl<SysAlbumMapper, SysAlbum> i
         LambdaQueryWrapper<SysAlbum> wrapper = new LambdaQueryWrapper<>();
         // 构建查询条件
         wrapper.select(SysAlbum::getId, SysAlbum::getName, SysAlbum::getDescription, SysAlbum::getIsLock,
-                SysAlbum::getSort, SysAlbum::getCreateTime,SysAlbum::getCover);
+                SysAlbum::getSort, SysAlbum::getCreateTime, SysAlbum::getCover);
         wrapper.eq(sysAlbum.getId() != null, SysAlbum::getId, sysAlbum.getId());
         wrapper.eq(sysAlbum.getName() != null, SysAlbum::getName, sysAlbum.getName());
         wrapper.eq(sysAlbum.getDescription() != null, SysAlbum::getDescription, sysAlbum.getDescription());

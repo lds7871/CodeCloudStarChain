@@ -3,7 +3,10 @@ package com.mojian.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mojian.service.CacheService;
-import com.mojian.vo.cache.*;
+import com.mojian.vo.cache.CacheInfoVo;
+import com.mojian.vo.cache.CacheKeyQuery;
+import com.mojian.vo.cache.CacheKeyVo;
+import com.mojian.vo.cache.CacheMemoryVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.core.RedisCallback;
@@ -116,7 +119,7 @@ public class CacheServiceImpl implements CacheService {
     private Long getKeySize(String key) {
         try {
             return redisTemplate.execute((RedisCallback<Long>) connection ->
-                connection.stringCommands().strLen(key.getBytes()));
+                    connection.stringCommands().strLen(key.getBytes()));
         } catch (Exception e) {
             return 0L;
         }

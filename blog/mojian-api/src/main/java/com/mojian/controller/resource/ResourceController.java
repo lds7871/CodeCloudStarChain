@@ -6,15 +6,15 @@ import com.mojian.common.Result;
 import com.mojian.entity.SysResource;
 import com.mojian.service.ResourceService;
 import com.mojian.vo.resource.SysResourceVo;
-import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/resource")
 @RequiredArgsConstructor
-@Api(tags = "门户-资源管理")
+@Tag(name = "门户-资源管理")
 public class ResourceController {
 
     private final ResourceService resourceService;
@@ -35,8 +35,8 @@ public class ResourceController {
 
     @GetMapping("/verify")
     @Operation(description = "校验验证码")
-    public Result<SysResource> verify(String code,Long id) {
-        return Result.success(resourceService.verify(code,id));
+    public Result<SysResource> verify(String code, Long id) {
+        return Result.success(resourceService.verify(code, id));
     }
 
 

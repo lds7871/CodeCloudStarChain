@@ -2,12 +2,8 @@ package com.mojian.service;
 
 import com.mojian.entity.GenTable;
 
-import java.util.Map;
-import java.util.zip.ZipOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.HashMap;
+import java.util.Map;
 
 public interface GenTableService {
 

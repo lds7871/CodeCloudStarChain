@@ -1,19 +1,19 @@
 package com.mojian.service.impl;
 
-import java.util.List;
-
-import com.mojian.common.Constants;
-import com.mojian.enums.NoticePosttionEnum;
-import com.mojian.exception.ServiceException;
-import org.springframework.stereotype.Service;
-import com.mojian.mapper.SysNoticeMapper;
-import com.mojian.entity.SysNotice;
-import com.mojian.service.SysNoticeService;
-import com.mojian.utils.PageUtil;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mojian.common.Constants;
+import com.mojian.entity.SysNotice;
+import com.mojian.enums.NoticePosttionEnum;
+import com.mojian.exception.ServiceException;
+import com.mojian.mapper.SysNoticeMapper;
+import com.mojian.service.SysNoticeService;
+import com.mojian.utils.PageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 公告 服务实现类
@@ -58,8 +58,8 @@ public class SysNoticeServiceImpl extends ServiceImpl<SysNoticeMapper, SysNotice
         if (sysNotice.getIsShow() == Constants.YES && sysNotice.getPosition().equals(NoticePosttionEnum.TOP.getCode())) {
             SysNotice one = baseMapper.selectOne(new LambdaQueryWrapper<SysNotice>()
                     .eq(SysNotice::getPosition, sysNotice.getPosition())
-                    .eq(SysNotice::getIsShow,sysNotice.getIsShow()));
-            if(one != null) {
+                    .eq(SysNotice::getIsShow, sysNotice.getIsShow()));
+            if (one != null) {
                 throw new ServiceException("显示的顶部公告只能有一个!");
             }
         }
@@ -75,8 +75,8 @@ public class SysNoticeServiceImpl extends ServiceImpl<SysNoticeMapper, SysNotice
         if (sysNotice.getIsShow() == Constants.YES && sysNotice.getPosition().equals(NoticePosttionEnum.TOP.getCode())) {
             SysNotice one = baseMapper.selectOne(new LambdaQueryWrapper<SysNotice>()
                     .eq(SysNotice::getPosition, sysNotice.getPosition())
-                    .eq(SysNotice::getIsShow,sysNotice.getIsShow()));
-            if(one != null && !one.getId().equals(sysNotice.getId())) {
+                    .eq(SysNotice::getIsShow, sysNotice.getIsShow()));
+            if (one != null && !one.getId().equals(sysNotice.getId())) {
                 throw new ServiceException("显示的顶部公告只能有一个!");
             }
         }

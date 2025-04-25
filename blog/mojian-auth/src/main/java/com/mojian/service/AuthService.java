@@ -4,11 +4,12 @@ import com.mojian.dto.Captcha;
 import com.mojian.dto.EmailRegisterDto;
 import com.mojian.dto.LoginDTO;
 import com.mojian.dto.user.LoginUserInfo;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.zhyd.oauth.model.AuthCallback;
 
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 public interface AuthService {

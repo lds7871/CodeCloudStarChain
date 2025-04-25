@@ -32,6 +32,7 @@
             <artifactId>mojian-commom</artifactId>
             <version>${package.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>

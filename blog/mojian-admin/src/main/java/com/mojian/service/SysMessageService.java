@@ -13,10 +13,10 @@ public interface SysMessageService extends IService<SysMessage> {
 
     /**
      * 获取消息列表
+     *
      * @return
      */
     Page<SysMessage> selectList();
-
 
 
 }

@@ -3,10 +3,10 @@ package com.mojian.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mojian.service.SysRoleService;
-import com.mojian.utils.PageUtil;
 import com.mojian.entity.SysRole;
 import com.mojian.mapper.SysRoleMapper;
+import com.mojian.service.SysRoleService;
+import com.mojian.utils.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -21,7 +21,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     public IPage<SysRole> listRoles(String name) {
 
         LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<SysRole>()
-                .like(StringUtils.hasText(name),SysRole::getName, name)
+                .like(StringUtils.hasText(name), SysRole::getName, name)
                 .orderByDesc(SysRole::getCreateTime);
 
         return baseMapper.selectPage(PageUtil.getPage(), wrapper);
@@ -75,7 +75,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     /**
      * 检查角色编码是否已存在
      *
-     * @param code 角色编码
+     * @param code      角色编码
      * @param excludeId 排除的角色ID
      * @return true:已存在 false:不存在
      */

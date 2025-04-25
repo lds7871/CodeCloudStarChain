@@ -1,8 +1,9 @@
 package com.mojian.service;
 
-import com.mojian.entity.SysPhoto;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mojian.entity.SysPhoto;
+
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ public interface SysPhotoService extends IService<SysPhoto> {
 
     /**
      * 批量移动照片
+     *
      * @param ids
      * @param albumId
      * @return

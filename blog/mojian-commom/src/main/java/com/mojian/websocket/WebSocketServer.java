@@ -1,13 +1,12 @@
 package com.mojian.websocket;
 
-
+import jakarta.websocket.*;
+import jakarta.websocket.server.PathParam;
+import jakarta.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,7 +32,7 @@ public class WebSocketServer {
      * 连接建立成功调用的方法
      */
     @OnOpen
-    public void onOpen(Session session,@PathParam("userId") String userId) {
+    public void onOpen(Session session, @PathParam("userId") String userId) {
         sessionMap.put(userId, session);
         log.info("有新用户加入，username={}, 当前在线人数为：{}", userId, sessionMap.size());
     }
@@ -52,6 +51,7 @@ public class WebSocketServer {
      * 后台收到客户端发送过来的消息
      * onMessage 是一个消息的中转站
      * 接受 浏览器端 socket.send 发送过来的 json数据
+     *
      * @param message 客户端发送过来的消息
      */
     @OnMessage

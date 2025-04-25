@@ -3,15 +3,16 @@ package com.mojian.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mojian.service.SysJobService;
 import com.mojian.entity.SysJob;
 import com.mojian.exception.ServiceException;
 import com.mojian.mapper.SysJobMapper;
 import com.mojian.quartz.ScheduleConstants;
 import com.mojian.quartz.TaskException;
+import com.mojian.service.SysJobService;
 import com.mojian.utils.CronUtils;
 import com.mojian.utils.PageUtil;
 import com.mojian.utils.ScheduleUtils;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDataMap;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
 
@@ -62,11 +62,11 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
     @Override
     public Page<SysJob> selectJobPage(String jobName, String jobGroup, String status) {
         LambdaQueryWrapper<SysJob> queryWrapper = new LambdaQueryWrapper<SysJob>()
-                .like(StringUtils.isNotBlank(jobName), SysJob::getJobName,jobName)
-                .eq(StringUtils.isNotBlank(jobGroup), SysJob::getJobGroup,jobGroup)
-                .eq(StringUtils.isNotBlank(status), SysJob::getStatus,status);
+                .like(StringUtils.isNotBlank(jobName), SysJob::getJobName, jobName)
+                .eq(StringUtils.isNotBlank(jobGroup), SysJob::getJobGroup, jobGroup)
+                .eq(StringUtils.isNotBlank(status), SysJob::getStatus, status);
 
-        return page(PageUtil.getPage(),queryWrapper);
+        return page(PageUtil.getPage(), queryWrapper);
     }
 
     /**
@@ -181,7 +181,7 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         Long jobId = job.getJobId();
         String jobGroup = job.getJobGroup();
         int row = baseMapper.updateById(job);
-        if (row > 0){
+        if (row > 0) {
             if (ScheduleConstants.Status.NORMAL.getValue().equals(status)) {
                 scheduler.resumeJob(ScheduleUtils.getJobKey(jobId, jobGroup));
             } else if (ScheduleConstants.Status.PAUSE.getValue().equals(status)) {
@@ -193,17 +193,19 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
 
     /**
      * 验证cron
+     *
      * @param job
      */
     private void checkCronIsValid(SysJob job) {
         boolean valid = CronUtils.isValid(job.getCronExpression());
-        if (!valid){
+        if (!valid) {
             throw new ServiceException("Cron表达式验证失败！");
         }
     }
 
     /**
      * 更新任务
+     *
      * @param job      任务对象
      * @param jobGroup 任务组名
      */

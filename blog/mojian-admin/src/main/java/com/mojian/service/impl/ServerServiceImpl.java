@@ -43,9 +43,9 @@ public class ServerServiceImpl implements ServerService {
     private CpuInfo getCpuInfo() {
         CpuInfo cpu = new CpuInfo();
         OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-        
+
         cpu.setCpuNum(Runtime.getRuntime().availableProcessors());
-        
+
         if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
             com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
             double systemCpuLoad = sunOsBean.getSystemCpuLoad();
@@ -53,7 +53,7 @@ public class ServerServiceImpl implements ServerService {
             cpu.setSys(Double.parseDouble(df.format(systemCpuLoad * 100)));
             cpu.setFree(Double.parseDouble(df.format((1 - systemCpuLoad) * 100)));
         }
-        
+
         return cpu;
     }
 
@@ -63,16 +63,16 @@ public class ServerServiceImpl implements ServerService {
     private MemInfo getMemInfo() {
         MemInfo mem = new MemInfo();
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-        
+
         long totalMemory = Runtime.getRuntime().totalMemory();
         long freeMemory = Runtime.getRuntime().freeMemory();
         long maxMemory = Runtime.getRuntime().maxMemory();
-        
+
         mem.setTotal(maxMemory);
         mem.setUsed(totalMemory - freeMemory);
         mem.setFree(freeMemory);
         mem.setUsage(Double.parseDouble(df.format(mem.getUsed() * 100.0 / mem.getTotal())));
-        
+
         return mem;
     }
 

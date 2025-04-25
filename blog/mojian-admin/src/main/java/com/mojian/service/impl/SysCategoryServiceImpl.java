@@ -1,5 +1,6 @@
 package com.mojian.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -38,7 +39,8 @@ public class SysCategoryServiceImpl extends ServiceImpl<SysCategoryMapper, SysCa
      */
     @Override
     public List<SysCategory> selectList(SysCategory sysCategory) {
-        return list(null);
+//          TODO: 2025/4/24 插眼，俩调用方法，不知是否会导致错误
+        return list((Wrapper<SysCategory>) null);
     }
 
     /**
