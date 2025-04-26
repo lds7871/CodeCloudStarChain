@@ -176,7 +176,7 @@ export default {
           colorClass: 'photos-link'
         },
         { 
-          name: '留言板', 
+          name: '树洞',
           path: '/messages', 
           icon: 'fas fa-envelope',
           colorClass: 'message-link'

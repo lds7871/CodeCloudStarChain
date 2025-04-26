@@ -121,7 +121,7 @@ const routes = [
                 component: Messages,
                 meta: { 
                   transition: 'fade',
-                  title: '留言板 - 拾壹博客',
+                  title: '树洞 - 拾壹博客',
                   icon: 'fas fa-comments'
                 }
               },

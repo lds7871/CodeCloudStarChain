@@ -1,5 +1,8 @@
 <template>
   <div class="moments-container">
+    <!-- 顶部背景图 -->
+    <div class="moments-header" />
+
     <!-- 说说列表 -->
     <div class="moments-list" v-loading="loading">
       <div v-for="moment in moments" :key="moment.id" class="moment-item">
@@ -28,6 +31,17 @@
             <div class="moment-images" v-if="moment.images?.length">
               <img v-for="(img, index) in moment.images" :key="img" v-lazy="img"
                 @click="previewImage(moment.images, index)" />
+            </div>
+            <!-- 添加操作按钮 -->
+            <div class="moment-actions">
+              <button class="action-btn" @click="handleComment(moment)">
+                <i class="fas fa-comment"></i>
+                <span>留言</span>
+              </button>
+              <button class="action-btn" @click="handleShare(moment)">
+                <i class="fas fa-share-alt"></i>
+                <span>分享</span>
+              </button>
             </div>
           </div>
         </div>
@@ -62,6 +76,7 @@ export default {
       },
     }
   },
+
   mounted() {
     this.fetchMoments()
   },
@@ -69,7 +84,9 @@ export default {
   methods: {
     parseImages(images) {
       if (!images) return []
-      return images.split(',').filter(img => img)
+      const parsedImages = images.split(',').filter(img => img)
+      console.log('Parsed image URLs:', parsedImages)
+      return parsedImages
     },
     async fetchMoments() {
       try {
@@ -87,6 +104,16 @@ export default {
       }
     },
 
+    /**
+    * 设置随机背景图
+    * 使用Bing每日图片API
+    */
+    // setRandomBackground() {
+    //   // 这里使用Bing每日图片API，每天更新一张高质量图片
+    //   const bingApi = 'https://api.dujin.org/bing/1920.php'
+    //   this.backgroundImage = `${bingApi}?t=${new Date().getTime()}`
+    // },
+
     handlePageChange(page) {
       this.params.pageNum = page
       this.fetchMoments()
@@ -99,6 +126,24 @@ export default {
 
     formatTime(time) {
       return formatTime(time)
+    },
+
+    /**
+     * 处理留言点击
+     * @param {Object} moment - 当前说说对象
+     */
+    handleComment(moment) {
+      // TODO: 实现留言功能
+      console.log('留言:', moment)
+    },
+
+    /**
+     * 处理分享点击
+     * @param {Object} moment - 当前说说对象
+     */
+    handleShare(moment) {
+      // TODO: 实现分享功能
+      console.log('分享:', moment)
     }
   }
 }
@@ -106,9 +151,35 @@ export default {
 
 <style lang="scss" scoped>
 .moments-container {
+  min-height: 100vh;
+  position: relative;
+}
+
+.moments-header {
+  height: 50vh;
+  background-image: url('https://img.8845.top/ecy.php?license=fengyyds');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: background-image 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.moments-list {
   max-width: 800px;
-  margin: 0 auto;
-  min-height: calc(100vh - 70px);
+  margin: -100px auto 0;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
 }
 
 .moment-item {
@@ -118,6 +189,15 @@ export default {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   display: flex;
   gap: 16px;
+  background: var(--card-bg);
+  border-radius: $border-radius-lg;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
@@ -201,6 +281,7 @@ export default {
     font-size: 15px;
     white-space: pre-wrap;
     word-break: break-word;
+
     :deep(li) {
       margin-left: 30px;
     }
@@ -250,6 +331,39 @@ export default {
 
     i {
       color: $primary;
+    }
+  }
+}
+
+.moment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s;
+
+    &:hover {
+      color: var(--primary-color);
+    }
+
+    i {
+      font-size: 14px;
+    }
+
+    span {
+      font-size: 13px;
     }
   }
 }

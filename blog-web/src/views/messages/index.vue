@@ -4,7 +4,7 @@
     <div class="message-banner" :style="cover">
       <!-- 弹幕输入框 -->
       <div class="message-container">
-        <h1 class="message-title">留言板</h1>
+        <h1 class="message-title">树洞</h1>
         <div class="message-input-wrapper">
           <el-input class="input" v-model="content" placeholder="说点什么吧" @keyup.enter.native="addToList"
             @focus="show = true"></el-input>
