@@ -37,11 +37,93 @@
           申请友链前请先添加本站链接
           <span class="tip-highlight">「 点击上方链接可快速复制 」</span>
         </div>
-        <button class="apply-btn" @click="handleApply">
-          <i class="fas fa-plus"></i>
-          申请友链
-        </button>
-      </div>
+
+
+        <div class="friend-main">
+          <div class="form-wrap" :class="{expanded: isExpanded}">
+            <img src="/src/assets/friendLetterTop.png" class="before-img"  >
+            <div class="envelope" @click="!isExpanded && toggleEnvelope()" style="animation: 2s ease 0s 1 normal none running hideToShow;">
+
+              <div class="form-main">
+                <img src="/src/assets/friendLetterMiddle.jpg" style="width: 100%;">
+                <div class="form-content" :class="{expanded: isExpanded}">
+                  <h3>有朋自远方来</h3>
+
+                  <div class="apply-form" style="background: #EEEEEE">
+                    <el-form
+                        size="small"
+                        :model="form"
+                        :rules="rules"
+                        ref="ruleForm"
+                        label-width="100px"
+                    >
+                        <div class="form-group">
+                          <el-form-item prop="name">
+                            <template v-slot:label>
+                              <i class="fas fa-signature"></i> 网站名称
+                            </template>
+                          </el-form-item>
+                          <el-input type="text" v-model="form.name" placeholder="请输入您的网站名称" />
+                        </div>
+                        <div class="form-group">
+                          <el-form-item prop="url">
+                            <template v-slot:label>
+                              <i class="fas fa-link"></i> 网站链接
+                            </template>
+                          </el-form-item>
+                          <el-input type="url" v-model="form.url" placeholder="请输入您的网站链接" />
+                        </div>
+                        <div class="form-group">
+                          <el-form-item prop="info">
+                            <template v-slot:label>
+                              <i class="fas fa-quote-left"></i> 网站描述
+                            </template>
+                          </el-form-item>
+                          <el-input type="url" v-model="form.info" placeholder="一句话描述您的网站" />
+                        </div>
+                        <div class="form-group">
+                          <el-form-item prop="avatar">
+                            <template v-slot:label>
+                              <i class="fas fa-image"></i> 头像链接
+                            </template>
+                          </el-form-item>
+                          <el-input type="url" v-model="form.avatar" placeholder="请输入您的头像链接" />
+                        </div>
+                        <div class="form-group">
+                          <el-form-item prop="email">
+                            <template v-slot:label>
+                              <i class="fas fa-envelope"></i> 联系邮箱
+                            </template>
+                          </el-form-item>
+                          <el-input type="url" v-model="form.email" placeholder="邮箱用于联系" />
+                        </div>
+
+
+
+
+                        <div class="form-footer" >
+                          <el-button class="submit-btn" type="primary" @click="submitApplication">
+                            <i class="fas fa-paper-plane"></i>
+                            提交申请
+                          </el-button>
+                        </div>
+                        <div class="form-group" style="height: 180px; background: white">
+                          <img  src="/src/assets/friendLetterBiLi.png" style="width: 100%;height: 36px; margin: 5px auto;">
+                        </div>
+
+                      </el-form>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <img  src="/src/assets/friendLetterBottom.png" class="after-img" style="width: 100%;">
+            </div>
+
+          </div>
+        </div>
+
+
 
       <div class="friends-container">
         <div class="section-title">
@@ -61,74 +143,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 申请表单弹窗 -->
-      <el-dialog 
-        :visible.sync="showApplyForm" 
-        title="申请友链" 
-        width="500px" 
-        top="3vh"
-        :append-to-body="true"
-      >
-        <div class="apply-form">
-          <el-form 
-            size="small" 
-            :model="form" 
-            :rules="rules" 
-            ref="ruleForm" 
-            label-width="100px"
-          >
-          <div class="form-group">
-              <el-form-item prop="name">
-                <template v-slot:label>
-                  <i class="fas fa-signature"></i> 网站名称
-                </template>
-              </el-form-item>
-              <el-input type="text" v-model="form.name" placeholder="请输入您的网站名称" />
-            </div>
-            <div class="form-group">
-              <el-form-item prop="url">
-                <template v-slot:label>
-                  <i class="fas fa-link"></i> 网站链接
-                </template>
-              </el-form-item>
-              <el-input type="url" v-model="form.url" placeholder="请输入您的网站链接" />
-            </div>
-            <div class="form-group">
-              <el-form-item prop="info">
-                <template v-slot:label>
-                  <i class="fas fa-quote-left"></i> 网站描述
-                </template>
-              </el-form-item>
-              <el-input type="url" v-model="form.info" placeholder="一句话描述您的网站" />
-            </div>
-            <div class="form-group">
-              <el-form-item prop="avatar">
-                <template v-slot:label>
-                  <i class="fas fa-image"></i> 头像链接
-                </template>
-              </el-form-item>
-              <el-input type="url" v-model="form.avatar" placeholder="请输入您的头像链接" />
-            </div>
-            <div class="form-group">
-              <el-form-item prop="email">
-                <template v-slot:label>
-                  <i class="fas fa-envelope"></i> 联系邮箱
-                </template>
-              </el-form-item>
-              <el-input type="url" v-model="form.email" placeholder="邮箱用于联系" />
-            </div>
-
-
-            <div class="form-footer">
-              <el-button class="submit-btn" type="primary" @click="submitApplication">
-                <i class="fas fa-paper-plane"></i>
-                提交申请
-              </el-button>
-            </div>
-          </el-form>
-        </div>
-      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -141,6 +155,7 @@ export default {
 
   data() {
     return {
+      isExpanded: false,
       showApplyForm: false,
       form: {
         name: '',
@@ -177,6 +192,11 @@ export default {
     this.friends = res.data
   },
   methods: {
+
+    toggleEnvelope() {
+      this.isExpanded = !this.isExpanded;
+    },
+
     visitFriend(url) {
       window.open(url, '_blank')
     },
@@ -358,6 +378,8 @@ export default {
       object-fit: cover;
       transition: transform 0.5s ease;
       border: 3px solid var(--card-bg);
+      overflow-clip-margin: content-box;
+      overflow: clip;
     }
 
     .status {
@@ -480,7 +502,7 @@ export default {
 
         i {
           font-size: 1.5em;
-          margin-bottom: 5px;
+          margin-bottom: 1px;
         }
 
         span {
@@ -692,8 +714,17 @@ export default {
 }
 
 .apply-form {
+  .form-group {
+    display: flex;
+    gap: $spacing-md;
+    margin-bottom: 20px;
+    margin-right: 50px;
+    margin-left: 50px;
+
+  }
   .el-form-item {
-    margin-bottom: $spacing-md;
+    flex: 1;
+    margin-bottom: 0;
     opacity: 1;
     transform: none;
 
@@ -709,7 +740,7 @@ export default {
       border: 1px solid var(--border-color);
       background: var(--input-bg);
       color: var(--text-primary);
-      
+
       &:focus {
         border-color: $primary;
         box-shadow: 0 0 0 2px rgba($primary, 0.1);
@@ -723,8 +754,9 @@ export default {
 
   .form-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     margin-top: $spacing-lg;
+    background: white;
 
     .submit-btn {
       background: linear-gradient(135deg, $primary, $secondary);
@@ -732,7 +764,7 @@ export default {
       padding: $spacing-sm $spacing-xl;
       font-size: 1em;
       border-radius: 25px;
-      
+
       i {
         margin-right: $spacing-xs;
       }
@@ -749,14 +781,95 @@ export default {
   }
 }
 
-.form-group {
-  margin-bottom: $spacing-md;
-}
+
 
 @for $i from 1 through 5 {
   .form-group:nth-child(#{$i}) {
     animation: none;
   }
 }
+
+
+
+
+
+.friend-main{
+  max-width: 1200px;
+  margin: 40px auto;
+  border-radius: 10px;
+  padding: 40px;
+  background: hsla(0, 0%, 100%, .85);
+}
+
+
+
+.form-wrap {
+  margin: 0 auto;
+  width: 530px;
+  position: relative;
+  transition: all 0.6s ease-in-out;
+  perspective: 1000px;
+  cursor: pointer;
+  &.expanded {
+    margin-top: -200px;
+  }
+}
+
+.envelope {
+  position: relative;
+  margin: 0 auto;
+  transition: all 1s ease-in-out .3s;
+  padding: 200px 20px 20px;
+
+}
+
+
+.after-img, .before-img {
+  position: absolute;
+  left: 0;
+  background-repeat: no-repeat;
+  width: 530px;
+}
+
+.before-img {
+  bottom: 126px;
+  height: 317px;
+  z-index: -100;
+}
+
+
+
+.after-img{
+  bottom: -2px;
+  height: 259px;
+  z-index: 100;
+  pointer-events: none
+}
+
+  .form-main {
+    background: var(--white);
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .form-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.6s ease-in-out;
+    background: white;
+
+    &.expanded {
+      max-height: 1000px;
+    }
+
+    h3 {
+      text-align: center;
+      margin: 20px 0;
+      color: var(--text-primary);
+    }
+  }
+
+
 
 </style>
