@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author: quequnlong
  * @date: 2024/12/28
- * @description:
+ * @description: 该类用于实现API访问频率限制的切面
  */
 @Slf4j
 @Aspect
@@ -28,6 +28,12 @@ public class AccessLimitAspect {
 
     private final RedisUtil redisUtil;
 
+    /**
+     * 在带有AccessLimit注解的方法执行前进行访问频率限制检查
+     * @param joinPoint 连接点
+     * @param accessLimit AccessLimit注解实例
+     * @throws Throwable 可能抛出的异常
+     */
     @Before("@annotation(accessLimit)")
     public void doBefore(JoinPoint joinPoint, AccessLimit accessLimit) throws Throwable {
         int time = accessLimit.time();
