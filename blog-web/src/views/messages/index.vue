@@ -111,7 +111,7 @@ export default {
   },
   computed: {
     cover() {
-      var cover = "https://img.shiyit.com/1642481294001.png";
+      var cover = '/src/assets/133487507047962275.jpg';
       return "background: url(" + cover + ") center center / cover no-repeat";
     }
   }
