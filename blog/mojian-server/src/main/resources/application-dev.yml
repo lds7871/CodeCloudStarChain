@@ -10,8 +10,25 @@ spring:
     url: jdbc:mysql://127.0.0.1/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
+<<<<<<< HEAD
 #    password: Xwt@0629Cw
     password: "0629"
+=======
+    password: Xwt@0629Cw
+    hikari:
+      # 连接最大存活时间，建议设置比数据库的 wait_timeout 小几分钟
+      max-lifetime: 300000  # 5分钟
+      # 连接超时时间
+      connection-timeout: 30000  # 30秒
+      # 最小空闲连接数
+      minimum-idle: 5
+      # 最大连接数
+      maximum-pool-size: 15
+      # 空闲连接超时时间
+      idle-timeout: 300000  # 5分钟
+      # 测试连接是否有效
+      connection-test-query: SELECT 1
+>>>>>>> 3b9ac528d2e64a8b9f6235119b95a33dda08d6c2
 
   data:
     redis:
@@ -41,17 +58,17 @@ spring:
             required: true
 
 ##==============================knife4j配置==============================
-## knife4j配置设置
-#knife4j:
-#  setting:
-#    # 启用Swagger Models功能
-#    enableSwaggerModels: true
-#    # 启用文档管理功能
-#    enableDocumentManage: true
-#    # 启用版本控制功能
-#    enableVersion: true
-#    # 设置文档语言为中文
-#    language: zh-CN
+# knife4j配置设置
+knife4j:
+  setting:
+    # 启用Swagger Models功能
+    enableSwaggerModels: true
+    # 启用文档管理功能
+    enableDocumentManage: true
+    # 启用版本控制功能
+    enableVersion: true
+    # 设置文档语言为中文
+    language: zh-CN
 
 #==============================公众号配置==============================
 wechat:
