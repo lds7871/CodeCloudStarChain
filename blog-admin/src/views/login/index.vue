@@ -17,9 +17,6 @@
             <Logo :size="80" class="floating-logo" :color="logoColor" />
           </div>
           <h1 class="brand-title">{{ settings.title }}</h1>
-          <p class="brand-description">
-            基于 Vue3 + TypeScript 打造的现代化博客系统
-          </p>
         </div>
       </div>
     </div>
@@ -30,7 +27,9 @@
         <!-- 主题切换按钮 -->
         <div class="theme-switch">
           <el-button class="theme-button" circle @click="toggleTheme">
-            <el-icon><component :is="isDark ? 'Sunny' : 'Moon'" /></el-icon>
+            <el-icon>
+              <component :is="isDark ? 'Sunny' : 'Moon'" />
+            </el-icon>
           </el-button>
         </div>
 
@@ -39,48 +38,30 @@
 
         <!-- 登录方式切换 -->
         <div class="login-tabs">
-          <div
-            class="tab-item"
-            :class="{ active: loginType === 'account' }"
-            @click="loginType = 'account'"
-          >
-            <el-icon><User /></el-icon>
+          <div class="tab-item" :class="{ active: loginType === 'account' }" @click="loginType = 'account'">
+            <el-icon>
+              <User />
+            </el-icon>
             账号登录
           </div>
-          <div
-            class="tab-item"
-            :class="{ active: loginType === 'qrcode' }"
-            @click="loginType = 'qrcode'"
-          >
-            <el-icon><component :is="QrCode" /></el-icon>
+          <div class="tab-item" :class="{ active: loginType === 'qrcode' }" @click="loginType = 'qrcode'">
+            <el-icon>
+              <component :is="QrCode" />
+            </el-icon>
             扫码登录
           </div>
         </div>
 
         <!-- 登录表单内容 -->
         <transition name="fade-transform" mode="out-in">
-          <el-form
-            v-if="loginType === 'account'"
-            ref="loginFormRef"
-            :model="loginForm"
-            :rules="rules"
-            @keyup.enter="handleLogin"
-          >
+          <el-form v-if="loginType === 'account'" ref="loginFormRef" :model="loginForm" :rules="rules"
+            @keyup.enter="handleLogin">
             <el-form-item prop="username">
-              <el-input
-                v-model="loginForm.username"
-                placeholder="请输入用户名"
-                prefix-icon="User"
-              />
+              <el-input v-model="loginForm.username" placeholder="请输入用户名" prefix-icon="User" />
             </el-form-item>
             <el-form-item prop="password">
-              <el-input
-                v-model="loginForm.password"
-                type="password"
-                placeholder="请输入密码"
-                prefix-icon="Lock"
-                show-password
-              />
+              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" prefix-icon="Lock"
+                show-password />
             </el-form-item>
 
             <div class="login-options">
@@ -88,12 +69,7 @@
               <a href="#" class="forget-password">忘记密码？</a>
             </div>
 
-            <el-button
-              :loading="loading"
-              type="primary"
-              class="login-button"
-              @click="handleLogin"
-            >
+            <el-button :loading="loading" type="primary" class="login-button" @click="handleLogin">
               {{ loading ? "登录中..." : "登录" }}
             </el-button>
           </el-form>
@@ -101,20 +77,27 @@
           <div v-else class="qrcode-box">
             <div class="qrcode-wrapper">
               <div class="qrcode-scanner"></div>
-              <img :src="qrCodeUrl" alt="二维码" class="qrcode-img" />
+              <!-- <img :src="qrCodeUrl" alt="二维码" class="qrcode-img" /> -->
+              <img :src="qrCodeUrl" alt="微信二维码">
               <transition name="fade">
                 <div class="qrcode-mask" v-if="qrCodeExpired">
-                  <el-icon class="expired-icon"><Warning /></el-icon>
+                  <el-icon class="expired-icon">
+                    <Warning />
+                  </el-icon>
                   <p>二维码已过期</p>
                   <el-button type="primary" @click="refreshQrCode" round>
-                    <el-icon><RefreshRight /></el-icon>
+                    <el-icon>
+                      <RefreshRight />
+                    </el-icon>
                     刷新二维码
                   </el-button>
                 </div>
               </transition>
             </div>
             <p class="qrcode-tip">
-              <el-icon><Iphone /></el-icon>
+              <el-icon>
+                <Iphone />
+              </el-icon>
               请使用手机扫码登录
             </p>
           </div>
@@ -138,28 +121,14 @@
       </div>
 
       <!-- 滑块验证 -->
-      <el-dialog
-        title="请拖动滑块完成拼图"
-        width="360px"
-        v-model="showSliderVerify"
-        :close-on-click-modal="false"
-        @closed="refresh"
-        append-to-body
-      >
-        <slider-verify
-          ref="sliderVerifyRef"
-          @success="onSuccess"
-          @fail="onFail"
-          @again="onAgain"
-        />
+      <el-dialog title="请拖动滑块完成拼图" width="360px" v-model="showSliderVerify" :close-on-click-modal="false"
+        @closed="refresh" append-to-body>
+        <slider-verify ref="sliderVerifyRef" @success="onSuccess" @fail="onFail" @again="onAgain" />
       </el-dialog>
 
       <!-- 页脚版权信息 -->
       <footer class="footer">
-        <p>Copyright © 2024 Neat-Admin</p>
-        <a href="https://beian.miit.gov.cn/" target="_blank"
-          >湘ICP备2022002110号-1</a
-        >
+        <p>Copyright © 2025 码云星链</p>
       </footer>
     </div>
   </div>
@@ -169,13 +138,14 @@
 import router from "@/router";
 import type { FormInstance } from "element-plus";
 import { ElMessage } from "element-plus";
-import { useUserStore } from "@/store/modules/user";
+import { useUserStore, wxuseUserStore } from "@/store/modules/user";
+
 import { useSettingsStore } from "@/store/modules/settings";
 import Logo from "@/layouts/components/Sidebar/Logo.vue";
 import settings from "@/config/settings";
 import SliderVerify from "./components/SliderVerify.vue";
-import { getCaptchaSwitchApi } from "@/api/system/auth";
-
+import { getCaptchaSwitchApi, getQrCode, checkQrCodeStatus, getRouters } from "@/api/system/auth";
+import { usePermissionStore } from "@/store/modules/permission";
 const QrCode = markRaw({
   name: "QrCode",
   render() {
@@ -196,12 +166,13 @@ const QrCode = markRaw({
   },
 });
 const userStore = useUserStore();
+const wxuserStore = wxuseUserStore();
 const settingsStore = useSettingsStore();
 const loginFormRef = ref<FormInstance>();
 const loading = ref(false);
 const rememberMe = ref(false);
 const loginType = ref("account");
-const qrCodeUrl = ref("https://img.shiyit.com/qrcode.jpg");
+const permissionStore = usePermissionStore();
 const qrCodeExpired = ref(false);
 
 const showSliderVerify = ref(false);
@@ -239,7 +210,14 @@ const onSuccess = (captcha: any) => {
 
   login();
 };
-
+const qrCodeUrl = ref("");
+const getQrCodes = () => {
+  getQrCode().then((res) => {
+    console.log(res);
+    qrCodeUrl.value = res;
+    console.log("数据为：" + qrCodeUrl.value);
+  });
+}
 const login = () => {
   loading.value = true;
   userStore
@@ -290,15 +268,63 @@ const handleSocialLogin = (type: string) => {
 
 const refreshQrCode = async () => {
   qrCodeExpired.value = false;
-  // TODO: 调用后端接口获取新的二维码
+  getQrCodes(); // 调用获取新二维码的方法
 };
-
+let openId: String;
 let qrCodeTimer: number;
+let headimgurl: String;
+let nickname: String;
 watch(loginType, (newVal) => {
   if (newVal === "qrcode") {
     refreshQrCode();
     qrCodeTimer = window.setInterval(() => {
-      // TODO: 检查二维码状态
+      checkQrCodeStatus().then(res => {
+        console.log('二维码状态：', res);
+        if (res.status === 'CONFIRMED') {
+          wxuserStore.wxlogin()
+            .then((res) => {
+              openId = res.openid;
+              headimgurl = res.headimgurl;
+              nickname = res.nickname;
+              // 确保 res.openid 存在
+              if (!res.openid) {
+                throw new Error('未获取到openid');
+              }
+              return wxuserStore.getwxUserInfo(res.openid);
+            })
+            .then(() => {
+              // 获取并生成路由
+              return permissionStore.generateRoutes();
+            })
+            .then((accessRoutes) => {
+              // 添加路由
+              accessRoutes.forEach(route => {
+                router.addRoute(route);
+              });
+              return nextTick();
+            })
+            .then(() => {
+              ElMessage.success("扫码登录成功");
+              clearInterval(qrCodeTimer);
+              localStorage.setItem("userInfo", "weixin");
+              localStorage.setItem("openId", openId);
+              localStorage.setItem("headimgurl", headimgurl);
+              localStorage.setItem("nickname", nickname);
+              router.push("/");
+            })
+            .catch(error => {
+              console.error('登录失败：', error);
+              ElMessage.error("登录失败，请重试");
+            });
+        } else if (res.status === 'EXPIRED') {
+          qrCodeExpired.value = true;
+          clearInterval(qrCodeTimer);
+        } else if (res.status === 'SCANNED') {
+          ElMessage.success("已扫码，请在手机上确认");
+        }
+      }).catch(error => {
+        console.error('检查二维码状态失败：', error);
+      });
     }, 3000);
   } else {
     clearInterval(qrCodeTimer);
@@ -309,6 +335,9 @@ onUnmounted(() => {
   clearInterval(qrCodeTimer);
 });
 
+onMounted(() => {
+  getQrCodes();
+});
 // 添加 logo 颜色计算
 const logoColor = computed(() => {
   return isDark.value ? "#4ecdc4" : "#ff6b6b";
@@ -319,115 +348,54 @@ const logoColor = computed(() => {
 .login-container {
   display: flex;
   min-height: 100vh;
-  background: var(--el-bg-color);
+  // background: var(--el-bg-color);
 }
 
 /* 左侧背景区域样式 */
 .login-background {
   flex: 1;
   position: relative;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  // background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   overflow: hidden;
+  background: url("/src/assets/login/login-bg.png");
+  width: 50%;
+  background-position: -500px 0px;
+}
 
-  .background-wrapper {
-    position: relative;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.background-wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 130px;
+}
 
-    /* 添加动态背景效果 */
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -50%;
-      background-image: repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(33, 150, 243, 0.1) 3px,
-          rgba(33, 150, 243, 0.1) 3px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 2px,
-          rgba(33, 150, 243, 0.1) 3px,
-          rgba(33, 150, 243, 0.1) 3px
-        );
-      background-size: 30px 30px;
-      transform: perspective(500px) rotateX(60deg);
-      animation: matrixMove 20s linear infinite;
-    }
+/* 品牌内容样式优化 */
+.brand-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
 
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-          circle at 30% 30%,
-          rgba(33, 150, 243, 0.3) 0%,
-          transparent 50%
-        ),
-        radial-gradient(
-          circle at 70% 70%,
-          rgba(3, 169, 244, 0.3) 0%,
-          transparent 50%
-        );
-      filter: blur(30px);
-      animation: glowPulse 8s ease-in-out infinite alternate;
-    }
-  }
+.logo-wrapper {
+  margin-bottom: 30px;
+  position: relative;
+}
 
-  /* 品牌内容样式优化 */
-  .brand-content {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 40px;
+.brand-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #1565c0;
+  margin-bottom: 16px;
+  text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
 
-    .logo-wrapper {
-      margin-bottom: 30px;
-      position: relative;
-      &::before {
-        content: "";
-        position: absolute;
-        inset: -30px;
-        border: 2px solid rgba(33, 150, 243, 0.3);
-        border-radius: 50%;
-        animation: rotateBorder 10s linear infinite;
-      }
-
-      &::after {
-        content: "";
-        position: absolute;
-        inset: -15px;
-        background: radial-gradient(
-          circle,
-          rgba(33, 150, 243, 0.4),
-          transparent 70%
-        );
-        filter: blur(15px);
-        animation: glowPulse 4s ease-in-out infinite;
-      }
-    }
-
-    .brand-title {
-      font-size: 36px;
-      font-weight: bold;
-      color: #1565c0;
-      margin-bottom: 16px;
-      text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
-    }
-
-    .brand-description {
-      font-size: 16px;
-      color: #1976d2;
-      max-width: 400px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-  }
+.brand-description {
+  font-size: 16px;
+  color: #1976d2;
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* 移除之前的动画相关样式 */
@@ -655,19 +623,23 @@ const logoColor = computed(() => {
   0% {
     top: 0;
   }
+
   50% {
     top: calc(100% - 2px);
   }
+
   100% {
     top: 0;
   }
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -677,6 +649,7 @@ const logoColor = computed(() => {
   0% {
     transform: rotate(0);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -785,17 +758,20 @@ const logoColor = computed(() => {
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: 0 30px;
   }
 }
 
 @keyframes glowPulse {
+
   0%,
   100% {
     opacity: 0.3;
     transform: scale(0.95);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.05);
@@ -806,6 +782,7 @@ const logoColor = computed(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

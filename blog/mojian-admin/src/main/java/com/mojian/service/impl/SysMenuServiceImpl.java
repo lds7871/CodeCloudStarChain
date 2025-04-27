@@ -3,13 +3,17 @@ package com.mojian.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mojian.annotation.AccessLimit;
 import com.mojian.common.Constants;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysMenu;
 import com.mojian.enums.MenuTypeEnum;
 import com.mojian.mapper.SysMenuMapper;
 import com.mojian.service.SysMenuService;
 import com.mojian.vo.menu.RouterVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,6 +22,8 @@ import java.util.stream.Collectors;
 @Service
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService {
 
+ @Autowired
+ private RedisTemplate<String, Object> redisTemplate;
     @Override
     public List<SysMenu> getMenuTree() {
         // 获取所有菜单
@@ -61,15 +67,30 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         removeById(id);
     }
-
+    public boolean checkRoleId() {
+        Object weChatInfoObj = redisTemplate.opsForValue().get("userInfo");
+        if (weChatInfoObj instanceof WeChatInfo) {
+            WeChatInfo weChatInfo = (WeChatInfo) weChatInfoObj;
+            Integer roleId = weChatInfo.getRoleId();
+            return roleId != null && roleId.equals(1);
+        }
+        return false;
+    }
     @Override
     public List<RouterVO> getCurrentUserMenu() {
-
         List<SysMenu> menus;
+        // 超级管理员
+        //admim
         if (StpUtil.hasRole(Constants.ADMIN)) {
+            System.out.println("我是管理员");
             menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
                     .ne(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()));
-        } else {
+            System.out.println(menus);
+        }else if(checkRoleId()){
+            menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
+                    .ne(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()));
+        }
+            else {
             menus = baseMapper.getMenusByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
         }
 

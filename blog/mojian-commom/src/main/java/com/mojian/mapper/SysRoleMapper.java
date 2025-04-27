@@ -20,6 +20,9 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
 
     List<String> selectRolesCodeByUserId(Object loginId);
 
+    List<String> selectLists(@Param("id") Integer id);
+
+
     void deleteRoleByUserId(@Param("userIds") List<Integer> userId);
 
     void addRoleUser(@Param("userId") Integer userId, @Param("roleIds") List<Integer> roleIds);

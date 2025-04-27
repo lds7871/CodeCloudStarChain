@@ -3,18 +3,22 @@ package com.mojian.controller.system;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mojian.annotation.OperationLogger;
-import com.mojian.common.Result;
 import com.mojian.dto.user.SysUserAddAndUpdateDto;
+import com.mojian.common.Result;
 import com.mojian.dto.user.UpdatePwdDTO;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysUser;
+import com.mojian.mapper.WeChatMapper;
 import com.mojian.service.SysUserService;
-import com.mojian.vo.user.SysUserProfileVo;
 import com.mojian.vo.user.SysUserVo;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.mojian.vo.user.SysUserProfileVo;
+import com.mojian.vo.user.WxUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
@@ -24,6 +28,7 @@ import java.util.List;
 public class SysUserController {
 
     private final SysUserService sysUserService;
+
 
     @GetMapping
     @Operation(summary = "获取用户列表")
@@ -60,10 +65,16 @@ public class SysUserController {
 
     @PutMapping("/updatePwd")
     @Operation(summary = "修改密码")
-    @SaCheckPermission("sys:user:updatePwd")
+    @SaCheckPermission("sys:user:update")
     public Result<Void> updatePwd(@RequestBody UpdatePwdDTO updatePwdDTO) {
         sysUserService.updatePwd(updatePwdDTO);
         return Result.success();
+    }
+
+    @GetMapping("/wxUser")
+    @Operation(summary = "获取个人信息")
+    public Result<WxUserInfo> wxUser(@RequestParam("openId")String openId) {
+        return Result.success(sysUserService.wxUser(openId));
     }
 
     @GetMapping("/profile")
@@ -80,6 +91,15 @@ public class SysUserController {
         sysUserService.updateProfile(user);
         return Result.success();
     }
+    @PutMapping("/upwxdProfile")
+    @OperationLogger("修改微信个人信息")
+    @Operation(summary = "修改微信个人信息")
+    @SaCheckPermission("sys:user:update")
+    public Result<SysUserProfileVo> upwxdProfile(@RequestBody WeChatInfo user) {
+        sysUserService.updateWxProfile(user);
+        return Result.success();
+    }
+
 
     @GetMapping("/verifyPassword/{password}")
     @Operation(summary = "锁屏界面验证密码")

@@ -22,21 +22,21 @@ const filterAsyncRoutes = (routes: RouteRecordRaw[], isRoot = true) => {
   routes.forEach((route) => {
 
     const tmpRoute = { ...route }; // ES6扩展运算符复制新对象
-    
+
     if (!route.name) {
       tmpRoute.name = route.name;
     }
 
-    if(tmpRoute.component) {
+    if (tmpRoute.component) {
       if (tmpRoute.component?.toString() == "Layout") {
         tmpRoute.component = Layout;
       } else if (tmpRoute.component === 'ParentView') {
         tmpRoute.component = ParentView
-      }  else {
+      } else {
         const component = modules[`../../views${tmpRoute.component}.vue`];
         if (component) {
           tmpRoute.component = component;
-        } 
+        }
       }
 
       if (tmpRoute.children) {
@@ -81,12 +81,12 @@ export const usePermissionStore = defineStore("permission", () => {
    */
   function generateRoutes() {
     return new Promise<RouteRecordRaw[]>((resolve, reject) => {
-      // 接口获取所有路由
       getRouters()
         .then(({ data: asyncRoutes }) => {
-          // 根据角色获取有访问权限的路由
           const accessedRoutes = filterAsyncRoutes(asyncRoutes);
           setRoutes(accessedRoutes);
+          // 确保路由被正确设置
+          routes.value = constantRoutes.concat(accessedRoutes);
           resolve(accessedRoutes);
         })
         .catch((error) => {

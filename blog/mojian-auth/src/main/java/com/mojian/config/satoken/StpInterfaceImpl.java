@@ -2,10 +2,13 @@ package com.mojian.config.satoken;
 
 import cn.dev33.satoken.stp.StpInterface;
 import com.mojian.common.Constants;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.enums.MenuTypeEnum;
 import com.mojian.mapper.SysMenuMapper;
 import com.mojian.mapper.SysRoleMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,7 +21,17 @@ public class StpInterfaceImpl implements StpInterface {
 
     private final SysRoleMapper roleMapper;
 
-
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    public boolean checkRoleId() {
+        Object weChatInfoObj = redisTemplate.opsForValue().get("userInfo");
+        if (weChatInfoObj instanceof WeChatInfo) {
+            WeChatInfo weChatInfo = (WeChatInfo) weChatInfoObj;
+            Integer roleId = weChatInfo.getRoleId();
+            return roleId != null && roleId.equals(1);
+        }
+        return false;
+    }
     /**
      * 返回一个账号所拥有的权限码集合
      */
@@ -27,6 +40,8 @@ public class StpInterfaceImpl implements StpInterface {
         List<String> roles = roleMapper.selectRolesCodeByUserId(loginId);
 
         if (roles.contains(Constants.ADMIN)) {
+            return menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+        }else if(checkRoleId()){
             return menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
         }
         return menuMapper.getPermissionListByUserId(loginId,MenuTypeEnum.BUTTON.getCode());

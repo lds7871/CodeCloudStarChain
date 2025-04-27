@@ -4,11 +4,11 @@ import com.mojian.dto.Captcha;
 import com.mojian.dto.EmailRegisterDto;
 import com.mojian.dto.LoginDTO;
 import com.mojian.dto.user.LoginUserInfo;
+import com.mojian.dto.user.WeChatInfo;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.zhyd.oauth.model.AuthCallback;
-
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ public interface AuthService {
      * 获取当前登录用户信息
      */
     LoginUserInfo getLoginUserInfo(String source);
-
+    WeChatInfo getWxLoginUserInfo(String openId,String source);
     /**
      * 发送注册邮箱验证码
      * @param email
@@ -79,13 +79,6 @@ public interface AuthService {
      * @param httpServletResponse
      */
     void authLogin(AuthCallback callback,String source, HttpServletResponse httpServletResponse) throws IOException;
-
-    /**
-     * 小程序登录
-     * @param code
-     * @return
-     */
-    LoginUserInfo appletLogin(String code);
 
     /**
      * 获取滑块验证码

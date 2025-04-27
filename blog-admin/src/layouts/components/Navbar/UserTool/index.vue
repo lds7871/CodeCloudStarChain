@@ -2,12 +2,12 @@
   <div class="navbar-container">
     <div class="custom-dropdown" v-click-outside="closeDropdown">
       <div class="avatar-trigger" @click="toggleDropdown">
-        <el-avatar :size="32" :src="userStore.user.avatar || ''" />
-        <el-icon class="dropdown-icon" :class="{ 'is-active': isOpen }">
-          <CaretBottom />
-        </el-icon>
+        <el-avatar :size="32" :src="currentUser?.headimgurl || currentUser?.avatar">
+
+        </el-avatar>
+        <!-- ... 其他代码 ... -->
       </div>
-      
+
       <transition name="dropdown">
         <div v-show="isOpen" class="dropdown-menu">
           <!-- 用户信息卡片 -->
@@ -17,39 +17,39 @@
               <div class="circle circle-2"></div>
               <div class="circle circle-3"></div>
             </div>
-            
+
             <div class="user-profile">
               <div class="user-avatar">
-                <el-avatar :size="50" :src="userStore.user.avatar || ''" />
-                <div class="user-status">
-                  <span class="status-dot"></span>
-                  在线
-                </div>
+                <el-avatar :size="50" :src="currentUser.headimgurl || currentUser?.avatar">
+                </el-avatar>
               </div>
-              
               <div class="user-details">
-                <div class="nickname">{{ userStore.user.username }}</div>
+                <div class="nickname">{{ currentUser.nickname || currentUser?.nickname }}</div>
               </div>
             </div>
           </div>
-          
+
           <!-- 菜单项 -->
           <div class="menu-items">
             <div class="menu-item" @click="toGitee">
               <div class="menu-icon">
-                <el-icon><Document /></el-icon>
+                <el-icon>
+                  <Document />
+                </el-icon>
               </div>
               <div class="menu-content">
                 <span class="menu-title">仓库地址</span>
                 <span class="menu-desc">查看项目源码</span>
               </div>
             </div>
-            
+
             <div class="divider"></div>
-            
+
             <div class="menu-item" @click="toProfile">
               <div class="menu-icon">
-                <el-icon><User /></el-icon>
+                <el-icon>
+                  <User />
+                </el-icon>
               </div>
               <div class="menu-content">
                 <span class="menu-title">个人中心</span>
@@ -59,17 +59,21 @@
 
             <div class="menu-item" @click="handleLock">
               <div class="menu-icon">
-                <el-icon><Lock /></el-icon>
+                <el-icon>
+                  <Lock />
+                </el-icon>
               </div>
               <div class="menu-content">
                 <span class="menu-title">锁定屏幕</span>
                 <span class="menu-desc">锁定屏幕保护您的隐私</span>
               </div>
             </div>
-            
+
             <div class="menu-item danger" @click="logout">
               <div class="menu-icon">
-                <el-icon><SwitchButton /></el-icon>
+                <el-icon>
+                  <SwitchButton />
+                </el-icon>
               </div>
               <div class="menu-content">
                 <span class="menu-title">退出登录</span>
@@ -86,16 +90,35 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { useUserStore,useSettingsStore } from '@/store/index'
+import { useUserStore, useSettingsStore, wxuseUserStore } from '@/store/index'
 import settings from '@/config/settings'
 
 const router = useRouter()
 const userStore = useUserStore()
+const wxUserStore = wxuseUserStore()
 const settingsStore = useSettingsStore()
 const isOpen = ref(false)
-
+const headimgurl = ref('')
+const nickname = ref('')
 const emit = defineEmits(['lock'])
+watch(() => localStorage.getItem('userInfo'), (newValue) => {
+  if (newValue) {
+    headimgurl.value = localStorage.getItem('headimgurl') || ''
+    nickname.value = localStorage.getItem('nickname') || ''
+  }
+}, { immediate: true })
 
+const currentUser = computed(() => {
+  const userInfo = localStorage.getItem('userInfo')
+  if (userInfo) {
+    return {
+      headimgurl: headimgurl.value,
+      nickname: nickname.value
+    }
+  } else {
+    return userStore.user
+  }
+})
 // 切换下拉菜单
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
@@ -122,7 +145,15 @@ const logout = () => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    await userStore.logout()
+    if (localStorage.getItem('userInfo')) {
+      await wxUserStore.logout()
+      localStorage.removeItem('userInfo')
+      localStorage.removeItem('openId')
+      localStorage.removeItem('headimgurl')
+      localStorage.removeItem('nickname')
+    } else {
+      await userStore.logout()
+    }
     router.push('/login')
   })
 }
@@ -168,16 +199,16 @@ const vClickOutside = {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s;
-  
+
   &:hover {
     background-color: v-bind('`${settingsStore.themeColor}1a`');
   }
-  
+
   .dropdown-icon {
     font-size: 12px;
     color: var(--el-text-color-secondary);
     transition: transform 0.3s;
-    
+
     &.is-active {
       transform: rotate(180deg);
     }
@@ -204,15 +235,14 @@ const vClickOutside = {
   height: 100%;
   overflow: hidden;
   pointer-events: none;
-  
+
   .circle {
     position: absolute;
     border-radius: 50%;
-    background: linear-gradient(45deg, 
-      rgba(255, 255, 255, 0.1),
-      rgba(255, 255, 255, 0.05)
-    );
-    
+    background: linear-gradient(45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.05));
+
     &-1 {
       width: 120px;
       height: 120px;
@@ -220,7 +250,7 @@ const vClickOutside = {
       left: -60px;
       animation: float 8s ease-in-out infinite;
     }
-    
+
     &-2 {
       width: 160px;
       height: 160px;
@@ -228,7 +258,7 @@ const vClickOutside = {
       right: -80px;
       animation: float 12s ease-in-out infinite reverse;
     }
-    
+
     &-3 {
       width: 80px;
       height: 80px;
@@ -241,10 +271,9 @@ const vClickOutside = {
 
 .user-info {
   padding: 20px;
-  background: linear-gradient(135deg, 
+  background: linear-gradient(135deg,
     v-bind('`${settingsStore.themeColor}E6`'),
-    v-bind('`${settingsStore.themeColor}99`')
-  );
+    v-bind('`${settingsStore.themeColor}99`'));
   position: relative;
   overflow: hidden;
 }
@@ -258,12 +287,12 @@ const vClickOutside = {
 .user-avatar {
   position: relative;
   flex-shrink: 0;
-  
+
   .el-avatar {
     border: 3px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: transform 0.3s;
-    
+
     &:hover {
       transform: scale(1.05);
     }
@@ -284,7 +313,7 @@ const vClickOutside = {
   align-items: center;
   gap: 4px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  
+
   .status-dot {
     width: 6px;
     height: 6px;
@@ -298,7 +327,7 @@ const vClickOutside = {
 .user-details {
   flex: 1;
   min-width: 0;
-  
+
   .nickname {
     font-size: 16px;
     font-weight: 600;
@@ -315,10 +344,12 @@ const vClickOutside = {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.2);
     opacity: 0.7;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -329,6 +360,7 @@ const vClickOutside = {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -345,7 +377,7 @@ const vClickOutside = {
   padding: 12px 16px;
   cursor: pointer;
   transition: all 0.3s;
-  
+
   .menu-icon {
     width: 36px;
     height: 36px;
@@ -355,18 +387,18 @@ const vClickOutside = {
     align-items: center;
     justify-content: center;
     transition: all 0.3s;
-    
+
     .el-icon {
       font-size: 18px;
       transition: all 0.3s;
     }
   }
-  
+
   .menu-content {
     flex: 1;
     cursor: pointer;
     transition: all 0.3s;
-    
+
     .menu-title {
       display: block;
       font-size: 14px;
@@ -375,7 +407,7 @@ const vClickOutside = {
       color: var(--el-text-color-primary);
       transition: all 0.3s;
     }
-    
+
     .menu-desc {
       display: block;
       font-size: 12px;
@@ -384,25 +416,25 @@ const vClickOutside = {
       transition: all 0.3s;
     }
   }
-  
+
   &:hover {
     background-color: var(--el-fill-color-light);
-    
+
     .menu-icon {
       background: v-bind('`${settingsStore.themeColor}1a`');
       transform: scale(1.05);
-      
+
       .el-icon {
         color: v-bind('settingsStore.themeColor');
         transform: scale(1.1);
       }
     }
-    
+
     .menu-content {
       .menu-title {
         color: v-bind('settingsStore.themeColor');
       }
-      
+
       .menu-desc {
         color: v-bind('`${settingsStore.themeColor}99`');
       }
@@ -434,37 +466,36 @@ const vClickOutside = {
   .avatar-trigger:hover {
     background: var(--el-fill-color-darker);
   }
-  
+
   .dropdown-menu {
     background: var(--el-bg-color-overlay);
     border: 1px solid var(--el-border-color-darker);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   }
-  
+
   .user-info {
     background: linear-gradient(135deg,
-      var(--el-color-primary-dark-2) 0%,
-      var(--el-color-primary) 100%
-    );
+        var(--el-color-primary-dark-2) 0%,
+        var(--el-color-primary) 100%);
   }
-  
+
   .user-status {
     background: var(--el-bg-color-overlay);
     color: var(--el-color-success);
   }
-  
+
   .user-stats {
     background: rgba(0, 0, 0, 0.2);
   }
-  
+
   .divider {
     background: var(--el-border-color-darker);
   }
-  
+
   .menu-item:hover {
     background: var(--el-fill-color-darker);
   }
-  
+
   .user-details {
     .nickname {
       color: var(--el-text-color-primary);
@@ -474,11 +505,14 @@ const vClickOutside = {
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) rotate(0);
   }
+
   50% {
     transform: translateY(-20px) rotate(8deg);
   }
 }
-</style> 
+</style>

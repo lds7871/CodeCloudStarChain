@@ -7,50 +7,57 @@
           <div class="profile-header">
             <div class="header-backdrop"></div>
             <div class="header-content">
-              <el-avatar 
-                :size="100" 
-                :src="userInfo.sysUser.avatar" 
-                class="profile-avatar"
-              />
-              <h2 class="profile-name">{{ userInfo.sysUser.nickname }}</h2>
+              <el-avatar :size="100" :src="userInfo.weChatInfo?.headimgurl || userInfo.sysUser?.avatar"
+                class=" profile-avatar" />
+              <h2 class="profile-name">{{ userInfo.weChatInfo?.nickname || userInfo.sysUser?.nickname }}</h2>
             </div>
           </div>
           <div class="profile-info">
             <ul class="profile-list">
               <li>
                 <div class="info-label">
-                  <el-icon><User /></el-icon>
+                  <el-icon>
+                    <User />
+                  </el-icon>
                   <span>用户名称</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser.username }}</div>
+                <div class="info-content">{{ userInfo.weChatInfo?.nickname || userInfo.sysUser?.nickname }}</div>
               </li>
               <li>
                 <div class="info-label">
-                  <el-icon><Iphone /></el-icon>
+                  <el-icon>
+                    <Iphone />
+                  </el-icon>
                   <span>手机号码</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser.mobile || '未设置' }}</div>
+                <div class="info-content">{{ userInfo.sysUser.mobile || userInfo.weChatInfo?.mobile || '未设置' }}</div>
               </li>
               <li>
                 <div class="info-label">
-                  <el-icon><Message /></el-icon>
+                  <el-icon>
+                    <Message />
+                  </el-icon>
                   <span>用户邮箱</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser.email || '未设置' }}</div>
+                <div class="info-content">{{ userInfo.sysUser.email || userInfo.weChatInfo?.email || '未设置' }}</div>
               </li>
               <li>
                 <div class="info-label">
-                  <el-icon><UserFilled /></el-icon>
+                  <el-icon>
+                    <UserFilled />
+                  </el-icon>
                   <span>所属角色</span>
                 </div>
                 <div class="info-content">{{ userInfo.roles.join(',') || '未设置' }}</div>
               </li>
               <li>
                 <div class="info-label">
-                  <el-icon><Calendar /></el-icon>
+                  <el-icon>
+                    <Calendar />
+                  </el-icon>
                   <span>创建日期</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser.createTime }}</div>
+                <div class="info-content">{{ userInfo.sysUser?.createTime || userInfo.weChatInfo?.createTime }}</div>
               </li>
             </ul>
           </div>
@@ -63,33 +70,15 @@
           <el-tabs v-model="activeTab" class="profile-tabs">
             <!-- 基本资料 -->
             <el-tab-pane label="基本资料" name="basic">
-              <el-form
-                ref="userFormRef"
-                :model="userForm"
-                :rules="userRules"
-                label-width="100px"
-                class="profile-form"
-              >
+              <el-form ref="userFormRef" :model="userForm" :rules="userRules" label-width="100px" class="profile-form">
                 <el-form-item label="用户昵称" prop="nickname">
-                  <el-input 
-                    v-model="userForm.nickname" 
-                    maxlength="30"
-                    placeholder="请输入用户昵称"
-                  />
+                  <el-input v-model="userForm.nickname" maxlength="30" placeholder="请输入用户昵称" />
                 </el-form-item>
                 <el-form-item label="手机号码" prop="mobile">
-                  <el-input 
-                    v-model="userForm.mobile" 
-                    maxlength="11"
-                    placeholder="请输入手机号码"
-                  />
+                  <el-input v-model="userForm.mobile" maxlength="11" placeholder="请输入手机号码" />
                 </el-form-item>
                 <el-form-item label="邮箱" prop="email">
-                  <el-input 
-                    v-model="userForm.email" 
-                    maxlength="50"
-                    placeholder="请输入邮箱地址"
-                  />
+                  <el-input v-model="userForm.email" maxlength="50" placeholder="请输入邮箱地址" />
                 </el-form-item>
                 <el-form-item label="性别">
                   <el-radio-group v-model="userForm.sex">
@@ -98,13 +87,11 @@
                   </el-radio-group>
                 </el-form-item>
                 <el-form-item>
-                  <el-button 
-                    v-permission="['sys:user:update']"
-                    type="primary" 
-                    @click="submitUserForm"
-                    :loading="submitLoading"
-                  >
-                    <el-icon><Check /></el-icon>
+                  <el-button v-permission="['sys:user:update']" type="primary" @click="submitUserForm"
+                    :loading="submitLoading">
+                    <el-icon>
+                      <Check />
+                    </el-icon>
                     保存更改
                   </el-button>
                 </el-form-item>
@@ -112,46 +99,23 @@
             </el-tab-pane>
 
             <!-- 修改密码 -->
-            <el-tab-pane label="修改密码" name="password">
-              <el-form
-                ref="pwdFormRef"
-                :model="pwdForm"
-                :rules="pwdRules"
-                label-width="100px"
-                class="profile-form"
-              >
+            <el-tab-pane label="修改密码" name="password" class="updatePwd" v-if="!isWxUser">
+              <el-form ref="pwdFormRef" :model="pwdForm" :rules="pwdRules" label-width="100px" class="profile-form">
                 <el-form-item label="旧密码" prop="oldPassword">
-                  <el-input
-                    v-model="pwdForm.oldPassword"
-                    type="password"
-                    placeholder="请输入旧密码"
-                    show-password
-                  />
+                  <el-input v-model="pwdForm.oldPassword" type="password" placeholder="请输入旧密码" show-password />
                 </el-form-item>
                 <el-form-item label="新密码" prop="newPassword">
-                  <el-input
-                    v-model="pwdForm.newPassword"
-                    type="password"
-                    placeholder="请输入新密码"
-                    show-password
-                  />
+                  <el-input v-model="pwdForm.newPassword" type="password" placeholder="请输入新密码" show-password />
                 </el-form-item>
                 <el-form-item label="确认密码" prop="confirmPassword">
-                  <el-input
-                    v-model="pwdForm.confirmPassword"
-                    type="password"
-                    placeholder="请确认新密码"
-                    show-password
-                  />
+                  <el-input v-model="pwdForm.confirmPassword" type="password" placeholder="请确认新密码" show-password />
                 </el-form-item>
                 <el-form-item>
-                  <el-button 
-                    v-permission="['sys:user:update']"
-                    type="primary" 
-                    @click="submitPwdForm"
-                    :loading="pwdLoading"
-                  >
-                    <el-icon><Key /></el-icon>
+                  <el-button v-permission="['sys:user:update']" type="primary" @click="submitPwdForm"
+                    :loading="pwdLoading">
+                    <el-icon>
+                      <Key />
+                    </el-icon>
                     修改密码
                   </el-button>
                 </el-form-item>
@@ -166,12 +130,13 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { getUserProfileApi, updateUserProfileApi,updateUserPwdApi } from '@/api/system/user'
+import { getUserProfileApi, updateUserProfileApi, updateUserPwdApi, getWxUserApi, updateWXUserProfileApi } from '@/api/system/user'
+import { fa } from 'element-plus/es/locale'
 
 const activeTab = ref('basic')
 const userFormRef = ref()
 const pwdFormRef = ref()
-
+const flag = false;
 // 用户信息
 const userInfo = ref<any>({
   sysUser: {},
@@ -233,15 +198,31 @@ const pwdLoading = ref(false)
 // 获取用户信息
 const getUser = async () => {
   try {
-    const { data } = await getUserProfileApi()
-    Object.assign(userInfo.value, data)
-    Object.assign(userForm, {
-      id: data.sysUser.id,
-      nickname: data.sysUser.nickname,
-      mobile: data.sysUser.mobile,
-      email: data.sysUser.email,
-      sex: data.sysUser.sex
-    })
+    if (localStorage.getItem('userInfo')) {
+      const { data } = await getWxUserApi(localStorage.getItem('openId'))
+      console.log(data);
+      Object.assign(userInfo.value, data)
+      console.log(userInfo.value);
+      Object.assign(userForm, {
+        openid: data.weChatInfo.openId,
+        nickname: data.weChatInfo.nickname,
+        mobile: data.weChatInfo.mobile,
+        email: data.weChatInfo.email,
+        sex: data.weChatInfo.sex == "男" ? 1 : 2,
+      })
+      console.log(userForm);
+    }
+    else {
+      const { data } = await getUserProfileApi()
+      Object.assign(userInfo.value, data)
+      Object.assign(userForm, {
+        id: data.sysUser.id,
+        nickname: data.sysUser.nickname,
+        mobile: data.sysUser.mobile,
+        email: data.sysUser.email,
+        sex: data.sysUser.sex
+      })
+    }
   } catch (error) {
     console.error('获取用户信息失败:', error)
   }
@@ -252,9 +233,16 @@ const submitUserForm = async () => {
   try {
     submitLoading.value = true
     await userFormRef.value.validate()
-    await updateUserProfileApi(userForm)
-    ElMessage.success('修改成功')
-    getUser()
+    if (localStorage.getItem('userInfo')) {
+      userForm.openid = localStorage.getItem('openId');
+      await updateWXUserProfileApi(userForm)
+      ElMessage.success('修改成功')
+      getUser()
+    } else {
+      await updateUserProfileApi(userForm)
+      ElMessage.success('修改成功')
+      getUser()
+    }
   } catch (error) {
     console.error('提交失败:', error)
   } finally {
@@ -280,6 +268,9 @@ const submitPwdForm = async () => {
     pwdLoading.value = false
   }
 }
+const isWxUser = computed(() => {
+  return !!localStorage.getItem('userInfo')
+})
 
 onMounted(() => {
   getUser()
@@ -287,13 +278,11 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
-
 .profile-card {
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -303,7 +292,7 @@ onMounted(() => {
 .profile-header {
   position: relative;
   height: 200px;
-  
+
   .header-backdrop {
     position: absolute;
     top: 0;
@@ -312,7 +301,7 @@ onMounted(() => {
     bottom: 0;
     background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
   }
-  
+
   .header-content {
     position: relative;
     height: 100%;
@@ -322,12 +311,12 @@ onMounted(() => {
     justify-content: center;
     color: white;
     padding: 20px;
-    
+
     .profile-avatar {
       border: 4px solid rgba(255, 255, 255, 0.8);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     }
-    
+
     .profile-name {
       margin: 15px 0 10px;
       font-size: 24px;
@@ -338,34 +327,34 @@ onMounted(() => {
 
 .profile-info {
   padding: 20px;
-  
+
   .profile-list {
     padding: 0;
     margin: 0;
     list-style: none;
-    
+
     li {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 15px 0;
       border-bottom: 1px solid #f0f0f0;
-      
+
       &:last-child {
         border-bottom: none;
       }
-      
+
       .info-label {
         display: flex;
         align-items: center;
         color: #666;
-        
+
         .el-icon {
           margin-right: 8px;
           font-size: 16px;
         }
       }
-      
+
       .info-content {
         color: #333;
         font-weight: 500;
@@ -376,7 +365,7 @@ onMounted(() => {
 
 .tab-card {
   border-radius: 8px;
-  
+
   :deep(.el-tabs__nav-wrap) {
     padding: 0 20px;
   }
@@ -386,11 +375,11 @@ onMounted(() => {
   max-width: 500px;
   margin: 20px auto;
   padding: 20px;
-  
+
   .el-form-item:last-child {
     margin-bottom: 0;
     text-align: center;
-    
+
     .el-button {
       width: 120px;
     }
@@ -400,7 +389,7 @@ onMounted(() => {
 .profile-tabs {
   :deep(.el-tabs__item) {
     font-size: 15px;
-    
+
     &.is-active {
       font-weight: 600;
     }

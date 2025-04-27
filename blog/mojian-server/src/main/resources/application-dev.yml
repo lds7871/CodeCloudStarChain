@@ -1,15 +1,18 @@
 server:
-  port: 8800
+  port: 80
 spring:
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
   datasource:
-    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+#    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: Xwt@0629Cw
+#    password: Xwt@0629Cw
+    password: "0629"
+
   data:
     redis:
       host: 127.0.0.1
@@ -52,16 +55,10 @@ spring:
 
 #==============================公众号配置==============================
 wechat:
-  app-id:
-  # 公众号AppSecret
-  secret:
-  # 公众号Token
-  token:
-  # 公众号AES Key
-  aesKey:
-
-  appletAppId:
-  appletSecret:
+  app-id: wx9102d631d271b410
+  app-secret: beba658104a18fc76de51759129ba0e6
+  domain: http://53cf52aa.r33.cpolar.top
+  redirect-uri: webchat/authCallback
 
 #==============================豆包推理AI配置=======================================
 ai:

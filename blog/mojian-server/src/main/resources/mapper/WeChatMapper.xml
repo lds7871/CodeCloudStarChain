@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mojian.mapper.WeChatMapper">
+    <insert id="register">
+        insert into we_chat(id,openid,sex,nickname,headimgurl,create_time)
+        values (null,#{user.openid},#{user.sex},#{user.nickname},#{user.headimgurl},#{now})
+    </insert>
+    <update id="updateByName">
+        update we_chat
+        set mobile = #{user.mobile},
+            email = #{user.email}
+        where openid = #{user.openid}
+    </update>
+    <select id="login" resultType="com.mojian.dto.user.WeChatInfo">
+        select * from we_chat where openid = #{openId}
+    </select>
+    <select id="selectById" resultType="com.mojian.dto.user.WeChatInfo">
+        select * from we_chat where id = #{id}
+    </select>
+</mapper>

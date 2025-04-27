@@ -73,10 +73,30 @@ export function getUserProfileApi() {
   })
 }
 
+
+export function getWxUserApi(openId: String) {
+  return request({
+    url: '/sys/user/wxUser',
+    method: 'get',
+    params: {
+      openId
+    }
+  })
+}
+
+
 // 修改用户个人信息
 export function updateUserProfileApi(data: any) {
   return request({
     url: '/sys/user/updProfile',
+    method: 'put',
+    data: data
+  })
+}
+
+export function updateWXUserProfileApi(data: any) {
+  return request({
+    url: '/sys/user/upwxdProfile',
     method: 'put',
     data: data
   })

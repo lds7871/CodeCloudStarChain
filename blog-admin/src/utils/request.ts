@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ElMessage,ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { getToken } from '@/utils/auth'
 import { useUserStore } from '@/store/modules/user'
 
@@ -26,37 +26,49 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   (response) => {
-    const res = response.data
+    // 如果是文本响应（用于处理base64数据），直接返回数据
+    if (response.config.responseType === 'text') {
+      return response.data
+    }
+
     // 二进制数据则直接返回
-    // if (res.request.responseType ===  'blob' || res.request.responseType ===  'arraybuffer') {
-    //   return res.data
-    // }
+    if (response.config.responseType === 'blob' || response.config.responseType === 'arraybuffer') {
+      return response
+    }
+
+    // 处理二维码状态检查的特殊响应
+
+
+    const res = response.data
+    if (response.config.url?.includes('/wechat/checkQrCodeStatus')) {
+      return res
+    }
     if (res.code !== 200) {
       ElMessage.error(res.message || '请求错误')
       if (res.code === 401) {
-  
+
         ElMessageBox.confirm("当前页面已失效，请重新登录", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning",
         })
-        .then(() => {
-          const userStore = useUserStore()
-          userStore.logout()
-        })
+          .then(() => {
+            const userStore = useUserStore()
+            userStore.logout()
+          })
       }
       return Promise.reject(new Error(res.message || '请求错误'))
     }
-    
+
     return res
   },
   (error) => {
     if (error.response?.status === 401) {
       const userStore = useUserStore()
       userStore.logout()
-    }else if (error.response?.status === 500) {
+    } else if (error.response?.status === 500) {
       ElMessage.error('后端接口连接异常')
-    }else{
+    } else {
       ElMessage.error('请求错误')
     }
     return Promise.reject(error)

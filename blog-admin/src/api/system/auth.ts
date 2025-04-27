@@ -17,19 +17,46 @@ export function loginApi(data: LoginParams) {
   })
 }
 
+// 微信扫码获取用户信息
+export function getQrCode() {
+  return request({
+    url: 'http://53cf52aa.r33.cpolar.top/wechat/qrCode',
+    method: 'get',
+    responseType: 'text'
+  })
+}
+// 退出登录
 export function logoutApi() {
-    return request({
-      url: '/auth/logout',
-      method: 'post',
-    })
-  }
-
+  return request({
+    url: '/auth/logout',
+    method: 'post',
+  })
+}
+// 检查扫码状态
+export function checkQrCodeStatus() {
+  return request({
+    url: 'http://53cf52aa.r33.cpolar.top/wechat/checkQrCodeStatus',
+    method: 'get'
+  })
+}
 // 获取用户信息
 export function getUserInfoApi() {
   return request({
     url: "/auth/info",
     method: "get",
     params: {
+      source: "admin"
+    }
+  })
+}
+
+// 获取微信用户信息
+export function getwxUserInfoApi(openid: string) {
+  return request({
+    url: "/auth/wxinfo",
+    method: "get",
+    params: {
+      openid: openid,
       source: "admin"
     }
   })

@@ -55,4 +55,7 @@
     <select id="selectRolesCodeByUserId" resultType="java.lang.String">
         select r.code from sys_role r left join sys_user_role ur on r.id = ur.role_id where ur.user_id = #{userId}
     </select>
+    <select id="selectLists" resultType="java.lang.String">
+        select name from sys_role where id = #{id}
+    </select>
 </mapper> 
