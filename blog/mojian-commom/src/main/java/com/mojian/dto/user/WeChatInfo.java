@@ -38,4 +38,11 @@ public class WeChatInfo implements Serializable {
     private String mobile;
     private String email;
 
+    private String lastLoginTime;
+    private String ip;
+    private String ipLocation;
+    private String os;
+    private String browser;
+    private String signature;
+
 }

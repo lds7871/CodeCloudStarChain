@@ -54,6 +54,9 @@ public class OperationLoggerAspect {
         HttpServletRequest request = IpUtil.getRequest();
         StpUtil.checkLogin();
         //因给了演示账号所有权限以供用户观看，所以执行业务前需判断是否是管理员操作
+        System.out.println(String.format("当前用户：%s", StpUtil.getLoginId()));
+        System.out.println(String.format("当前用户角色：%s", StpUtil.getRoleList()));
+        System.out.println(String.format("当前用户权限：%s", StpUtil.getPermissionList()));
         if  (!StpUtil.hasRole(Constants.ADMIN)) {
             throw new NotPermissionException("无权限");
         }

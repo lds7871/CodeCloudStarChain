@@ -1,5 +1,6 @@
 package com.mojian.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mojian.dto.user.WeChatInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -14,7 +15,7 @@ import java.util.Date;
  * @description:
  */
 @Mapper
-public interface WeChatMapper {
+public interface WeChatMapper extends BaseMapper<WeChatInfo> {
     WeChatInfo login(@Param("openId") String openId);
     Integer register(@Param("user") WeChatInfo weChatInfo, @Param("now") Date now);
     WeChatInfo selectById(@Param("id") Integer id);

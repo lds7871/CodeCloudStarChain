@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @className: WeChatServiceImpl
@@ -48,10 +48,10 @@ public class WeChatServiceImpl implements WeChatService {
                 String tokenValue = StpUtil.getTokenValue();
                 WeChatInfo weChatInfo = BeanCopyUtil.copyObj(relogin, WeChatInfo.class);
                 weChatInfo.setToken(tokenValue);
-                System.out.println("存进去的是："+weChatInfo);
+                List<String> roles = new ArrayList<>();
+                roles.add("admin");
+                weChatInfo.setRoles(roles);
                 StpUtil.getSession().set(Constants.CURRENT_USER, weChatInfo);
-
-                System.out.println(weChatInfo);
                 redisTemplate.opsForValue().set("userInfo",weChatInfo);
                 return weChatInfo;
             }
@@ -62,17 +62,14 @@ public class WeChatServiceImpl implements WeChatService {
         String tokenValue = StpUtil.getTokenValue();
 
         WeChatInfo weChatInfo = BeanCopyUtil.copyObj(login, WeChatInfo.class);
-        System.out.println("数据为："+weChatInfo);
         if (weChatInfo != null) {
             weChatInfo.setToken(tokenValue);
         }
-        System.out.println("存进去的是："+weChatInfo);
+        List<String> roles = new ArrayList<>();
+        roles.add("admin");
+        weChatInfo.setRoles(roles);
         StpUtil.getSession().set(Constants.CURRENT_USER, weChatInfo);
-        if (weChatInfo != null) {
-            redisTemplate.opsForValue().set("userInfo",weChatInfo);
-        }else{
-            System.out.println(1111111);
-        }
+        redisTemplate.opsForValue().set("userInfo", weChatInfo);
         return weChatInfo;
     }
 }

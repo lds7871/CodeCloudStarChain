@@ -24,6 +24,21 @@ export function updateProfileApi(data) {
 }
 
 /**
+ * 修改用户信息
+ * @param {*} data 
+ * @returns 
+ */
+export function updatewxProfileApi(data) {
+    return request({
+        url: '/protal/user/updatewxProfile',
+        method: 'put',
+        data
+    })
+}
+
+
+
+/**
  * 修改密码
  */
 export function updatePasswordApi(data) {

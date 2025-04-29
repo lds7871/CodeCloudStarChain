@@ -107,7 +107,6 @@ public class WeChatController {
             Token token = JSON.parseObject(string, Token.class);
             String accessToken = token.getAccess_token();
             String openId = token.getOpenid();
-
             String userInfoUrl = "https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN";
             userInfoUrl = userInfoUrl.replace("ACCESS_TOKEN", accessToken)
                     .replace("OPENID", openId);

@@ -3,6 +3,7 @@ package com.mojian.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysArticle;
 import com.mojian.entity.SysComment;
 import com.mojian.entity.SysUser;
@@ -12,6 +13,7 @@ import com.mojian.utils.PageUtil;
 import com.mojian.vo.article.ArticleListVo;
 import com.mojian.vo.comment.CommentListVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,8 @@ public class UserServiceImpl implements UserService {
 
     private final SysArticleMapper articleMapper;
 
+    @Autowired
+    private WeChatMapper weChatMapper;
     private final SysTagMapper tagMapper;
 
     @Override
@@ -62,6 +66,12 @@ public class UserServiceImpl implements UserService {
     public void updateProfile(SysUser user) {
         sysUserMapper.updateById(user);
     }
+
+    @Override
+    public void updatewxProfile(WeChatInfo weChatInfo) {
+        weChatMapper.updateById(weChatInfo);
+    }
+
 
     @Override
     public IPage<ArticleListVo> selectMyArticle(SysArticle article) {

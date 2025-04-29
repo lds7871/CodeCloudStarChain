@@ -7,13 +7,12 @@ spring:
       max-request-size: 50MB
   datasource:
 #    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
-    url: jdbc:mysql://127.0.0.1/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-<<<<<<< HEAD
+
 #    password: Xwt@0629Cw
-    password: "0629"
-=======
+#    password: "0629"
     password: Xwt@0629Cw
     hikari:
       # 连接最大存活时间，建议设置比数据库的 wait_timeout 小几分钟
@@ -28,7 +27,6 @@ spring:
       idle-timeout: 300000  # 5分钟
       # 测试连接是否有效
       connection-test-query: SELECT 1
->>>>>>> 3b9ac528d2e64a8b9f6235119b95a33dda08d6c2
 
   data:
     redis:
@@ -74,7 +72,7 @@ knife4j:
 wechat:
   app-id: wx9102d631d271b410
   app-secret: beba658104a18fc76de51759129ba0e6
-  domain: http://53cf52aa.r33.cpolar.top
+  domain: http://6a34010f.r33.cpolar.top
   redirect-uri: webchat/authCallback
 
 #==============================豆包推理AI配置=======================================
@@ -96,10 +94,23 @@ weibo:
   redirect-url: https://www.shiyit.com/mojian/api/auth/weibo
 
 gitee:
-  app-id:
-  app-secret:
-  redirect-url: https://www.shiyit.com/mojian/api/auth/callback/gitee
-
+#  app-id: c8c7f63da2086c750aa5c6b504326267e5ce620f70f1924a3cc3b7c3b35dc8e8
+#  app-secret: da493a7bb94468e3b3e504f00103ae68d838c692f118ca807867b41e6b8f3121
+#  redirect-url: http://127.0.0.1:3000/login/oauth2/code/gitee
+  # 在Gitee上注册后分配的id
+  clientId: c8c7f63da2086c750aa5c6b504326267e5ce620f70f1924a3cc3b7c3b35dc8e8
+  # 在Gitee上注册后分配的secret
+  clientSecret: da493a7bb94468e3b3e504f00103ae68d838c692f118ca807867b41e6b8f3121
+#  # 授权类型
+#  authorizationGrantType: authorization_code
+  # 回调地址
+  redirectUri: http://127.0.0.1:80/oauth/callback
+  # 授权范围
+#  scope:
+#    - user_info
+#    - emails
+#  # 应用的名称
+#  provider: gitee
 github:
   app-id:
   app-secret:

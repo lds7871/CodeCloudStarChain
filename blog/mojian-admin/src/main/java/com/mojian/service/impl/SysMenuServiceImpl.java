@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mojian.annotation.AccessLimit;
 import com.mojian.common.Constants;
+import com.mojian.dto.user.GiteeInfo;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysMenu;
 import com.mojian.enums.MenuTypeEnum;
@@ -76,6 +77,15 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         return false;
     }
+    public boolean checkGiteeRoleId() {
+        Object giteeInfoObj = redisTemplate.opsForValue().get("giteeInfo");
+        if (giteeInfoObj instanceof GiteeInfo) {
+            GiteeInfo giteeInfo = (GiteeInfo) giteeInfoObj;
+            Integer roleId = giteeInfo.getRoleId();
+            return roleId != null && roleId.equals(1);
+        }
+        return false;
+    }
     @Override
     public List<RouterVO> getCurrentUserMenu() {
         List<SysMenu> menus;
@@ -87,6 +97,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .ne(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()));
             System.out.println(menus);
         }else if(checkRoleId()){
+            menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
+                    .ne(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()));
+        }else if(checkGiteeRoleId()){
             menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
                     .ne(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()));
         }

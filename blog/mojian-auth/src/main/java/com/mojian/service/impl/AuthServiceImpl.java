@@ -167,7 +167,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public WeChatInfo getWxLoginUserInfo(String openId,String source) {
+    public WeChatInfo getWxLoginUserInfo(String openId, String source) {
         System.out.println("资源值为："+source);
         // 获取当前登录用户ID
         WeChatInfo user = weChatMapper.login(openId);
@@ -243,43 +243,6 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
-    @Override
-    public String getWechatLoginCode() {
-        //随机获取4位数字
-        String code = "DL" + (int) ((Math.random() * 9 + 1) * 1000);
-        redisUtil.set(RedisConstants.WX_LOGIN_USER_CODE + code, "NOT-LOGIN", RedisConstants.MINUTE_EXPIRE, TimeUnit.SECONDS);
-        return code;
-    }
-
-    @Override
-    public LoginUserInfo getWechatIsLogin(String loginCode) {
-        Object value = redisUtil.get(RedisConstants.WX_LOGIN_USER + loginCode);
-
-        if (value == null) {
-            throw new ServiceException("登录失败");
-        }
-
-        LoginUserInfo loginUserInfo = JSONUtil.toBean(JSONUtil.parseObj(value), LoginUserInfo.class);
-
-        StpUtil.login(loginUserInfo.getId());
-        loginUserInfo.setToken(StpUtil.getTokenValue());
-
-        return loginUserInfo;
-    }
-
-    @Override
-    public String wechatLogin(WxMpXmlMessage message) {
-        String code = message.getContent().toUpperCase();
-        //先判断登录码是否已过期
-        Object e = redisUtil.hasKey(RedisConstants.WX_LOGIN_USER_CODE + code);
-        if (e == null) {
-            return "验证码已过期";
-        }
-        LoginUserInfo loginUserInfo = wechatLogin(message.getFromUser());
-        //修改redis缓存 以便监听是否已经授权成功
-        redisUtil.set(RedisConstants.WX_LOGIN_USER + code, JSONUtil.toJsonStr(loginUserInfo), RedisConstants.MINUTE_EXPIRE, TimeUnit.SECONDS);
-        return "网站登录成功！(若页面长时间未跳转请刷新验证码)";
-    }
 
     @Override
     public String renderAuth(String source) {
@@ -400,9 +363,9 @@ public class AuthServiceImpl implements AuthService {
         switch (source) {
             case "gitee":
                 authRequest = new AuthGiteeRequest(AuthConfig.builder()
-                        .clientId(giteeConfigProperties.getAppId())
-                        .clientSecret(giteeConfigProperties.getAppSecret())
-                        .redirectUri(giteeConfigProperties.getRedirectUrl())
+                        .clientId(giteeConfigProperties.getClientId())
+                        .clientSecret(giteeConfigProperties.getClientSecret())
+                        .redirectUri(giteeConfigProperties.getRedirectUri())
                         .build());
                 break;
             case "qq":

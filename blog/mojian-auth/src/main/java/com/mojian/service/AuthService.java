@@ -23,7 +23,7 @@ public interface AuthService {
      * 获取当前登录用户信息
      */
     LoginUserInfo getLoginUserInfo(String source);
-    WeChatInfo getWxLoginUserInfo(String openId,String source);
+    WeChatInfo getWxLoginUserInfo(String openId, String source);
     /**
      * 发送注册邮箱验证码
      * @param email
@@ -44,27 +44,6 @@ public interface AuthService {
      * @return
      */
     Boolean forgot(EmailRegisterDto dto);
-
-    /**
-     *  获取微信扫码登录验证码
-     * @return
-     */
-    String getWechatLoginCode();
-
-
-    /**
-     * 验证微信是否扫码登录
-     * @param loginCode
-     * @return
-     */
-    LoginUserInfo getWechatIsLogin(String loginCode);
-
-    /**
-     * 微信公众号登录
-     * @param message
-     * @return
-     */
-    String wechatLogin(WxMpXmlMessage message);
 
     /**
      * 获取第三方授权地址

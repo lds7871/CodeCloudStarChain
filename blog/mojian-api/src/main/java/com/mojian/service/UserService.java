@@ -1,6 +1,7 @@
 package com.mojian.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysArticle;
 import com.mojian.entity.SysFeedback;
 import com.mojian.entity.SysUser;
@@ -46,6 +47,7 @@ public interface UserService {
      * @param user
      */
     void updateProfile(SysUser user);
+    void updatewxProfile(WeChatInfo weChatInfo);
 
     /**
      * 查询我的文章

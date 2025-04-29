@@ -72,16 +72,6 @@ public class AuthController {
         return Result.success(authService.forgot(dto));
     }
 
-    @GetMapping("/api/wechat/getCode")
-    public Result<String> getWechatLoginCode(){
-        return Result.success(authService.getWechatLoginCode());
-    }
-
-    @GetMapping("/api/wechat/isLogin/{loginCode}")
-    public Result<LoginUserInfo> getWechatIsLogin(@PathVariable String loginCode){
-        return Result.success(authService.getWechatIsLogin(loginCode));
-    }
-
     @GetMapping("/auth/info")
     public Result<LoginUserInfo> getUserInfo(@RequestParam(defaultValue = "admin") String source) {
         return Result.success(authService.getLoginUserInfo(source));

@@ -14,22 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "gitee")
 public class GiteeConfigProperties {
 
-    /**
-     * appId
-     */
-    private String appId;
-
-    /**
-     * appSecret
-     */
-    private String appSecret;
-
-    /**
-     * 回调域名
-     */
-    private String redirectUrl;
-
-
-
+    private String clientId;
+    private String clientSecret;
+    private String redirectUri;
 }
 

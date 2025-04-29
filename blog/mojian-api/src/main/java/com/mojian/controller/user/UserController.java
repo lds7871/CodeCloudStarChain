@@ -2,6 +2,7 @@ package com.mojian.controller.user;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mojian.common.Result;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysArticle;
 import com.mojian.entity.SysUser;
 import com.mojian.service.UserService;
@@ -34,7 +35,12 @@ public class UserController {
         userService.updateProfile(user);
         return Result.success();
     }
-
+    @PutMapping("/updatewxProfile")
+    @Operation(summary = "修改我的资料")
+    public Result<Void> updateProfile(@RequestBody WeChatInfo user){
+        userService.updatewxProfile(user);
+        return Result.success();
+    }
     @GetMapping("/comment")
     @Operation(summary = "获取我的评论")
     public Result<IPage<CommentListVo>> selectMyComment(){

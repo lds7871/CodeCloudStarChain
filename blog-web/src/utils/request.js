@@ -26,7 +26,17 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   response => {
+    if (response.config.responseType === 'text') {
+      return response.data
+    }
+    // 二进制数据则直接返回
+    if (response.config.responseType === 'blob' || response.config.responseType === 'arraybuffer') {
+      return response
+    }
     const res = response.data
+    if (response.config.url?.includes('/wechat/checkQrCodeStatus')) {
+      return res
+    }
     if (res.code === 200) {
       return res
     } else if(res.code === 404){

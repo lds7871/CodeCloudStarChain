@@ -107,7 +107,6 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
                 throw new ServiceException("只能修改自己的文章");
             }
         }
-
         addCategory(sysArticle, obj);
         baseMapper.updateById(obj);
 

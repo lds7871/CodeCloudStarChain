@@ -3,28 +3,15 @@
     <div class="login-container">
       <!-- 登录表单 -->
       <div class="login-body">
-        <el-tooltip
-          class="item"
-          effect="dark"
-          content="回到首页"
-          placement="top"
-        >
+        <el-tooltip class="item" effect="dark" content="回到首页" placement="top">
           <button class="back-btn" @click="backToHome">
             <i class="el-icon-back"></i>
           </button>
         </el-tooltip>
-        <el-tooltip
-          class="item"
-          effect="dark"
-          :content="currentForm === 'login' ? '账号密码登录' : '扫码登录'"
-          placement="top"
-        >
+        <el-tooltip class="item" effect="dark" :content="currentForm === 'login' ? '账号密码登录' : '扫码登录'" placement="top">
           <button class="switch-form-btn" @click="handleSwitchForm">
-            <i
-              :class="
-                currentForm === 'login' ? 'el-icon-user' : 'fas fa-qrcode'
-              "
-            ></i>
+            <i :class="currentForm === 'login' ? 'el-icon-user' : 'fas fa-qrcode'
+              "></i>
           </button>
         </el-tooltip>
         <!-- 微信扫码登录 -->
@@ -32,20 +19,16 @@
           <div class="qrcode-content">
             <div class="qrcode-box">
               <!-- 这里放二维码图片 -->
-              <img
-                v-lazy="'https://img.shiyit.com/qrcode.jpg'"
-                :key="'https://img.shiyit.com/qrcode.jpg'"
-                alt="微信二维码"
-              />
+              <img :src="qrCodeUrl" />
             </div>
-            <p class="qrcode-tip">
+            <!-- <p class="qrcode-tip">
               登录验证码：
               <span class="code-text">{{ wechatForm.code }}</span>
               <span class="code-text" v-if="wechatForm.code === '验证码已失效'">
                 <i class="fas fa-sync-alt" @click="getWechatLoginCode"></i>
               </span>
-            </p>
-            <p class="qrcode-tip">微信扫码关注公众号，并发送验证码</p>
+            </p> -->
+            <p class="qrcode-tip">微信扫码进行登录</p>
           </div>
 
           <div class="divider">
@@ -53,13 +36,8 @@
           </div>
 
           <div class="third-party-login">
-            <div
-              v-for="(item, type) in loginTypes"
-              :key="type"
-              class="login-icon-wrapper"
-              @click="handleThirdPartyLogin(type)"
-              v-if="type !== 'wechat'"
-            >
+            <div v-for="(item, type) in loginTypes" :key="type" class="login-icon-wrapper"
+              @click="handleThirdPartyLogin(type)" v-if="type !== 'wechat'">
               <el-tooltip :content="item.title" placement="top">
                 <div :class="['login-icon', type]">
                   <i :class="item.icon"></i>
@@ -78,24 +56,13 @@
 
           <el-form :model="loginForm" :rules="rules" ref="ruleFrom">
             <el-form-item class="form-item" prop="username">
-              <el-input
-                prefix-icon="el-icon-user-solid"
-                v-model="loginForm.username"
-                placeholder="请输入用户名"
-                @keyup.enter.native="handleLogin"
-                size="large"
-              />
+              <el-input prefix-icon="el-icon-user-solid" v-model="loginForm.username" placeholder="请输入用户名"
+                @keyup.enter.native="handleLogin" size="large" />
             </el-form-item>
 
             <el-form-item class="form-item" prop="password">
-              <el-input
-                prefix-icon="el-icon-lock"
-                v-model="loginForm.password"
-                placeholder="请输入密码"
-                @keyup.enter.native="handleLogin"
-                show-password
-                size="large"
-              />
+              <el-input prefix-icon="el-icon-lock" v-model="loginForm.password" placeholder="请输入密码"
+                @keyup.enter.native="handleLogin" show-password size="large" />
             </el-form-item>
 
             <div class="form-options">
@@ -103,12 +70,7 @@
             </div>
 
             <el-form-item class="form-item">
-              <el-button
-                class="submit-btn ripple"
-                :loading="loading"
-                @click="handleLogin"
-                type="primary"
-              >
+              <el-button class="submit-btn ripple" :loading="loading" @click="handleLogin" type="primary">
                 登 录
               </el-button>
             </el-form-item>
@@ -129,27 +91,15 @@
           </div>
           <el-form :model="registerForm" :rules="rules" ref="registerForm">
             <el-form-item lable="昵称" prop="nickname">
-              <el-input
-                prefix-icon="el-icon-user-solid"
-                v-model="registerForm.nickname"
-                placeholder="请输入昵称"
-              />
+              <el-input prefix-icon="el-icon-user-solid" v-model="registerForm.nickname" placeholder="请输入昵称" />
             </el-form-item>
 
             <el-form-item class="form-item" prop="email">
-              <el-input
-                prefix-icon="el-icon-message"
-                v-model="registerForm.email"
-                placeholder="请输入邮箱"
-              />
+              <el-input prefix-icon="el-icon-message" v-model="registerForm.email" placeholder="请输入邮箱" />
             </el-form-item>
 
             <el-form-item class="form-item" prop="code">
-              <el-input
-                prefix-icon="el-icon-key"
-                v-model="registerForm.code"
-                placeholder="请输入验证码"
-              >
+              <el-input prefix-icon="el-icon-key" v-model="registerForm.code" placeholder="请输入验证码">
                 <template slot="append">
                   <el-button @click="sendRegisterCode" :disabled="codeSending">
                     {{ codeButtonText }}
@@ -159,20 +109,11 @@
             </el-form-item>
 
             <el-form-item class="form-item" prop="password">
-              <el-input
-                prefix-icon="el-icon-lock"
-                v-model="registerForm.password"
-                placeholder="请输入密码"
-                show-password
-              />
+              <el-input prefix-icon="el-icon-lock" v-model="registerForm.password" placeholder="请输入密码" show-password />
             </el-form-item>
 
             <el-form-item class="form-item">
-              <el-button
-                class="submit-btn"
-                :loading="loading"
-                @click="handleRegister"
-              >
+              <el-button class="submit-btn" :loading="loading" @click="handleRegister">
                 注 册
               </el-button>
             </el-form-item>
@@ -191,24 +132,13 @@
           </div>
           <el-form :model="forgotForm" :rules="rules" ref="forgotForm">
             <el-form-item class="form-item" prop="email">
-              <el-input
-                prefix-icon="el-icon-message"
-                v-model="forgotForm.email"
-                placeholder="请输入注册邮箱"
-              />
+              <el-input prefix-icon="el-icon-message" v-model="forgotForm.email" placeholder="请输入注册邮箱" />
             </el-form-item>
 
             <el-form-item class="form-item" prop="code">
-              <el-input
-                prefix-icon="el-icon-key"
-                v-model="forgotForm.code"
-                placeholder="请输入验证码"
-              >
+              <el-input prefix-icon="el-icon-key" v-model="forgotForm.code" placeholder="请输入验证码">
                 <template slot="append">
-                  <el-button
-                    @click="sendVerificationCode"
-                    :disabled="codeSending"
-                  >
+                  <el-button @click="sendVerificationCode" :disabled="codeSending">
                     {{ codeButtonText }}
                   </el-button>
                 </template>
@@ -216,20 +146,11 @@
             </el-form-item>
 
             <el-form-item class="form-item" prop="password">
-              <el-input
-                prefix-icon="el-icon-lock"
-                v-model="forgotForm.password"
-                placeholder="请输入新密码"
-                show-password
-              />
+              <el-input prefix-icon="el-icon-lock" v-model="forgotForm.password" placeholder="请输入新密码" show-password />
             </el-form-item>
 
             <el-form-item class="form-item">
-              <el-button
-                class="submit-btn"
-                :loading="loading"
-                @click="handleResetPassword"
-              >
+              <el-button class="submit-btn" :loading="loading" @click="handleResetPassword">
                 重置密码
               </el-button>
             </el-form-item>
@@ -243,20 +164,9 @@
     </div>
 
     <!-- 滑块验证 -->
-    <el-dialog
-      title="请拖动滑块完成拼图"
-      width="360px"
-      :visible.sync="isShowSliderVerify"
-      :close-on-click-modal="false"
-      @close="refresh"
-      append-to-body
-    >
-      <slider-verify
-        ref="sliderVerify"
-        @success="onSuccess"
-        @fail="onFail"
-        @again="onAgain"
-      />
+    <el-dialog title="请拖动滑块完成拼图" width="360px" :visible.sync="isShowSliderVerify" :close-on-click-modal="false"
+      @close="refresh" append-to-body>
+      <slider-verify ref="sliderVerify" @success="onSuccess" @fail="onFail" @again="onAgain" />
     </el-dialog>
   </div>
 </template>
@@ -267,10 +177,9 @@ import {
   sendEmailCodeApi,
   registerApi,
   forgotPasswordApi,
-  getWechatLoginCodeApi,
-  getWechatIsLoginApi,
-  getAuthRenderApi,
   getCaptchaSwitchApi,
+  getQrCode,
+  checkQrCodeStatus,
 } from "@/api/auth";
 import { setCookie } from "@/utils/cookie";
 import SliderVerify from "./components/SliderVerify.vue";
@@ -287,6 +196,7 @@ export default {
         code: "",
         showQrcode: false,
       },
+      loginType: 'qrcode', // 添加 
       countdown: 0,
       loginForm: {
         username: "",
@@ -326,6 +236,12 @@ export default {
           icon: "fab fa-weibo",
         },
       },
+      qrCodeUrl: "",//微信二维码地址
+      openId: "",
+      qrCodeTimer: 1,
+      qrCodeExpired: false,
+      headimgurl: "",
+      nickname: "",
       codeSending: false,
       codeButtonText: "发送验证码",
       codeTimer: null,
@@ -376,7 +292,6 @@ export default {
         delete this.loginTypes[key];
       }
     });
-    this.getWechatLoginCode();
     this.$nextTick(() => {
       disableScroll();
     });
@@ -452,6 +367,13 @@ export default {
         }
       });
     },
+    async getQrCodes() {
+      getQrCode().then((res) => {
+        console.log(res);
+        this.qrCodeUrl = res;
+        console.log("数据为：" + this.qrCodeUrl);
+      });
+    },
     /**
      * 注册
      */
@@ -520,6 +442,9 @@ export default {
         this.wechatForm.showQrcode = true;
         this.getWechatLoginCode();
         return;
+      } else if (type === "gitee") {
+        window.location.href = '/dev-api/oauth/login';
+        return;
       }
       getAuthRenderApi(type).then((res) => {
         //将当前地址存到cookie中
@@ -527,25 +452,6 @@ export default {
           setCookie("redirectUrl", window.location.href);
         }
         window.open(res.data, "_self");
-      });
-    },
-    /**
-     * 获取微信登录验证码
-     */
-    getWechatLoginCode() {
-      getWechatLoginCodeApi().then((res) => {
-        this.wechatForm.code = res.data;
-        this.pollingWechatIsLogin();
-        // 开始倒计时
-        let countdown = 60;
-        this.codeTimer = setInterval(() => {
-          countdown--;
-          if (countdown <= 0) {
-            clearInterval(this.codeTimer);
-            clearInterval(this.pollingTimer);
-            this.wechatForm.code = "验证码已失效";
-          }
-        }, 1000);
       });
     },
     /**
@@ -584,8 +490,11 @@ export default {
       }
       this.codeSending = true;
       this.sendEmailCode(this.registerForm.email);
+    }, refreshQrCode() {
+      // 刷新二维码的逻辑
+      this.getQrCodes();
+      this.qrCodeExpired = false;
     },
-
     /**
      * 发送邮箱验证码
      */
@@ -646,7 +555,69 @@ export default {
   beforeDestroy() {
     enableScroll();
     this.clearTimer();
+    if (this.qrCodeTimer) {
+      clearInterval(this.qrCodeTimer);
+    }
   },
+  mounted() {
+    this.getQrCodes();
+  }, watch: {
+    loginType: {
+      immediate: true, // 立即执行一次
+      handler(newVal) {
+        if (newVal === "qrcode") {
+          this.refreshQrCode();
+          this.qrCodeTimer = window.setInterval(() => {
+            checkQrCodeStatus().then(res => {
+              if (res.status === 'CONFIRMED') {
+                this.$store.dispatch('wxlogin')
+                  .then((res) => {
+                    this.openId = res.openid;
+                    this.headimgurl = res.headimgurl;
+                    this.nickname = res.nickname;
+                    if (!res.openid) {
+                      throw new Error('未获取到openid');
+                    }
+                    return this.$store.dispatch('getwxUserInfo', res.openid);
+                  })
+                  .then(() => {
+                    return this.$store.dispatch('generateRoutes');
+                  })
+                  .then((accessRoutes) => {
+                    accessRoutes.forEach(route => {
+                      this.$router.addRoute(route);
+                    });
+                    return this.$nextTick();
+                  })
+                  .then(() => {
+                    this.$message.success("扫码登录成功");
+                    clearInterval(this.qrCodeTimer);
+                    localStorage.setItem("userInfo", "weixin");
+                    localStorage.setItem("openId", this.openId);
+                    localStorage.setItem("headimgurl", this.headimgurl);
+                    localStorage.setItem("nickname", this.nickname);
+                    this.$router.push("/");
+                  })
+                  .catch(error => {
+                    console.error('登录失败：', error);
+                    this.$message.error("登录失败，请重试");
+                  });
+              } else if (res.status === 'EXPIRED') {
+                this.qrCodeExpired = true;
+                clearInterval(this.qrCodeTimer);
+              } else if (res.status === 'SCANNED') {
+                this.$message.success("已扫码，请在手机上确认");
+              }
+            }).catch(error => {
+              console.error('检查二维码状态失败：', error);
+            });
+          }, 3000);
+        } else {
+          clearInterval(this.qrCodeTimer);
+        }
+      }
+    }
+  }
 };
 </script>
 <style scoped lang="scss">
@@ -758,15 +729,19 @@ export default {
   &.github {
     color: #24292e;
   }
+
   &.qq {
     color: #12b7f5;
   }
+
   &.wechat {
     color: #07c160;
   }
+
   &.gitee {
     color: #c71d23;
   }
+
   &.weibo {
     color: #e6162d;
   }
@@ -827,6 +802,7 @@ export default {
 .code-text {
   color: #6366f1;
   font-weight: 500;
+
   i {
     cursor: pointer;
     margin-left: $spacing-sm;
@@ -872,6 +848,7 @@ export default {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

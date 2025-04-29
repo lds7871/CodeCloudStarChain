@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mojian.mapper.GiteeMapper">
+    <insert id="insertUserInfo">
+        insert into gitee_info(id,unique_id,name,avatar_url,email,created_at,updated_at)
+        values(default,#{giteeInfo.id},#{giteeInfo.name},#{giteeInfo.avatarUrl},#{giteeInfo.email},#{giteeInfo.createdAt},#{giteeInfo.updatedAt})
+    </insert>
+
+    <update id="updateByUser">
+        update gitee_info
+        set ip = #{giteeInfo.ip},last_login_time = #{giteeInfo.lastLoginTime},ip_location = #{giteeInfo.ipLocation},
+            os = #{giteeInfo.os},browser = #{giteeInfo.browser}
+        where id = #{giteeInfo.id}
+    </update>
+
+    <select id="selectByUniqueId" resultType="com.mojian.dto.user.GiteeInfo">
+        select * from gitee_info where unique_id = #{uniqueId}
+    </select>
+    <select id="selectByUserId" resultType="com.mojian.dto.user.GiteeInfo">
+        select id,unique_id,name,avatar_url,email,mobile,last_login_time,ip,ip_location,os,browser,signature,created_at,updated_at,role_id
+        from gitee_info where id = #{userId}
+    </select>
+</mapper>

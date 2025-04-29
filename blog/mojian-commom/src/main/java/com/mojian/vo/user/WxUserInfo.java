@@ -1,5 +1,6 @@
 package com.mojian.vo.user;
 
+
 import com.mojian.dto.user.WeChatInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

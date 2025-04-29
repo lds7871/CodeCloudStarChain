@@ -1,36 +1,21 @@
 <template>
-  <div class="home" >
+  <div class="home">
     <div class="content-layout">
       <main class="home-main-content">
-        <Carousel
-          v-if="carouselSlides?.length > 0"
-          :slides="carouselSlides"
-          @click="goToPost"
-        />
+        <Carousel v-if="carouselSlides?.length > 0" :slides="carouselSlides" @click="goToPost" />
         <MomentsList />
 
         <div>
           <el-tabs v-model="activeName" @tab-click="handleClick">
-            <el-tab-pane
-              v-for="category in categories"
-              :key="category.id"
-              :name="String(category.id)"
-            >
+            <el-tab-pane v-for="category in categories" :key="category.id" :name="String(category.id)">
               <template slot="label">
                 <span class="label-info">
                   <i :class="category.icon"></i>
                   {{ category.name }}
                 </span>
               </template>
-              <ArticleList
-                :articles="articleList"
-                :loading="loading"
-                :total="total"
-                :params="params"
-                @article-click="goToPost"
-                @page-change="changePage"
-                class="article-list"
-              />
+              <ArticleList :articles="articleList" :loading="loading" :total="total" :params="params"
+                @article-click="goToPost" @page-change="changePage" class="article-list" />
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -50,7 +35,6 @@ import {
   getCarouselArticlesApi,
   getAllCategoriesApi,
 } from "@/api/article";
-
 export default {
   name: "Home",
   components: {
@@ -159,7 +143,35 @@ export default {
     this.getArticleList();
     this.getCarouselArticles();
     this.getAllCategories();
-  },
+  }, mounted() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (id) {
+      this.$store.dispatch('giteeLogin', id)
+        .then((data) => {
+          if (data && data.token) {
+            this.$message.success("登录成功");
+            // 登录成功后刷新用户信息
+            this.$store.dispatch('getUserInfo');
+            // 移除 URL 中的 code 参数，但不刷新页面
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+            // 延迟跳转，确保数据已经保存
+            setTimeout(() => {
+              this.$router.replace('/');
+            }, 300);
+          } else {
+            this.$message.error("登录失败：未获取到用户信息");
+          }
+        })
+        .catch(error => {
+          this.$message.error("登录失败，请重试");
+          console.error(error);
+          // 登录失败后清理状态
+          this.$store.dispatch('logout');
+        });
+    }
+  }
 };
 </script>
 
@@ -203,6 +215,7 @@ export default {
     @include responsive(md) {
       margin-bottom: $spacing-xl;
       max-height: 280px;
+
       :deep(h3) {
         font-size: 1.2em;
       }
@@ -217,9 +230,11 @@ export default {
     display: none !important;
   }
 }
+
 :deep(.el-tabs__nav-wrap::after) {
   display: none;
 }
+
 .label-info {
   display: flex;
   align-items: center;

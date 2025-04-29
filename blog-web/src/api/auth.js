@@ -31,11 +31,11 @@ export function getUserInfoApi() {
   return request({
     url: `/auth/info`,
     method: 'get',
-    params:{
-        source:'web'
+    params: {
+      source: 'web'
     }
   })
-} 
+}
 
 /**
  * 发送邮箱验证吗
@@ -44,11 +44,11 @@ export function sendEmailCodeApi(email) {
   return request({
     url: `/api/sendEmailCode`,
     method: 'get',
-    params:{
-        email:email
+    params: {
+      email: email
     }
   })
-} 
+}
 
 /**
  * 注册
@@ -65,42 +65,52 @@ export function registerApi(data) {
  * 忘记密码
  */
 export function forgotPasswordApi(data) {
-    return request({
-      url: `/api/email/forgot`,
-      method: 'post',
-      data
-    })
-  }
-
-/**
- * 获取微信登录验证码
- */
-export function getWechatLoginCodeApi() {
   return request({
-    url: `/api/wechat/getCode`,
-    method: 'get',
+    url: `/api/email/forgot`,
+    method: 'post',
+    data
   })
-} 
+}
 
-/**
- * 获取微信登录状态
- */
-export function getWechatIsLoginApi(code) {
+// 微信扫码获取用户信息
+export function getQrCode() {
   return request({
-    url: `/api/wechat/isLogin/${code}`,
+    url: 'http://6a34010f.r33.cpolar.top/wechat/qrCode',
     method: 'get',
+    responseType: 'text'
   })
-} 
+}
 
-/**
- * 获取第三方授权地址
- */
-export function getAuthRenderApi(source) {
+
+
+// 获取微信用户信息
+export function getwxUserInfoApi(openid) {
   return request({
-    url: `/api/auth/render/${source}`,
-    method: 'get',
+    url: "/auth/wxinfo",
+    method: "get",
+    params: {
+      openid: openid,
+      source: "user"
+    }
   })
-} 
+}
+
+// 检查扫码状态
+export function checkQrCodeStatus() {
+  return request({
+    url: 'http://6a34010f.r33.cpolar.top/wechat/checkQrCodeStatus',
+    method: 'get'
+  })
+}
+export function giteeLoginApi(id) {
+  return request({
+    url: '/oauth/getGiteeUserInfo',
+    method: 'get',
+    params: {
+      id: id 
+    }
+  })
+}
 
 
 // 获取验证码

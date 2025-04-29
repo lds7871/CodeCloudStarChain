@@ -9,44 +9,25 @@
       <div class="nav-left">
         <router-link to="/" class="logo">
           <img :src="$store.state.webSiteInfo.logo" :alt="$store.state.webSiteInfo.name">
-          <span class="logo-text">{{$store.state.webSiteInfo.name}}</span>
+          <span class="logo-text">{{ $store.state.webSiteInfo.name }}</span>
         </router-link>
       </div>
 
       <div class="nav-center">
-        <div 
-          v-for="item in filteredMenuItems" 
-          :key="item.path"
-          class="nav-item"
-          @mouseleave="handleMouseLeave"
-        >
-          <router-link 
-            :to="item.path"
-            class="nav-link"
-            :class="{ 
-              'has-dropdown': item.children,
-              'active': isActive(item),
-              [item.colorClass]: true
-            }"
-            @mouseenter="handleMouseEnter(item)"
-          >
+        <div v-for="item in filteredMenuItems" :key="item.path" class="nav-item" @mouseleave="handleMouseLeave">
+          <router-link :to="item.path" class="nav-link" :class="{
+            'has-dropdown': item.children,
+            'active': isActive(item),
+            [item.colorClass]: true
+          }" @mouseenter="handleMouseEnter(item)">
             <i :class="item.icon"></i>
             {{ item.name }}
             <i v-if="item.children" class="fas fa-chevron-down dropdown-icon"></i>
           </router-link>
-          
-          <div v-if="item.children" 
-               class="dropdown-menu"
-               :class="{ active: activeDropdown === item.name }"
-          >
-            <a
-              href="javascript:void(0)"
-              v-for="child in item.children"
-              :key="child.path"
-              class="dropdown-item"
-              :class="{ 'active': isChildActive(child) }"
-              @click="handleDropdownItemClick(child)"
-            >
+
+          <div v-if="item.children" class="dropdown-menu" :class="{ active: activeDropdown === item.name }">
+            <a href="javascript:void(0)" v-for="child in item.children" :key="child.path" class="dropdown-item"
+              :class="{ 'active': isChildActive(child) }" @click="handleDropdownItemClick(child)">
               <i :class="child.icon"></i>
               {{ child.name }}
             </a>
@@ -72,17 +53,23 @@
         </button>
 
         <div class="user-info">
+          <!-- <div v-if="$store.state.userInfo" class="user-section" @mouseleave="showDropdown = false"> -->
           <div v-if="$store.state.userInfo" class="user-section" @mouseleave="showDropdown = false">
             <div class="avatar" @mouseenter="showDropdown = true">
-              <el-avatar :src="$store.state.userInfo.avatar"  />
+              <el-avatar
+                :src="$store.state.userInfo.avatar || $store.state.userInfo.headimgurl || $store.state.userInfo.avatarUrl" />
             </div>
             <!-- 用户下拉菜单 -->
             <div class="user-dropdown" v-show="showDropdown">
               <div class="dropdown-header">
-                <img :src="$store.state.userInfo.avatar" :alt="$store.state.userInfo.nickname">
+                <img
+                  :src="$store.state.userInfo.avatar || $store.state.userInfo.headimgurl || $store.state.userInfo.avatarUrl"
+                  :alt="$store.state.userInfo.nickname">
                 <div class="user-details">
                   <span class="username">{{ $store.state.userInfo.nickname }}</span>
-                  <span class="role">{{ $store.state.userInfo.role === 'admin' ? '管理员' : '普通用户' }}</span>
+                  <span class="role">{{
+                    $store.state.userInfo.roleId === 1 ? '管理员' : '普通用户' || $store.state.userInfo.roleId === 15 ? '普通用户'
+                      : '管理员' }}</span>
                 </div>
               </div>
               <div class="dropdown-divider"></div>
@@ -97,9 +84,7 @@
             </div>
           </div>
           <div v-else class="avatar" @click="handleLogin">
-            <el-avatar class="avatar-icon"
-              :src="$store.state.webSiteInfo.touristAvatar" 
-            />
+            <el-avatar class="avatar-icon" :src="$store.state.webSiteInfo.touristAvatar" />
           </div>
         </div>
       </div>
@@ -119,99 +104,99 @@ export default {
       lastScrollTop: 0,
       isHeaderVisible: true,
       menuItems: [
-        { 
-          name: '首页', 
-          path: '/', 
+        {
+          name: '首页',
+          path: '/',
           icon: 'fas fa-home',
           colorClass: 'home-link'
         },
-        { 
-          name: '文章归档', 
-          path: '/archives', 
+        {
+          name: '文章归档',
+          path: '/archives',
           icon: 'fas fa-archive',
           colorClass: 'archive-link',
           children: [
-            { 
-              name: '归档', 
-              path: '/archive', 
+            {
+              name: '归档',
+              path: '/archive',
               icon: 'fas fa-clock',
               colorClass: 'clock-link'
             },
-            { 
-              name: '分类', 
-              path: '/categories', 
+            {
+              name: '分类',
+              path: '/categories',
               icon: 'fas fa-folder',
               colorClass: 'category-link'
             },
-            { 
-              name: '标签', 
-              path: '/tags', 
+            {
+              name: '标签',
+              path: '/tags',
               icon: 'fas fa-tags',
               colorClass: 'tag-link'
             }
           ]
         },
-        { 
-          name: '说说', 
-          path: '/moments', 
+        {
+          name: '说说',
+          path: '/moments',
           icon: 'fas fa-comment-dots',
           colorClass: 'talk-link'
         },
-        { 
-          name: '热搜', 
-          path: '/hotSearch', 
+        {
+          name: '热搜',
+          path: '/hotSearch',
           icon: 'fas fa-fire',
           colorClass: 'hot-link'
         },
-        { 
-          name: '资源', 
-          path: '/resources', 
+        {
+          name: '资源',
+          path: '/resources',
           icon: 'fas fa-cloud-download-alt',
           colorClass: 'resource-link'
         },
-        { 
-          name: '相册', 
-          path: '/photos', 
+        {
+          name: '相册',
+          path: '/photos',
           icon: 'fas fa-images',
           colorClass: 'photos-link'
         },
-        { 
+        {
           name: '树洞',
-          path: '/messages', 
+          path: '/messages',
           icon: 'fas fa-envelope',
           colorClass: 'message-link'
         },
-        { 
-          name: '友情链接', 
-          path: '/friends', 
+        {
+          name: '友情链接',
+          path: '/friends',
           icon: 'fas fa-users',
           colorClass: 'friend-link'
         },
-        { 
-          name: '关于本站', 
-          path: '/about', 
+        {
+          name: '关于本站',
+          path: '/about',
           icon: 'fas fa-info-circle',
           colorClass: 'about-link',
           children: [
-            { 
-              name: '关于我', 
-              path: '/about', 
+            {
+              name: '关于我',
+              path: '/about',
               icon: 'fas fa-user',
               colorClass: 'about-me-link'
             },
-            { 
-              name: '网站源码', 
-              path: 'https://gitee.com/quequnlong', 
+            {
+              name: '网站源码',
+              path: 'https://gitee.com/quequnlong',
               icon: 'fab fa-github',
               colorClass: 'github-link',
-              external: true 
+              external: true
             },
-            { 
-              name: '后台管理', 
+            {
+              name: '后台管理',
               path: import.meta.env.VITE_APP_ADMIN_URL || 'http://localhost:3000',
               icon: 'fas fa-tv',
               colorClass: 'admin-link',
-              external: true 
+              external: true
             }
           ]
         }
@@ -286,11 +271,11 @@ export default {
     },
     showBage() {
       console.log(this.$store.state.isUnread)
-     return this.$store.state.isUnread
+      return this.$store.state.isUnread
     },
     handleScroll() {
       const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop
-      
+
       // 如果滚动位置小于 100px，始终显示 header
       if (currentScrollTop < 100) {
         this.isHeaderVisible = true
@@ -306,14 +291,14 @@ export default {
         // 向上滚动
         this.isHeaderVisible = true
       }
-      
+
       this.lastScrollTop = currentScrollTop
     },
   },
   mounted() {
     // 添加滚动事件监听
     window.addEventListener('scroll', this.handleScroll)
-    
+
     // 保留原有的事件监听
     document.addEventListener('click', (e) => {
       const userSection = this.$el.querySelector('.user-section')
@@ -353,11 +338,9 @@ export default {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(var(--surface-rgb), 0.05),
-      rgba(var(--surface-rgb), 0)
-    );
+    background: linear-gradient(to bottom,
+        rgba(var(--surface-rgb), 0.05),
+        rgba(var(--surface-rgb), 0));
     pointer-events: none;
   }
 }
@@ -373,6 +356,7 @@ export default {
 
 .nav-left {
   margin-right: 50px;
+
   .logo {
     display: flex;
     align-items: center;
@@ -425,6 +409,7 @@ export default {
   gap: $spacing-md;
   flex: 1;
   font-size: 1em;
+
   .nav-item {
     position: relative;
     white-space: nowrap;
@@ -436,7 +421,7 @@ export default {
         transform: translateX(-50%) translateY(0);
         pointer-events: auto;
       }
-      
+
       .nav-link .dropdown-icon {
         transform: rotate(180deg);
       }
@@ -464,7 +449,8 @@ export default {
       font-size: 1.1em;
     }
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       color: $primary;
       // background: var(--hover-bg);
     }
@@ -480,22 +466,69 @@ export default {
       }
     }
 
-    &.home-link i { color: #4CAF50; }
-    &.archive-link i { color: #9C27B0; }
-    &.clock-link i { color: #00BCD4; }
-    &.category-link i { color: #FF9800; }
-    &.tag-link i { color: #E91E63; }
-    &.talk-link i { color: #2196F3; }
-    &.code-link i { color: #607D8B; }
-    &.hot-link i { color: #F44336; }
-    &.photos-link i { color: #9b36f4; }
-    &.message-link i { color: #009688; }
-    &.friend-link i { color: #3F51B5; }
-    &.about-link i { color: #795548; }
-    &.about-me-link i { color: #8BC34A; }
-    &.github-link i { color: #333333; }
-    &.changelog-link i { color: #673AB7; }
-    &.resource-link i { color: #009688; }
+    &.home-link i {
+      color: #4CAF50;
+    }
+
+    &.archive-link i {
+      color: #9C27B0;
+    }
+
+    &.clock-link i {
+      color: #00BCD4;
+    }
+
+    &.category-link i {
+      color: #FF9800;
+    }
+
+    &.tag-link i {
+      color: #E91E63;
+    }
+
+    &.talk-link i {
+      color: #2196F3;
+    }
+
+    &.code-link i {
+      color: #607D8B;
+    }
+
+    &.hot-link i {
+      color: #F44336;
+    }
+
+    &.photos-link i {
+      color: #9b36f4;
+    }
+
+    &.message-link i {
+      color: #009688;
+    }
+
+    &.friend-link i {
+      color: #3F51B5;
+    }
+
+    &.about-link i {
+      color: #795548;
+    }
+
+    &.about-me-link i {
+      color: #8BC34A;
+    }
+
+    &.github-link i {
+      color: #333333;
+    }
+
+    &.changelog-link i {
+      color: #673AB7;
+    }
+
+    &.resource-link i {
+      color: #009688;
+    }
 
     &:hover {
       i {
@@ -519,7 +552,7 @@ export default {
 
   @media screen and (max-width: 1200px) {
     gap: $spacing-sm;
-    
+
     .nav-link {
       font-size: 0.8em;
       padding: $spacing-xs $spacing-sm;
@@ -539,7 +572,7 @@ export default {
       i {
         display: none;
       }
-      
+
       padding: $spacing-xs $spacing-xs;
       font-size: 0.75em;
     }
@@ -553,7 +586,7 @@ export default {
   margin-left: auto;
   position: relative;
   right: 0px;
-  
+
   .search-btn {
     display: flex;
     align-items: center;
@@ -565,24 +598,24 @@ export default {
     text-decoration: none;
     transition: all 0.3s ease;
     border: 1px solid var(--border-color);
-    
+
     i {
       font-size: 0.9em;
       transition: transform 0.3s ease;
     }
-    
+
     .search-text {
       font-size: 0.9em;
       font-weight: 500;
     }
-    
+
     &:hover {
       background: var(--surface);
       color: $primary;
       border-color: $primary;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba($primary, 0.1);
-      
+
       i {
         transform: scale(1.1);
       }
@@ -598,21 +631,21 @@ export default {
     text-decoration: none;
     transition: all 0.3s ease;
     border-radius: 50%;
-    
+
     i {
       font-size: 1.2em;
       transition: transform 0.3s ease;
     }
-    
+
     &:hover {
       color: $primary;
       background: var(--hover-bg);
-      
+
       i {
         transform: scale(1.1);
       }
     }
-    
+
     .message-count {
       position: absolute;
       top: 2px;
@@ -806,13 +839,13 @@ export default {
     left: 50%;
     transform: translateX(-50%);
     margin-right: 0;
-    
+
     .logo {
       img {
         height: 40px;
         width: 42px;
       }
-      
+
       .logo-text {
         max-width: 160px;
         font-size: 1em;
@@ -862,7 +895,7 @@ export default {
     height: 8px;
     background: transparent;
   }
-  
+
   .dropdown-item {
     display: flex;
     align-items: center;
@@ -874,6 +907,7 @@ export default {
     transition: all 0.3s ease;
     white-space: nowrap;
     font-size: 0.9em;
+
     i {
       width: 16px;
       text-align: center;
@@ -885,7 +919,7 @@ export default {
     &:hover {
       color: $primary;
       background: var(--hover-bg);
-      
+
       i {
         color: $primary;
       }
@@ -904,6 +938,7 @@ export default {
       opacity: 0;
       transform: translateX(-50%) translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
@@ -920,6 +955,7 @@ export default {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -952,20 +988,61 @@ export default {
 /* 深色模式下的图标颜色整 */
 :root[data-theme='dark'] {
   .nav-link {
-    &.home-link i { color: #81C784; }
-    &.archive-link i { color: #CE93D8; }
-    &.clock-link i { color: #4DD0E1; }
-    &.category-link i { color: #FFB74D; }
-    &.tag-link i { color: #F06292; }
-    &.talk-link i { color: #64B5F6; }
-    &.code-link i { color: #90A4AE; }
-    &.hot-link i { color: #EF5350; }
-    &.message-link i { color: #4DB6AC; }
-    &.friend-link i { color: #7986CB; }
-    &.about-link i { color: #A1887F; }
-    &.about-me-link i { color: #AED581; }
-    &.github-link i { color: #FFFFFF; }
-    &.changelog-link i { color: #9575CD; }
+    &.home-link i {
+      color: #81C784;
+    }
+
+    &.archive-link i {
+      color: #CE93D8;
+    }
+
+    &.clock-link i {
+      color: #4DD0E1;
+    }
+
+    &.category-link i {
+      color: #FFB74D;
+    }
+
+    &.tag-link i {
+      color: #F06292;
+    }
+
+    &.talk-link i {
+      color: #64B5F6;
+    }
+
+    &.code-link i {
+      color: #90A4AE;
+    }
+
+    &.hot-link i {
+      color: #EF5350;
+    }
+
+    &.message-link i {
+      color: #4DB6AC;
+    }
+
+    &.friend-link i {
+      color: #7986CB;
+    }
+
+    &.about-link i {
+      color: #A1887F;
+    }
+
+    &.about-me-link i {
+      color: #AED581;
+    }
+
+    &.github-link i {
+      color: #FFFFFF;
+    }
+
+    &.changelog-link i {
+      color: #9575CD;
+    }
   }
 }
 
@@ -974,9 +1051,11 @@ export default {
   0% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-3px);
   }
+
   100% {
     transform: translateY(0);
   }
@@ -1000,5 +1079,4 @@ export default {
   letter-spacing: -0.5px;
   /* ... 其他样式保持不变 ... */
 }
-
-</style> 
+</style>

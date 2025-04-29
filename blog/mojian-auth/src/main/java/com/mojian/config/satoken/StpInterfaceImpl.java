@@ -2,6 +2,7 @@ package com.mojian.config.satoken;
 
 import cn.dev33.satoken.stp.StpInterface;
 import com.mojian.common.Constants;
+import com.mojian.dto.user.GiteeInfo;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.enums.MenuTypeEnum;
 import com.mojian.mapper.SysMenuMapper;
@@ -32,16 +33,30 @@ public class StpInterfaceImpl implements StpInterface {
         }
         return false;
     }
+
+
+    public boolean checkgiteeRoleId() {
+        Object giteeInfoObj = redisTemplate.opsForValue().get("giteeInfo");
+        if (giteeInfoObj instanceof GiteeInfo) {
+            GiteeInfo giteeInfo = (GiteeInfo) giteeInfoObj;
+            Integer roleId = giteeInfo.getRoleId();
+            return roleId != null && roleId.equals(1);
+        }
+        return false;
+    }
+
+
     /**
      * 返回一个账号所拥有的权限码集合
      */
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
         List<String> roles = roleMapper.selectRolesCodeByUserId(loginId);
-
         if (roles.contains(Constants.ADMIN)) {
             return menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
         }else if(checkRoleId()){
+            return menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+        }else if(checkgiteeRoleId()){
             return menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
         }
         return menuMapper.getPermissionListByUserId(loginId,MenuTypeEnum.BUTTON.getCode());
@@ -52,6 +67,13 @@ public class StpInterfaceImpl implements StpInterface {
      */
     @Override
     public List<String> getRoleList(Object loginId, String loginType) {
+        if(checkRoleId()){
+            System.out.println("角色列表："+ roleMapper.selectRolesCodeByUserId(1));
+            return roleMapper.selectRolesCodeByUserId(1);
+        }else if(checkgiteeRoleId()){
+            System.out.println("角色列表："+ roleMapper.selectRolesCodeByUserId(1));
+            return roleMapper.selectRolesCodeByUserId(1);
+        }
         return roleMapper.selectRolesCodeByUserId(loginId);
     }
 }

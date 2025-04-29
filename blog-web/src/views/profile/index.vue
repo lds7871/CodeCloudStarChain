@@ -5,9 +5,8 @@
       <!-- 用户信息卡片 -->
       <el-card class="user-card">
         <div class="avatar-section">
-          <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0"
-            aria-label="更换头像">
-            <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
+          <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
+            <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl" alt="用户头像"></el-avatar>
             <div class="upload-overlay" inert>
               <i class="el-icon-camera"></i>
             </div>
@@ -15,16 +14,11 @@
         </div>
         <h3 class="username">{{ userInfo.nickname }}</h3>
         <p class="signature">{{ userInfo.signature || '这个人很懒，还没有写简介...' }}</p>
-        
+
         <!-- 添加签到按钮 -->
         <div class="sign-in-section">
-          <el-button 
-            type="primary" 
-            :disabled="signInStatus"
-            @click="handleSignIn"
-            size="small"
-            :loading="signInLoading"
-          >
+          <el-button type="primary" :disabled="signInStatus" @click="handleSignIn" size="small"
+            :loading="signInLoading">
             <i class="el-icon-check"></i>
             {{ signInStatus ? '今日已签到' : '立即签到' }}
           </el-button>
@@ -364,11 +358,7 @@
 
     </main>
 
-    <AvatarCropper 
-      :visible.sync="showCropper"
-      :user="userInfo"
-      @update-avatar="handleAvatarUpdate"
-    />
+    <AvatarCropper :visible.sync="showCropper" :user="userInfo" @update-avatar="handleAvatarUpdate" />
 
   </div>
 </template>
@@ -377,12 +367,12 @@
 import {
   getUserInfoApi, updateProfileApi, updatePasswordApi,
   getMyCommentApi, delMyCommentApi, getMyLikeApi, getMyReplyApi, getMyFeedbackApi, addFeedbackApi,
-  signInApi, getSignInStatusApi, getSignInStatsApi
+  signInApi, getSignInStatusApi, getSignInStatsApi, updatewxProfileApi
 } from '@/api/user'
 import { getMyArticleApi, likeArticleApi, delArticleApi } from '@/api/article'
 import { getDictDataApi } from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
-
+import { getwxUserInfoApi } from '@/api/auth'
 import { marked } from "marked";
 export default {
   name: 'Profile',
@@ -563,11 +553,26 @@ export default {
     },
   },
   created() {
-    getUserInfoApi().then(res => {
-      this.userInfo = res.data.sysUser
-      Object.assign(this.profileForm, res.data.sysUser)
-    })
+    if (localStorage.getItem('userInfo')) {
+      getwxUserInfoApi(localStorage.getItem("openId")).then(res => {
+        console.log(res.data);
 
+        this.userInfo = res.data
+        Object.assign(this.profileForm, res.data)
+        if (res.data.sex == "男") {
+          this.profileForm.sex = 1
+        } else if (res.data.sex == "女") {
+          this.profileForm.sex = 0
+        } else {
+          this.profileForm.sex = 2
+        }
+      })
+    } else {
+      getUserInfoApi().then(res => {
+        this.userInfo = res.data.sysUser
+        Object.assign(this.profileForm, res.data.sysUser)
+      })
+    }
     this.getFeedbackDict()
     // 获取签到状态和统计
     this.getSignInStatus()
@@ -789,15 +794,27 @@ export default {
     // 提交个人资料
     submitProfile() {
       this.loading = true
-      updateProfileApi(this.profileForm).then(res => {
-        this.userInfo.nickname = this.profileForm.nickname
-        this.$store.state.userInfo.nickname = this.profileForm.nickname
-        this.$message.success('个人资料更新成功！')
-      }).catch(err => {
-        this.$message.error(err.message)
-      }).finally(() => {
-        this.loading = false
-      })
+      if (localStorage.getItem('userInfo')) {
+        updatewxProfileApi(this.profileForm).then(res => {
+          this.userInfo.nickname = this.profileForm.nickname
+          this.$store.state.userInfo.nickname = this.profileForm.nickname
+          this.$message.success('个人资料更新成功！')
+        }).catch(err => {
+          this.$message.error(err.message)
+        }).finally(() => {
+          this.loading = false
+        })
+      } else {
+        updateProfileApi(this.profileForm).then(res => {
+          this.userInfo.nickname = this.profileForm.nickname
+          this.$store.state.userInfo.nickname = this.profileForm.nickname
+          this.$message.success('个人资料更新成功！')
+        }).catch(err => {
+          this.$message.error(err.message)
+        }).finally(() => {
+          this.loading = false
+        })
+      }
     },
     // 重置个人资料
     resetProfile() {
@@ -888,7 +905,7 @@ export default {
      */
     handleSignIn() {
       if (this.signInStatus.hasSignedIn) return
-      
+
       this.signInLoading = true
       signInApi().then(res => {
         this.$message.success('签到成功！')
@@ -1021,9 +1038,11 @@ export default {
     }
   }
 }
-.el-menu-item{
+
+.el-menu-item {
   color: var(--text-secondary) !important;
 }
+
 .nav-menu {
   border-radius: 8px;
   background: var(--card-bg);
@@ -1453,24 +1472,24 @@ export default {
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin: 16px 0;
-  
+
   .sign-in-stats {
     display: flex;
     justify-content: center;
     gap: 24px;
     margin-top: 16px;
-    
+
     .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      
+
       .label {
         font-size: 12px;
         color: var(--text-secondary);
       }
-      
+
       .value {
         font-size: 16px;
         font-weight: 600;
