@@ -13,11 +13,13 @@ export function getThemeMode() {
 
 export function setThemeMode(mode) {
   localStorage.setItem('theme-mode', mode)
-  
+  const body = document.documentElement;
   if (mode === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark')
+    body.classList.remove('light-theme');
   } else {
     document.documentElement.removeAttribute('data-theme')
+    body.classList.add('light-theme');
   }
 }
 
