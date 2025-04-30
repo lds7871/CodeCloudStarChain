@@ -5,9 +5,15 @@
       <!-- 用户信息卡片 -->
       <el-card class="user-card">
         <div class="avatar-section">
+<<<<<<< HEAD
           <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
             <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl || userInfo.avatarUrl"
               alt="用户头像"></el-avatar>
+=======
+          <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0"
+            aria-label="更换头像">
+            <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
+>>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
             <div class="upload-overlay" inert>
               <i class="el-icon-camera"></i>
             </div>
@@ -15,11 +21,16 @@
         </div>
         <h3 class="username">{{ userInfo.nickname || userInfo.name }}</h3>
         <p class="signature">{{ userInfo.signature || '这个人很懒，还没有写简介...' }}</p>
-
+        
         <!-- 添加签到按钮 -->
         <div class="sign-in-section">
-          <el-button type="primary" :disabled="signInStatus" @click="handleSignIn" size="small"
-            :loading="signInLoading">
+          <el-button 
+            type="primary" 
+            :disabled="signInStatus"
+            @click="handleSignIn"
+            size="small"
+            :loading="signInLoading"
+          >
             <i class="el-icon-check"></i>
             {{ signInStatus ? '今日已签到' : '立即签到' }}
           </el-button>
@@ -166,6 +177,32 @@
           </div>
         </div>
         <el-empty v-else description="暂无文章，快去发布你的文章吧~~"></el-empty>
+      </div>
+
+      <!-- 我的余额 -->
+      <div v-if="currentTab === 'pay'" class="content-section">
+        <h2 class="section-title">我的余额</h2>
+        <div class="balance-container">
+          <!-- 左侧区域 - 占60% -->
+          <div class="balance-left">
+            <el-card class="balance-card">
+              <div class="balance-info">
+                <h3>账户余额</h3>
+                <div class="balance-amount">
+                  <span class="currency">¥</span>
+                  <span class="amount" >{{ balance }}</span> <!-- 这里接受传值 -->
+                </div>
+                <el-button type="primary" size="medium">充值</el-button>
+              </div>
+            </el-card>
+          </div>
+          <!-- 右侧区域 - 占40% -->
+          <div class="balance-right" >
+            <el-card class="balance-stats" >
+                <span>理性消费提示：适度消费，量入为出，让每一分钱都创造价值。</span>
+            </el-card>
+          </div>
+        </div>
       </div>
 
       <!-- 我的评论 -->
@@ -359,7 +396,11 @@
 
     </main>
 
-    <AvatarCropper :visible.sync="showCropper" :user="userInfo" @update-avatar="handleAvatarUpdate" />
+    <AvatarCropper 
+      :visible.sync="showCropper"
+      :user="userInfo"
+      @update-avatar="handleAvatarUpdate"
+    />
 
   </div>
 </template>
@@ -368,12 +409,16 @@
 import {
   getUserInfoApi, updateProfileApi, updatePasswordApi,
   getMyCommentApi, delMyCommentApi, getMyLikeApi, getMyReplyApi, getMyFeedbackApi, addFeedbackApi,
-  signInApi, getSignInStatusApi, getSignInStatsApi, updatewxProfileApi
+  signInApi, getSignInStatusApi, getSignInStatsApi,getBalanceApi
 } from '@/api/user'
 import { getMyArticleApi, likeArticleApi, delArticleApi } from '@/api/article'
 import { getDictDataApi } from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
+<<<<<<< HEAD
 import { getwxUserInfoApi, giteeLoginApi } from '@/api/auth'
+=======
+
+>>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
 import { marked } from "marked";
 export default {
   name: 'Profile',
@@ -412,6 +457,7 @@ export default {
         { key: 'profile', label: '个人资料', icon: 'fas fa-user' },
         { key: 'binding', label: '账号绑定', icon: 'fas fa-link' },
         { key: 'posts', label: '我的文章', icon: 'fas fa-file-alt' },
+        { key: 'pay', label: '我的余额', icon: 'fas fa-heart' },
         { key: 'comments', label: '我的评论', icon: 'fas fa-comments' },
         { key: 'replies', label: '我的回复', icon: 'fas fa-reply' },
         { key: 'likes', label: '我的点赞', icon: 'fas fa-heart' },
@@ -514,6 +560,7 @@ export default {
       },
       signInLoading: false,
       showCropper: false,
+      balance: 0,
     }
   },
 
@@ -554,6 +601,7 @@ export default {
     },
   },
   created() {
+<<<<<<< HEAD
     if (localStorage.getItem('userInfo')) {
       getwxUserInfoApi(localStorage.getItem("openId")).then(res => {
         console.log(res.data);
@@ -591,15 +639,28 @@ export default {
         Object.assign(this.profileForm, res.data.sysUser)
       })
     }
+=======
+    getUserInfoApi().then(res => {
+      this.userInfo = res.data.sysUser
+      Object.assign(this.profileForm, res.data.sysUser)
+    })
+
+>>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
     this.getFeedbackDict()
     // 获取签到状态和统计
     this.getSignInStatus()
     this.getSignInStats()
+    this.fetchBalance()
   },
   methods: {
     /**
      * 获取反馈类型字典
      */
+    fetchBalance() {
+      getBalanceApi().then(res => {
+        this.balance = res.data.balance
+      })
+    },
     getFeedbackDict() {
       getDictDataApi(['feedback_type']).then(res => {
         this.feedbackTypes = res.data
@@ -812,27 +873,15 @@ export default {
     // 提交个人资料
     submitProfile() {
       this.loading = true
-      if (localStorage.getItem('userInfo')) {
-        updatewxProfileApi(this.profileForm).then(res => {
-          this.userInfo.nickname = this.profileForm.nickname
-          this.$store.state.userInfo.nickname = this.profileForm.nickname
-          this.$message.success('个人资料更新成功！')
-        }).catch(err => {
-          this.$message.error(err.message)
-        }).finally(() => {
-          this.loading = false
-        })
-      } else {
-        updateProfileApi(this.profileForm).then(res => {
-          this.userInfo.nickname = this.profileForm.nickname
-          this.$store.state.userInfo.nickname = this.profileForm.nickname
-          this.$message.success('个人资料更新成功！')
-        }).catch(err => {
-          this.$message.error(err.message)
-        }).finally(() => {
-          this.loading = false
-        })
-      }
+      updateProfileApi(this.profileForm).then(res => {
+        this.userInfo.nickname = this.profileForm.nickname
+        this.$store.state.userInfo.nickname = this.profileForm.nickname
+        this.$message.success('个人资料更新成功！')
+      }).catch(err => {
+        this.$message.error(err.message)
+      }).finally(() => {
+        this.loading = false
+      })
     },
     // 重置个人资料
     resetProfile() {
@@ -923,7 +972,7 @@ export default {
      */
     handleSignIn() {
       if (this.signInStatus.hasSignedIn) return
-
+      
       this.signInLoading = true
       signInApi().then(res => {
         this.$message.success('签到成功！')
@@ -947,6 +996,83 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.balance-container {
+  //display: flex;
+  //gap: 20px;
+
+
+  .balance-left {
+    flex: 0 0 60%;
+
+    .balance-card {
+      height: 100%;
+      background: var(--card-bg);
+
+      .balance-info {
+        text-align: center;
+        padding: 20px;
+        font-size: 34px;
+        letter-spacing: 10px;
+        h3 {
+          color: var(--text-secondary);
+          margin-bottom: 15px;
+        }
+
+        .balance-amount {
+          margin: 20px 0;
+
+          .currency {
+            font-size: 20px;
+            color: var(--text-primary);
+          }
+
+          .amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+  }
+
+  .balance-right {
+    flex: 0 0 40%;
+
+    .balance-stats {
+      height: 100%;
+      font-size: 24px;
+      background: var(--card-bg);
+
+      .stats-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .stats-content {
+        min-height: 200px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .balance-container {
+    flex-direction: column;
+
+    .balance-left,
+    .balance-right {
+      flex: 0 0 100%;
+    }
+  }
+}
+
+
 :deep(input[aria-hidden=true]) {
   display: none !important;
 }
@@ -1056,11 +1182,9 @@ export default {
     }
   }
 }
-
-.el-menu-item {
+.el-menu-item{
   color: var(--text-secondary) !important;
 }
-
 .nav-menu {
   border-radius: 8px;
   background: var(--card-bg);
@@ -1490,24 +1614,24 @@ export default {
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin: 16px 0;
-
+  
   .sign-in-stats {
     display: flex;
     justify-content: center;
     gap: 24px;
     margin-top: 16px;
-
+    
     .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-
+      
       .label {
         font-size: 12px;
         color: var(--text-secondary);
       }
-
+      
       .value {
         font-size: 16px;
         font-weight: 600;

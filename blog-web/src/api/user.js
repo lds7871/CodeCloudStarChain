@@ -35,6 +35,7 @@ export function alipay(query) {
     })
 }
 /**
+<<<<<<< HEAD
  * 修改用户信息
  * @param {*} data 
  * @returns 
@@ -63,6 +64,8 @@ export function checkSuccess(data) {
     })
 }
 /**
+=======
+>>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
  * 修改密码
  */
 export function updatePasswordApi(data) {
@@ -167,7 +170,15 @@ export function getSignInStatsApi() {
         method: 'get'
     })
 }
-
+/**
+ * 账户余额
+ */
+export function getBalanceApi() {
+    return request({
+        url: '/protal/user/balance',
+        method: 'get'
+    })
+}
 
 
 

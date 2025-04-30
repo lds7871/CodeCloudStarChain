@@ -8,7 +8,7 @@
     </el-tooltip>
  
     <el-tooltip content="切换主题" placement="left">
-      <button class="float-btn theme-btn" @click="toggleTheme" title="切换主题">
+      <button class="float-btn theme-btn" @click="toggleTheme" title="切换主题" >
         <i :class="['fas', isDarkMode ? 'fa-sun' : 'fa-moon']"></i>
       </button>
     </el-tooltip>
