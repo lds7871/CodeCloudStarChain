@@ -5,61 +5,59 @@
       <!-- 用户信息卡片 -->
       <el-card class="user-card">
         <div class="avatar-section">
-<<<<<<< HEAD
           <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
             <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl || userInfo.avatarUrl"
-              alt="用户头像"></el-avatar>
-=======
-          <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0"
-            aria-label="更换头像">
-            <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
-            <div class="upload-overlay" inert>
-              <i class="el-icon-camera"></i>
+                       alt="用户头像"></el-avatar>
+            <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0"
+                 aria-label="更换头像">
+              <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
+              <div class="upload-overlay" inert>
+                <i class="el-icon-camera"></i>
+              </div>
             </div>
           </div>
-        </div>
-        <h3 class="username">{{ userInfo.nickname || userInfo.name }}</h3>
-        <p class="signature">{{ userInfo.signature || '这个人很懒，还没有写简介...' }}</p>
-        
-        <!-- 添加签到按钮 -->
-        <div class="sign-in-section">
-          <el-button 
-            type="primary" 
-            :disabled="signInStatus"
-            @click="handleSignIn"
-            size="small"
-            :loading="signInLoading"
-          >
-            <i class="el-icon-check"></i>
-            {{ signInStatus ? '今日已签到' : '立即签到' }}
-          </el-button>
-          <div class="sign-in-stats">
-            <div class="stat-item">
-              <span class="label">连续签到</span>
-              <span class="value">{{ signInStats.continuousDays }}天</span>
-            </div>
-            <div class="stat-item">
-              <span class="label">累计签到</span>
-              <span class="value">{{ signInStats.totalDays }}天</span>
-            </div>
-          </div>
-        </div>
+          <h3 class="username">{{ userInfo.nickname || userInfo.name }}</h3>
+          <p class="signature">{{ userInfo.signature || '这个人很懒，还没有写简介...' }}</p>
 
-        <div class="user-stats" role="list">
-          <div class="stat-item" role="listitem">
-            <span class="number">{{ statistics.posts }}</span>
-            <span class="label">文章</span>
+          <!-- 添加签到按钮 -->
+          <div class="sign-in-section">
+            <el-button
+                type="primary"
+                :disabled="signInStatus"
+                @click="handleSignIn"
+                size="small"
+                :loading="signInLoading"
+            >
+              <i class="el-icon-check"></i>
+              {{ signInStatus ? '今日已签到' : '立即签到' }}
+            </el-button>
+            <div class="sign-in-stats">
+              <div class="stat-item">
+                <span class="label">连续签到</span>
+                <span class="value">{{ signInStats.continuousDays }}天</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">累计签到</span>
+                <span class="value">{{ signInStats.totalDays }}天</span>
+              </div>
+            </div>
           </div>
-          <div class="stat-item" role="listitem">
-            <span class="number">{{ statistics.followers }}</span>
-            <span class="label">关注者</span>
+
+          <div class="user-stats" role="list">
+            <div class="stat-item" role="listitem">
+              <span class="number">{{ statistics.posts }}</span>
+              <span class="label">文章</span>
+            </div>
+            <div class="stat-item" role="listitem">
+              <span class="number">{{ statistics.followers }}</span>
+              <span class="label">关注者</span>
+            </div>
+            <div class="stat-item" role="listitem">
+              <span class="number">{{ statistics.likes }}</span>
+              <span class="label">获赞</span>
+            </div>
           </div>
-          <div class="stat-item" role="listitem">
-            <span class="number">{{ statistics.likes }}</span>
-            <span class="label">获赞</span>
           </div>
-        </div>
       </el-card>
 
       <!-- 导航菜单 -->
@@ -77,7 +75,7 @@
       <div v-if="currentTab === 'profile'" class="content-section">
         <h2 class="section-title">个人资料</h2>
         <el-form ref="profileForm" :model="profileForm" :rules="profileRules" label-width="80px" class="profile-form"
-          @submit.prevent="submitProfile">
+                 @submit.prevent="submitProfile">
           <el-form-item label="昵称" prop="nickname">
             <el-input v-model="profileForm.nickname" :placeholder="'请输入昵称'" aria-label="昵称输入框"></el-input>
           </el-form-item>
@@ -85,7 +83,8 @@
             <el-input v-model="profileForm.email" placeholder="请输入邮箱" aria-label="邮箱输入框"></el-input>
           </el-form-item>
           <el-form-item label="个人简介">
-            <el-input type="textarea" v-model="profileForm.signature" :rows="4" placeholder="介绍一下自己吧..."></el-input>
+            <el-input type="textarea" v-model="profileForm.signature" :rows="4"
+                      placeholder="介绍一下自己吧..."></el-input>
           </el-form-item>
           <el-form-item label="性别">
             <el-radio-group v-model="profileForm.sex">
@@ -96,7 +95,8 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitProfile" :loading="loading" icon="el-icon-edit"
-              size="small">保存修改</el-button>
+                       size="small">保存修改
+            </el-button>
             <el-button size="small" @click="resetProfile" icon="el-icon-refresh">重置</el-button>
           </el-form-item>
         </el-form>
@@ -106,8 +106,9 @@
       <div v-if="currentTab === 'binding'" cla1110ss="content-section">
         <h2 class="section-title">账号绑定</h2>
         <div class="binding-tips">
-          <el-alert title="账号绑定提示" type="info" description="绑定第三方账号后，您可以直接使用第三方账号登录本站，还可以同步您的个人信息。" show-icon
-            :closable="false">
+          <el-alert title="账号绑定提示" type="info"
+                    description="绑定第三方账号后，您可以直接使用第三方账号登录本站，还可以同步您的个人信息。" show-icon
+                    :closable="false">
           </el-alert>
         </div>
         <div class="binding-list">
@@ -127,8 +128,8 @@
                   {{ account.isBound ? '已绑定' : '未绑定' }}
                 </el-tag>
                 <el-button :type="account.isBound ? 'danger' : 'primary'" size="small"
-                  :icon="account.isBound ? 'el-icon-close' : 'el-icon-link'"
-                  @click="account.isBound ? unbindAccount(account.type) : bindAccount(account.type)">
+                           :icon="account.isBound ? 'el-icon-close' : 'el-icon-link'"
+                           @click="account.isBound ? unbindAccount(account.type) : bindAccount(account.type)">
                   {{ account.isBound ? '解除绑定' : '立即绑定' }}
                 </el-button>
               </div>
@@ -143,8 +144,9 @@
         <h2 class="section-title">我的文章</h2>
         <div class="action-bar">
           <div>
-            <el-input v-model="params.title" size="mini" placeholder="输入文字标题搜索文章..." prefix-icon="el-icon-search"
-              style="width: 300px;margin-right: 10px"></el-input>
+            <el-input v-model="params.title" size="mini" placeholder="输入文字标题搜索文章..."
+                      prefix-icon="el-icon-search"
+                      style="width: 300px;margin-right: 10px"></el-input>
             <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
           </div>
 
@@ -160,8 +162,10 @@
                 <el-tag size="small"><i class="el-icon-date"></i>{{ post.createTime }}</el-tag>
                 <el-tag size="small" type="info"><i class="el-icon-view"></i>{{ post.quantity }} 阅读</el-tag>
                 <el-tag size="small" type="success"><i class="el-icon-chat-line-square"></i>{{ post.commentNum || 0 }}
-                  评论</el-tag>
-                <el-tag size="small" type="warning"><i class="el-icon-star-off"></i>{{ post.likeNum || 0 }} 点赞</el-tag>
+                  评论
+                </el-tag>
+                <el-tag size="small" type="warning"><i class="el-icon-star-off"></i>{{ post.likeNum || 0 }} 点赞
+                </el-tag>
               </div>
             </div>
             <div class="post-actions">
@@ -173,7 +177,8 @@
 
           <div class="pagination-box">
             <el-pagination background @current-change="handlePostChange" :current-page="params.pageNum"
-              :page-size="params.pageSize" :total="total" layout="prev, pager, next" class="pagination"></el-pagination>
+                           :page-size="params.pageSize" :total="total" layout="prev, pager, next"
+                           class="pagination"></el-pagination>
           </div>
         </div>
         <el-empty v-else description="暂无文章，快去发布你的文章吧~~"></el-empty>
@@ -190,16 +195,16 @@
                 <h3>账户余额</h3>
                 <div class="balance-amount">
                   <span class="currency">¥</span>
-                  <span class="amount" >{{ balance }}</span> <!-- 这里接受传值 -->
+                  <span class="amount">{{ balance }}</span> <!-- 这里接受传值 -->
                 </div>
                 <el-button type="primary" size="medium">充值</el-button>
               </div>
             </el-card>
           </div>
           <!-- 右侧区域 - 占40% -->
-          <div class="balance-right" >
-            <el-card class="balance-stats" >
-                <span>理性消费提示：适度消费，量入为出，让每一分钱都创造价值。</span>
+          <div class="balance-right">
+            <el-card class="balance-stats">
+              <span>理性消费提示：适度消费，量入为出，让每一分钱都创造价值。</span>
             </el-card>
           </div>
         </div>
@@ -213,7 +218,8 @@
             <div class="comment-actions">
               <p class="comment-text" v-html="parseContent(comment.content)"></p>
               <el-button type="text" icon="el-icon-delete" class="delete"
-                @click="deleteComment(comment.id)">删除</el-button>
+                         @click="deleteComment(comment.id)">删除
+              </el-button>
             </div>
             <div class="comment-meta">
               <el-link type="primary" @click="viewPost(comment.articleId)">文章：{{ comment.articleTitle }}</el-link>
@@ -221,13 +227,17 @@
                 <i class="el-icon-time"></i>
                 {{ comment.createTime }}
               </el-tag>
-              <el-tag size="small" type="success"><i class="el-icon-star-off"></i>{{ comment.likeCount ?
-                comment.likeCount : 0 }} 赞</el-tag>
+              <el-tag size="small" type="success"><i class="el-icon-star-off"></i>{{
+                  comment.likeCount ?
+                      comment.likeCount : 0
+                }} 赞
+              </el-tag>
             </div>
           </el-card>
           <div class="pagination-box">
             <el-pagination background v-if="myComments.length" @current-change="handlePageChange"
-              :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next" :total="total">
+                           :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next"
+                           :total="total">
             </el-pagination>
           </div>
         </div>
@@ -243,10 +253,11 @@
               <div class="comment-actions">
                 <p class="reply-text">
                   <el-tag size="small" type="info">回复 @{{ reply.replyNickname }}</el-tag>
-                <p v-html="parseContent(reply.content)"></p>
+                  <p v-html="parseContent(reply.content)"></p>
                 </p>
                 <el-button type="text" icon="el-icon-delete" class="delete"
-                  @click="deleteReply(reply.id)">删除</el-button>
+                           @click="deleteReply(reply.id)">删除
+                </el-button>
               </div>
               <div class="reply-meta">
                 <el-link type="primary" @click="viewPost(reply.articleId)">文章：{{ reply.articleTitle }}</el-link>
@@ -260,7 +271,8 @@
 
           <div class="pagination-box">
             <el-pagination background v-if="myReplies.length" @current-change="handleReplyPageChange"
-              :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next" :total="total">
+                           :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next"
+                           :total="total">
             </el-pagination>
           </div>
         </div>
@@ -278,7 +290,8 @@
               <div class="comment-actions">
                 <el-link class="article-title" @click="viewPost(like.id)">{{ like.title }}</el-link>
                 <el-button type="text" icon="el-icon-star-off" class="delete"
-                  @click="cancelLike(like.id)">取消点赞</el-button>
+                           @click="cancelLike(like.id)">取消点赞
+                </el-button>
               </div>
               <div class="like-meta">
                 <!-- <el-tag size="small"><i class="el-icon-user"></i>{{ like.author }}</el-tag> -->
@@ -291,7 +304,8 @@
           </el-card>
           <div class="pagination-box">
             <el-pagination background v-if="myLikes.length" @current-change="handleLikePageChange"
-              :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next" :total="total">
+                           :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next"
+                           :total="total">
             </el-pagination>
           </div>
         </div>
@@ -304,25 +318,29 @@
         <h2 class="section-title">修改密码</h2>
 
         <div class="binding-tips">
-          <el-alert title="修改密码提示" type="info" description="只有邮箱登录的才可修改密码，其他第三方登录不存在修改密码功能。" show-icon
-            :closable="false">
+          <el-alert title="修改密码提示" type="info"
+                    description="只有邮箱登录的才可修改密码，其他第三方登录不存在修改密码功能。" show-icon
+                    :closable="false">
           </el-alert>
         </div>
         <el-form ref="passwordForm" :model="passwordForm" :rules="passwordRules" label-width="100px"
-          class="security-form">
+                 class="security-form">
           <el-form-item label="当前密码" prop="oldPassword">
-            <el-input type="password" v-model="passwordForm.oldPassword" show-password placeholder="请输入当前密码"></el-input>
+            <el-input type="password" v-model="passwordForm.oldPassword" show-password
+                      placeholder="请输入当前密码"></el-input>
           </el-form-item>
           <el-form-item label="新密码" prop="newPassword">
-            <el-input type="password" v-model="passwordForm.newPassword" show-password placeholder="请输入新密码"></el-input>
+            <el-input type="password" v-model="passwordForm.newPassword" show-password
+                      placeholder="请输入新密码"></el-input>
           </el-form-item>
           <el-form-item label="确认新密码" prop="confirmPassword">
             <el-input type="password" v-model="passwordForm.confirmPassword" show-password
-              placeholder="请再次输入新密码"></el-input>
+                      placeholder="请再次输入新密码"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button size="small" type="primary" @click="submitPasswordChange" icon="el-icon-edit"
-              :loading="loading">确认修改</el-button>
+                       :loading="loading">确认修改
+            </el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -333,7 +351,7 @@
         <el-tabs>
           <el-tab-pane label="提交反馈">
             <el-form ref="feedbackForm" :model="feedbackForm" :rules="feedbackRules" label-width="100px"
-              class="feedback-form">
+                     class="feedback-form">
               <el-form-item label="反馈类型" prop="type">
                 <el-select v-model="feedbackForm.type" placeholder="请选择反馈类型">
                   <el-option v-for="item in feedbackTypes" :label="item.label" :value="item.value"></el-option>
@@ -341,14 +359,15 @@
               </el-form-item>
               <el-form-item label="反馈内容" prop="content">
                 <el-input type="textarea" v-model="feedbackForm.content" :rows="5"
-                  placeholder="请详细描述您的问题或建议..."></el-input>
+                          placeholder="请详细描述您的问题或建议..."></el-input>
               </el-form-item>
               <el-form-item label="联系邮箱" prop="email">
                 <el-input v-model="feedbackForm.email" placeholder="请留下您的联系邮箱，方便我们回复您"></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="submitFeedback" icon="el-icon-check"
-                  :loading="loading">提交反馈</el-button>
+                           :loading="loading">提交反馈
+                </el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -368,7 +387,7 @@
                       </span>
                     </div>
                     <el-tag v-if="item.value === String(feedback.status)" v-for="item in feedbackStatus"
-                      :type="item.style">
+                            :type="item.style">
                       {{ item.label }}
                     </el-tag>
                   </div>
@@ -384,7 +403,7 @@
                 </el-card>
                 <div class="pagination-box" v-if="myFeedbacks.length">
                   <el-pagination background @current-change="handleFeedbackPageChange" :current-page="params.pageNum"
-                    :page-size="params.pageSize" layout="prev, pager, next" :total="total">
+                                 :page-size="params.pageSize" layout="prev, pager, next" :total="total">
                   </el-pagination>
                 </div>
               </div>
@@ -396,10 +415,10 @@
 
     </main>
 
-    <AvatarCropper 
-      :visible.sync="showCropper"
-      :user="userInfo"
-      @update-avatar="handleAvatarUpdate"
+    <AvatarCropper
+        :visible.sync="showCropper"
+        :user="userInfo"
+        @update-avatar="handleAvatarUpdate"
     />
 
   </div>
@@ -407,19 +426,27 @@
 
 <script>
 import {
-  getUserInfoApi, updateProfileApi, updatePasswordApi,
-  getMyCommentApi, delMyCommentApi, getMyLikeApi, getMyReplyApi, getMyFeedbackApi, addFeedbackApi,
-  signInApi, getSignInStatusApi, getSignInStatsApi,getBalanceApi
+  addFeedbackApi,
+  delMyCommentApi,
+  getBalanceApi,
+  getMyCommentApi,
+  getMyFeedbackApi,
+  getMyLikeApi,
+  getMyReplyApi,
+  getSignInStatsApi,
+  getSignInStatusApi,
+  getUserInfoApi,
+  signInApi,
+  updatePasswordApi,
+  updateProfileApi
 } from '@/api/user'
-import { getMyArticleApi, likeArticleApi, delArticleApi } from '@/api/article'
-import { getDictDataApi } from '@/api/dict'
+import {delArticleApi, getMyArticleApi, likeArticleApi} from '@/api/article'
+import {getDictDataApi} from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
-<<<<<<< HEAD
-import { getwxUserInfoApi, giteeLoginApi } from '@/api/auth'
-=======
+import {getwxUserInfoApi, giteeLoginApi} from '@/api/auth'
 
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
-import { marked } from "marked";
+import {marked} from "marked";
+
 export default {
   name: 'Profile',
   components: {
@@ -454,15 +481,15 @@ export default {
       },
       currentTab: 'profile',
       tabs: [
-        { key: 'profile', label: '个人资料', icon: 'fas fa-user' },
-        { key: 'binding', label: '账号绑定', icon: 'fas fa-link' },
-        { key: 'posts', label: '我的文章', icon: 'fas fa-file-alt' },
-        { key: 'pay', label: '我的余额', icon: 'fas fa-heart' },
-        { key: 'comments', label: '我的评论', icon: 'fas fa-comments' },
-        { key: 'replies', label: '我的回复', icon: 'fas fa-reply' },
-        { key: 'likes', label: '我的点赞', icon: 'fas fa-heart' },
-        { key: 'security', label: '修改密码', icon: 'fas fa-lock' },
-        { key: 'feedback', label: '反馈', icon: 'fas fa-comment-dots' }
+        {key: 'profile', label: '个人资料', icon: 'fas fa-user'},
+        {key: 'binding', label: '账号绑定', icon: 'fas fa-link'},
+        {key: 'posts', label: '我的文章', icon: 'fas fa-file-alt'},
+        {key: 'pay', label: '我的余额', icon: 'fas fa-heart'},
+        {key: 'comments', label: '我的评论', icon: 'fas fa-comments'},
+        {key: 'replies', label: '我的回复', icon: 'fas fa-reply'},
+        {key: 'likes', label: '我的点赞', icon: 'fas fa-heart'},
+        {key: 'security', label: '修改密码', icon: 'fas fa-lock'},
+        {key: 'feedback', label: '反馈', icon: 'fas fa-comment-dots'}
       ],
       boundAccounts: [
         {
@@ -496,16 +523,16 @@ export default {
       myLikes: [],
       passwordRules: {
         oldPassword: [
-          { required: true, message: '请输入当前密码', trigger: 'blur' },
-          { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+          {required: true, message: '请输入当前密码', trigger: 'blur'},
+          {min: 6, message: '密码长度不能小于6位', trigger: 'blur'}
         ],
         newPassword: [
-          { required: true, message: '请输入新密码', trigger: 'blur' },
-          { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+          {required: true, message: '请输入新密码', trigger: 'blur'},
+          {min: 6, message: '密码长度不能小于6位', trigger: 'blur'}
         ],
         confirmPassword: [
-          { required: true, message: '请确认新密码', trigger: 'blur' },
-          { validator: validateConfirmPassword, trigger: 'blur' }
+          {required: true, message: '请确认新密码', trigger: 'blur'},
+          {validator: validateConfirmPassword, trigger: 'blur'}
         ]
       },
       // 个人资料表单
@@ -517,12 +544,12 @@ export default {
       },
       profileRules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+          {required: true, message: '请输入用户名', trigger: 'blur'},
+          {min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur'}
         ],
         email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' },
-          { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+          {required: true, message: '请输入邮箱', trigger: 'blur'},
+          {type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur'}
         ]
       },
       params: {
@@ -543,14 +570,14 @@ export default {
       myFeedbacks: [],
       feedbackRules: {
         type: [
-          { required: true, message: '请选择反馈类型', trigger: 'blur' },
+          {required: true, message: '请选择反馈类型', trigger: 'blur'},
         ],
         content: [
-          { required: true, message: '请输入反馈内容', trigger: 'blur' },
+          {required: true, message: '请输入反馈内容', trigger: 'blur'},
         ],
         email: [
-          { required: false, message: '请输入联系邮箱', trigger: 'blur' },
-          { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
+          {required: false, message: '请输入联系邮箱', trigger: 'blur'},
+          {type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur'},
         ],
       },
       signInStatus: false,
@@ -601,7 +628,6 @@ export default {
     },
   },
   created() {
-<<<<<<< HEAD
     if (localStorage.getItem('userInfo')) {
       getwxUserInfoApi(localStorage.getItem("openId")).then(res => {
         console.log(res.data);
@@ -615,8 +641,7 @@ export default {
           this.profileForm.sex = 2
         }
       })
-    }
-    else if (localStorage.getItem("giteeInfo")) {
+    } else if (localStorage.getItem("giteeInfo")) {
       giteeLoginApi().then(res => {
         console.log(res.data);
         this.userInfo = res.data
@@ -632,20 +657,17 @@ export default {
           this.profileForm.sex = 2
         }
       })
-    }
-    else {
+    } else {
       getUserInfoApi().then(res => {
         this.userInfo = res.data.sysUser
         Object.assign(this.profileForm, res.data.sysUser)
       })
     }
-=======
     getUserInfoApi().then(res => {
       this.userInfo = res.data.sysUser
       Object.assign(this.profileForm, res.data.sysUser)
     })
 
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
     this.getFeedbackDict()
     // 获取签到状态和统计
     this.getSignInStatus()
@@ -740,7 +762,8 @@ export default {
         }).catch(err => {
           this.$message.error(err.message || '删除失败')
         })
-      }).catch(() => { })
+      }).catch(() => {
+      })
     },
     /**
      * 搜索文章
@@ -773,7 +796,8 @@ export default {
         }).then(() => {
           account.isBound = true
           this.$message.success('绑定成功')
-        }).catch(() => { })
+        }).catch(() => {
+        })
       }
     },
     unbindAccount(type) {
@@ -786,7 +810,8 @@ export default {
         }).then(() => {
           account.isBound = false
           this.$message.success('已解除绑定')
-        }).catch(() => { })
+        }).catch(() => {
+        })
       }
     },
     /**
@@ -802,7 +827,8 @@ export default {
           this.$message.success('删除成功')
           this.getMyComment()
         })
-      }).catch(() => { })
+      }).catch(() => {
+      })
     },
     /**
      * 删除回复
@@ -817,7 +843,8 @@ export default {
           this.$message.success('删除成功')
           this.getMyReplies()
         })
-      }).catch(() => { })
+      }).catch(() => {
+      })
     },
     /**
      * 取消点赞
@@ -833,7 +860,8 @@ export default {
           this.$message.success('已取消点赞')
           this.getMyLikes()
         })
-      }).catch(() => { })
+      }).catch(() => {
+      })
     },
 
     /**
@@ -845,7 +873,7 @@ export default {
           this.loading = true
           addFeedbackApi(this.feedbackForm).then(res => {
             this.$message.success('感谢您的反馈！')
-            this.feedbackForm = { ...{} }
+            this.feedbackForm = {...{}}
           }).finally(() => {
             this.loading = false
           })
@@ -885,7 +913,7 @@ export default {
     },
     // 重置个人资料
     resetProfile() {
-      this.profileForm = { ...{} }
+      this.profileForm = {...{}}
     },
     /**
      * 获取我的回复
@@ -972,7 +1000,7 @@ export default {
      */
     handleSignIn() {
       if (this.signInStatus.hasSignedIn) return
-      
+
       this.signInLoading = true
       signInApi().then(res => {
         this.$message.success('签到成功！')
@@ -1013,6 +1041,7 @@ export default {
         padding: 20px;
         font-size: 34px;
         letter-spacing: 10px;
+
         h3 {
           color: var(--text-secondary);
           margin-bottom: 15px;
@@ -1106,7 +1135,6 @@ export default {
 }
 
 
-
 .user-card {
   text-align: center;
   background: var(--card-bg);
@@ -1182,9 +1210,11 @@ export default {
     }
   }
 }
-.el-menu-item{
+
+.el-menu-item {
   color: var(--text-secondary) !important;
 }
+
 .nav-menu {
   border-radius: 8px;
   background: var(--card-bg);
@@ -1319,7 +1349,6 @@ export default {
     align-items: center;
   }
 }
-
 
 
 .action-bar {
@@ -1614,24 +1643,24 @@ export default {
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin: 16px 0;
-  
+
   .sign-in-stats {
     display: flex;
     justify-content: center;
     gap: 24px;
     margin-top: 16px;
-    
+
     .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      
+
       .label {
         font-size: 12px;
         color: var(--text-secondary);
       }
-      
+
       .value {
         font-size: 16px;
         font-weight: 600;

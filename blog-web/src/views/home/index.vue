@@ -7,12 +7,12 @@
         <div class="centered-content">
           <img src="src/assets/LDS/LDSLOGO.png" alt="Centered Image"/>
         </div>
-        <div class="FirstText"  >
+        <div class="FirstText">
           <div class="title" ref="titleRef">
             {{ titleText }}
           </div>
         </div>
-        <div class="clickroll" :class="{ 'fade-out': isClicked }" @click="scrollDown" >
+        <div class="clickroll" :class="{ 'fade-out': isClicked }" @click="scrollDown">
           点击开启
         </div>
       </div>
@@ -78,11 +78,7 @@ import ArticleList from "@/components/ArticleList/index.vue";
 import Carousel from "@/views/home/components/carousel.vue";
 import Sidebar from "@/components/Sidebar/index.vue";
 import MomentsList from "@/views/home/components/moments.vue";
-import {
-  getArticlesApi,
-  getCarouselArticlesApi,
-  getAllCategoriesApi,
-} from "@/api/article";
+import {getAllCategoriesApi, getArticlesApi, getCarouselArticlesApi,} from "@/api/article";
 
 export default {
   name: "Home",
@@ -111,7 +107,7 @@ export default {
           icon: "el-icon-menu",
         },
       ],
-      titleText:'',
+      titleText: '',
     };
   },
   methods: {
@@ -204,10 +200,10 @@ export default {
     },
     scrollDown() {
       this.isClicked = true;
-          window.scrollBy({
-            top: window.innerHeight, // 滚动 100vh
-            behavior: 'smooth', // 平滑滚动
-          });
+      window.scrollBy({
+        top: window.innerHeight, // 滚动 100vh
+        behavior: 'smooth', // 平滑滚动
+      });
     }
   },
   created() {
@@ -216,42 +212,37 @@ export default {
     this.getArticleList();
     this.getCarouselArticles();
     this.getAllCategories();
-<<<<<<< HEAD
   }, mounted() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     if (token) {
       this.$store.dispatch('giteeLogin', token)
-        .then((data) => {
-          if (data) {
-            this.$message.success("登录成功");
-            // 登录成功后刷新用户信息
-            this.$store.dispatch('getUserInfo');
-            // 移除 URL 中的 code 参数，但不刷新页面
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, '', newUrl);
-            // 延迟跳转，确保数据已经保存
-            setTimeout(() => {
-              this.$router.replace('/');
-            }, 300);
-          } else {
-            this.$message.error("登录失败：未获取到用户信息");
-          }
-        })
-        .catch(error => {
-          this.$message.error("登录失败，请重试");
-          console.error(error);
-          // 登录失败后清理状态
-          this.$store.dispatch('logout');
-        });
+          .then((data) => {
+            if (data) {
+              this.$message.success("登录成功");
+              // 登录成功后刷新用户信息
+              this.$store.dispatch('getUserInfo');
+              // 移除 URL 中的 code 参数，但不刷新页面
+              const newUrl = window.location.pathname;
+              window.history.replaceState({}, '', newUrl);
+              // 延迟跳转，确保数据已经保存
+              setTimeout(() => {
+                this.$router.replace('/');
+              }, 300);
+            } else {
+              this.$message.error("登录失败：未获取到用户信息");
+            }
+          })
+          .catch(error => {
+            this.$message.error("登录失败，请重试");
+            console.error(error);
+            // 登录失败后清理状态
+            this.$store.dispatch('logout');
+          });
     }
   }
-=======
-  },
-  computed: {
-
-  },
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
+  ,
+  computed: {},
 };
 </script>
 
