@@ -19,7 +19,12 @@
             <artifactId>weixin-java-mp</artifactId>
             <version>3.4.0</version>
         </dependency>
-
+        <!-- 支付宝沙箱支付-->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>4.22.110.ALL</version>
+        </dependency>
         <!--JustAuth第三方登录模块-->
         <dependency>
             <groupId>me.zhyd.oauth</groupId>

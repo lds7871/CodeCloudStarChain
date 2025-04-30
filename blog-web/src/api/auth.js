@@ -102,13 +102,10 @@ export function checkQrCodeStatus() {
     method: 'get'
   })
 }
-export function giteeLoginApi(id) {
+export function giteeLoginApi() {
   return request({
     url: '/oauth/getGiteeUserInfo',
     method: 'get',
-    params: {
-      id: id 
-    }
   })
 }
 

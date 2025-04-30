@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mojian.mapper.AlipayUserMapper">
+
+    <insert id="insertAlipayOrderInfo">
+      insert into article_order (id,user_id,art_id,trade_status,out_trade_no,total_amount,gmy_payment)
+      values(default,#{alipayOrderInfo.userId},#{alipayOrderInfo.artId},#{alipayOrderInfo.tradeStatus},#{alipayOrderInfo.outTradeNo},#{alipayOrderInfo.totalAmount},#{alipayOrderInfo.gmyPayment})
+    </insert>
+    <select id="payFail" resultType="java.lang.Integer">
+        select count(*) from article_order where user_id = #{alipayOrderInfo.userId} and  art_id = #{alipayOrderInfo.artId} and trade_status = 'TRADE_SUCCESS';
+    </select>
+</mapper>

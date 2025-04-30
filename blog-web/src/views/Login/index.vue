@@ -21,18 +21,7 @@
               <!-- 这里放二维码图片 -->
               <img :src="qrCodeUrl" />
             </div>
-            <!-- <p class="qrcode-tip">
-              登录验证码：
-              <span class="code-text">{{ wechatForm.code }}</span>
-              <span class="code-text" v-if="wechatForm.code === '验证码已失效'">
-                <i class="fas fa-sync-alt" @click="getWechatLoginCode"></i>
-              </span>
-            </p> -->
             <p class="qrcode-tip">微信扫码进行登录</p>
-          </div>
-
-          <div class="divider">
-            <el-divider>其他登录方式</el-divider>
           </div>
 
           <div class="third-party-login">
@@ -138,7 +127,7 @@
             <el-form-item class="form-item" prop="code">
               <el-input prefix-icon="el-icon-key" v-model="forgotForm.code" placeholder="请输入验证码">
                 <template slot="append">
-                  <el-button @click="sendVerificationCode" :disabled="codeSending">
+                  <el-button @click="sendVerificationCode">
                     {{ codeButtonText }}
                   </el-button>
                 </template>
@@ -345,9 +334,6 @@ export default {
       this.currentForm = form;
       this.loading = false;
       this.clearTimer();
-      if (form === "login") {
-        this.getWechatLoginCode();
-      }
     },
     /**
      * 登录

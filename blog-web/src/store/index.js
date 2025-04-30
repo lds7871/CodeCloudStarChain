@@ -6,7 +6,7 @@ import { getToken, setToken, removeToken } from '@/utils/cookie'
 Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
-    userInfo: sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : null,
+    userInfo: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
     webSiteInfo: {
       showList: []
     },
@@ -29,7 +29,7 @@ export default new Vuex.Store({
     },
     SET_USER_INFO(state, userInfo) {
       state.userInfo = userInfo
-      sessionStorage.setItem("user", JSON.stringify(userInfo))
+      localStorage.setItem("user", JSON.stringify(userInfo))
     },
 
     SET_SEARCH_VISIBLE(state, visible) {
@@ -75,11 +75,17 @@ export default new Vuex.Store({
      */
     async getUserInfo({ commit }) {
       try {
-        const userInfo = sessionStorage.getItem("user")
+        const userInfo = localStorage.getItem("user")
+        const loginType = localStorage.getItem("userInfo") // 获取登录类型
+
+        // 如果已有用户信息，直接使用本地存储的信息
         if (userInfo) {
-          const response = await checkQrCodeStatus()
-          commit('SET_USER_INFO', response.data)
-        } else if (getToken()) {
+          commit('SET_USER_INFO', JSON.parse(userInfo))
+          return
+        }
+
+        // 只有在没有用户信息的情况下才去请求
+        if (getToken()) {
           const res = await getUserInfoApi()
           commit('SET_USER_INFO', res.data)
         }
@@ -90,7 +96,7 @@ export default new Vuex.Store({
 
     async wxlogin({ commit }) {
       try {
-        const userInfo = sessionStorage.getItem("user")
+        const userInfo = localStorage.getItem("user")
         let data
         if (userInfo) {
           const response = await checkQrCodeStatus()
@@ -127,29 +133,24 @@ export default new Vuex.Store({
         return Promise.reject(error)
       }
     },
-    async giteeLogin({ commit }, code) {
+    async giteeLogin({ commit }, token) {
+      commit('SET_TOKEN', token);
       try {
-        const res = await giteeLoginApi(code);
-        console.log('Gitee登录响应:', res.data); // 添加日志
-        alert("我进来了")
-        if (res.data && res.data.token) {
-          // 先设置 token
-          commit('SET_TOKEN', res.data.token);
-          // 再设置用户信息
-          commit('SET_USER_INFO', res.data);
+        const res = await giteeLoginApi();
+        console.log('Gitee登录响应:', res); // 打印完整响应
 
-          // 存储 Gitee 相关信息到 localStorage
-          localStorage.setItem("userInfo", "gitee");
+        if (res.data) {
+          commit('SET_USER_INFO', res.data);
+          localStorage.setItem("giteeInfo", "gitee");
           localStorage.setItem("giteeId", res.data.id);
           localStorage.setItem("avatar", res.data.avatarUrl);
           localStorage.setItem("nickname", res.data.name);
-
-          // 不要立即获取用户信息，等token设置完成
           return Promise.resolve(res.data);
         }
-                return Promise.reject(new Error('登录失败：未获取到有效的登录信息'));
+        console.error('登录响应异常:', res); // 添加错误日志
+        return Promise.reject(new Error('登录失败：未获取到有效的登录信息'));
       } catch (error) {
-        console.error('Gitee登录错误:', error); // 添加错误日志
+        console.error('Gitee登录错误:', error); // 添加详细错误信息
         return Promise.reject(error);
       }
     },

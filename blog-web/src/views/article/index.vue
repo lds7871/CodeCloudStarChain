@@ -34,7 +34,7 @@
         </div>
         <div class="reward-popup">
           <div class="reward-content">
-            <img v-lazy="$store.state.webSiteInfo.weixinPay" alt="微信打赏" class="reward-qr">
+            <img v-lazy="$store.state.webSiteInfo.weixinPay" alt="余额打赏" class="reward-qr">
             <img v-lazy="$store.state.webSiteInfo.aliPay" alt="支付宝打赏" class="reward-qr">
           </div>
           <div class="reward-text">扫一扫，请我喝杯咖啡</div>
@@ -117,9 +117,9 @@
         </div>
 
         <!-- 文章内容 -->
-        <article class="article-content">
+        <article class="article-content" >
           <!-- 免费内容 -->
-          <div v-if="article.readType === 1" v-html="article.content"></div>
+       <div v-if="article.readType === 1 || isPaid" v-html="article.content"></div>
           
           <!-- 会员内容 -->
           <div v-else-if="article.readType === 2" class="locked-content member">
@@ -135,16 +135,16 @@
           </div>
           
           <!-- 付费内容 -->
-          <div v-else-if="article.readType === 3" class="locked-content paid">
-            <div class="preview-content" v-html="getPreviewContent(article.content)"></div>
-            <div class="content-locker">
-              <div class="locker-icon">
-                <i class="fas fa-lock"></i>
-              </div>
-              <h3>付费阅读</h3>
-              <p>支付 1 元即可阅读全文</p>
-              <el-button type="primary" @click="handlePurchase">立即购买</el-button>
-            </div>
+         <div v-else class="payment-notice">
+          <div class="preview-content" v-html="getPreviewContent(article.content)"></div>
+         <div class="payment-mask">
+        <i class="el-icon-lock"></i>
+        <h3>付费内容</h3>
+        <p>支付后可查看完整内容</p>
+        <el-button type="primary" @click="handlePurchase">
+          立即购买 ￥{{ article.price }}
+        </el-button>
+      </div>
           </div>
         </article>
 
@@ -316,7 +316,7 @@ import Comment from '@/components/Comment/index.vue'
 import PaymentDialog from '@/components/PaymentDialog/index.vue'
 import MembershipDialog from '@/components/MembershipDialog/index.vue'
 import { marked } from 'marked'
-
+import {checkSuccess } from '@/api/user';
 export default {
   name: 'Article',
   components: {
@@ -326,6 +326,10 @@ export default {
   },
   data() {
     return {
+       query: {
+        userId: undefined,
+        art_id: undefined,
+      },
       article: {
         title: '',
         category: {},
@@ -356,11 +360,16 @@ export default {
       showPaymentDialog: false,
       showMembershipDialog: false,
       isAiDescriptionExpanded: true,
+      isPaid: false, // 添加支付状态控制
     }
   },
   computed: {
     currentUrl() {
       return window.location.href
+    },
+     showContent() {
+      // 如果文章不需要付费或已经支付，则显示完整内容
+      return !this.article.needPay || this.isPaid;
     }
   },
   methods: {
@@ -814,6 +823,20 @@ export default {
           pre.insertBefore(lineNumbers, code)
         }
       })
+    }, checkPaymentStatus() {
+      // 检查本地存储的支付状态
+      const isPaid = localStorage.getItem(`article_paid_${this.$route.params.id}`);
+      if (isPaid) {
+        this.isPaid = true;
+        return;
+      }
+      // 如果本地没有支付记录，则向服务器查询
+      checkSuccess().then(res => {
+        if (res.data) {
+          this.isPaid = true;
+          localStorage.setItem(`article_paid_${this.$route.params.id}`, 'true');
+        }
+      });
     },
     /**
      * 获取预览内容
@@ -890,6 +913,7 @@ export default {
   },
   async created() {
     await this.getArticle()
+    this.checkPaymentStatus();
     window.addEventListener('resize', this.updateActionBarPosition)
   },
   mounted() {
@@ -897,6 +921,9 @@ export default {
     this.$nextTick(() => {
       this.initImagePreview()
     })
+    if(this.$route.query.out_trade_no){
+      this.isPaid = true;
+    }
   },
   beforeDestroy() {
     window.removeEventListener('scroll', this.updateActiveHeading)

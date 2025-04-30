@@ -75,42 +75,44 @@ public class MySaTokenListener implements SaTokenListener {
 
         String ip = IpUtil.getIp();
         System.out.println("自定义的id"+loginId);
-        if(checkRoleId()){
-            WeChatInfo weChatInfo = weChatMapper.selectById((Integer) loginId);
-            // 更新登录信息
-            String userAgent = request.getHeader("User-Agent");
-            weChatInfo.setLastLoginTime(String.valueOf(LocalDateTime.now()));
-            weChatInfo.setIp(ip);
-            weChatInfo.setIpLocation(IpUtil.getIp2region(ip));
-            weChatInfo.setOs(UserAgentUtil.getOs(userAgent));
-            weChatInfo.setBrowser(UserAgentUtil.getBrowser(userAgent));
-            weChatMapper.updateById(weChatInfo);
-            WxOnlineUserVo wxOnlineUserVo = new WxOnlineUserVo();
-            BeanUtils.copyProperties(weChatInfo, wxOnlineUserVo);
+        SysUser user = userMapper.selectById((Integer) loginId);
+        if(user == null){
+            if(checkRoleId()){
+                WeChatInfo weChatInfo = weChatMapper.selectById((Integer) loginId);
+                // 更新登录信息
+                String userAgent = request.getHeader("User-Agent");
+                weChatInfo.setLastLoginTime(String.valueOf(LocalDateTime.now()));
+                weChatInfo.setIp(ip);
+                weChatInfo.setIpLocation(IpUtil.getIp2region(ip));
+                weChatInfo.setOs(UserAgentUtil.getOs(userAgent));
+                weChatInfo.setBrowser(UserAgentUtil.getBrowser(userAgent));
+                weChatMapper.updateById(weChatInfo);
+                WxOnlineUserVo wxOnlineUserVo = new WxOnlineUserVo();
+                BeanUtils.copyProperties(weChatInfo, wxOnlineUserVo);
 
-            wxOnlineUserVo.setTokenValue(tokenValue);
-            redisUtil.set(RedisConstants.LOGIN_TOKEN + tokenValue, JSONUtil.toJsonStr(wxOnlineUserVo),timeout, TimeUnit.SECONDS);
-            System.out.println("---------- 自定义侦听器实现 doLogin");
-        }else if(checkgiteeRoleId()){
-            GiteeInfo gitee = giteeMapper.selectByUserId((Integer) loginId);
-            System.out.println(1111111);
-            String userAgent = request.getHeader("User-Agent");
-            gitee.setLastLoginTime(String.valueOf(LocalDateTime.now()));
-            gitee.setIp(ip);
-            gitee.setIpLocation(IpUtil.getIp2region(ip));
-            gitee.setOs(UserAgentUtil.getOs(userAgent));
-            gitee.setBrowser(UserAgentUtil.getBrowser(userAgent));
-            giteeMapper.updateByUser(gitee);
-            GiteeOnilneUserVo giteeOnilneUserVo = new GiteeOnilneUserVo();
-            BeanUtils.copyProperties(gitee, giteeOnilneUserVo);
-            giteeOnilneUserVo.setTokenValue(tokenValue);
-            System.out.println("原本"+gitee);
-            System.out.println("数据为；"+giteeOnilneUserVo.toString());
-            redisUtil.set(RedisConstants.LOGIN_TOKEN + tokenValue, JSONUtil.toJsonStr(giteeOnilneUserVo),timeout, TimeUnit.SECONDS);
-            System.out.println("---------- 自定义侦听器实现 doLogin");
-        }
-        else{
-            SysUser user = userMapper.selectById((Integer) loginId);
+                wxOnlineUserVo.setTokenValue(tokenValue);
+                redisUtil.set(RedisConstants.LOGIN_TOKEN + tokenValue, JSONUtil.toJsonStr(wxOnlineUserVo),timeout, TimeUnit.SECONDS);
+                System.out.println("---------- 自定义侦听器实现 doLogin");
+            }else{
+                GiteeInfo gitee = giteeMapper.selectByUserId((Integer) loginId);
+                System.out.println(1111111);
+                String userAgent = request.getHeader("User-Agent");
+                gitee.setLastLoginTime(String.valueOf(LocalDateTime.now()));
+                gitee.setIp(ip);
+                gitee.setIpLocation(IpUtil.getIp2region(ip));
+                gitee.setOs(UserAgentUtil.getOs(userAgent));
+                gitee.setBrowser(UserAgentUtil.getBrowser(userAgent));
+                giteeMapper.updateByUser(gitee);
+                GiteeOnilneUserVo giteeOnilneUserVo = new GiteeOnilneUserVo();
+                BeanUtils.copyProperties(gitee, giteeOnilneUserVo);
+                giteeOnilneUserVo.setTokenValue(tokenValue);
+                System.out.println("原本"+gitee);
+                System.out.println("数据为；"+giteeOnilneUserVo.toString());
+                redisUtil.set(RedisConstants.LOGIN_TOKEN + tokenValue, JSONUtil.toJsonStr(giteeOnilneUserVo),timeout, TimeUnit.SECONDS);
+                System.out.println("---------- 自定义侦听器实现 doLogin");
+            }
+
+        } else{
             System.out.println(33333);
             // 更新登录信息
             String userAgent = request.getHeader("User-Agent");

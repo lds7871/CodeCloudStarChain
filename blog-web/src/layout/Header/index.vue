@@ -66,7 +66,7 @@
                   :src="$store.state.userInfo.avatar || $store.state.userInfo.headimgurl || $store.state.userInfo.avatarUrl"
                   :alt="$store.state.userInfo.nickname">
                 <div class="user-details">
-                  <span class="username">{{ $store.state.userInfo.nickname }}</span>
+                  <span class="username">{{ $store.state.userInfo.nickname || $store.state.userInfo.name }}</span>
                   <span class="role">{{
                     $store.state.userInfo.roleId === 1 ? '管理员' : '普通用户' || $store.state.userInfo.roleId === 15 ? '普通用户'
                       : '管理员' }}</span>

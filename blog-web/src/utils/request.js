@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getToken,removeToken } from '@/utils/cookie'
+import { getToken, removeToken } from '@/utils/cookie'
 import store from '@/store'
 import router from '@/router'
 
@@ -34,25 +34,34 @@ service.interceptors.response.use(
       return response
     }
     const res = response.data
-    if (response.config.url?.includes('/wechat/checkQrCodeStatus')) {
+    if (response.config.url?.includes('/wechat/checkQrCodeStatus') ||
+      response.config.url?.includes('/gitee/login') ||
+      response.config.url?.includes('/alipay/pay')) {  // 添加支付宝支付接口判断
       return res
     }
+
+    // 对特殊接口的处理
+    if (response.config.url?.includes('/wechat/checkQrCodeStatus') ||
+      response.config.url?.includes('/gitee/login')) {  // 添加 gitee 登录接口判断
+      return res
+    }
+
     if (res.code === 200) {
       return res
-    } else if(res.code === 404){
+    } else if (res.code === 404) {
       return Promise.reject(new Error('请求路径不存在'))
-    }else if(res.code === 401){
+    } else if (res.code === 401) {
       removeToken()
-      //这里获取不到this，所以需要使用全局变量
       store.commit('SET_USER_INFO', null)
       router.push('/login')
       return Promise.reject(new Error('当前登录已过期，请重新登录'))
-    }else {
-      // 可以在这里统一处理错误
+    } else {
+      console.log('响应数据:', res) // 添加日志
       return Promise.reject(new Error(res.message || '请求失败'))
     }
   },
   error => {
+    console.error('请求错误:', error) // 添加错误日志
     return Promise.reject(error)
   }
 )

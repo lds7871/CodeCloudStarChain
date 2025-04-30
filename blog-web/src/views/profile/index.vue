@@ -6,13 +6,14 @@
       <el-card class="user-card">
         <div class="avatar-section">
           <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
-            <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl" alt="用户头像"></el-avatar>
+            <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl || userInfo.avatarUrl"
+              alt="用户头像"></el-avatar>
             <div class="upload-overlay" inert>
               <i class="el-icon-camera"></i>
             </div>
           </div>
         </div>
-        <h3 class="username">{{ userInfo.nickname }}</h3>
+        <h3 class="username">{{ userInfo.nickname || userInfo.name }}</h3>
         <p class="signature">{{ userInfo.signature || '这个人很懒，还没有写简介...' }}</p>
 
         <!-- 添加签到按钮 -->
@@ -67,7 +68,7 @@
         <el-form ref="profileForm" :model="profileForm" :rules="profileRules" label-width="80px" class="profile-form"
           @submit.prevent="submitProfile">
           <el-form-item label="昵称" prop="nickname">
-            <el-input v-model="profileForm.nickname" placeholder="请输入昵称" aria-label="昵称输入框"></el-input>
+            <el-input v-model="profileForm.nickname" :placeholder="'请输入昵称'" aria-label="昵称输入框"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email">
             <el-input v-model="profileForm.email" placeholder="请输入邮箱" aria-label="邮箱输入框"></el-input>
@@ -372,7 +373,7 @@ import {
 import { getMyArticleApi, likeArticleApi, delArticleApi } from '@/api/article'
 import { getDictDataApi } from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
-import { getwxUserInfoApi } from '@/api/auth'
+import { getwxUserInfoApi, giteeLoginApi } from '@/api/auth'
 import { marked } from "marked";
 export default {
   name: 'Profile',
@@ -556,7 +557,6 @@ export default {
     if (localStorage.getItem('userInfo')) {
       getwxUserInfoApi(localStorage.getItem("openId")).then(res => {
         console.log(res.data);
-
         this.userInfo = res.data
         Object.assign(this.profileForm, res.data)
         if (res.data.sex == "男") {
@@ -567,7 +567,25 @@ export default {
           this.profileForm.sex = 2
         }
       })
-    } else {
+    }
+    else if (localStorage.getItem("giteeInfo")) {
+      giteeLoginApi().then(res => {
+        console.log(res.data);
+        this.userInfo = res.data
+        Object.assign(this.profileForm, res.data)
+        if (res.data.name) {
+          this.profileForm.nickname = res.data.name
+        }
+        if (res.data.sex == "男") {
+          this.profileForm.sex = 1
+        } else if (res.data.sex == "女") {
+          this.profileForm.sex = 0
+        } else {
+          this.profileForm.sex = 2
+        }
+      })
+    }
+    else {
       getUserInfoApi().then(res => {
         this.userInfo = res.data.sysUser
         Object.assign(this.profileForm, res.data.sysUser)

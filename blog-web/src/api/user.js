@@ -22,7 +22,18 @@ export function updateProfileApi(data) {
         data
     })
 }
-
+/**
+ * 支付宝沙箱支付
+ * @param {*} query 
+ * @returns 
+ */
+export function alipay(query) {
+    return request({
+        url: '/alipay/pay',
+        method: 'get',
+        params: query
+    })
+}
 /**
  * 修改用户信息
  * @param {*} data 
@@ -36,8 +47,21 @@ export function updatewxProfileApi(data) {
     })
 }
 
+export function rhgeSuccess(data) {
+    return request({
+        url: '/alipay/rhgeSuccess',
+        method: 'post',
+        data: data
+    })
+}
 
-
+export function checkSuccess(data) {
+    return request({
+        url: '/alipay/rhgeFail',
+        method: 'post',
+        data: data
+    })
+}
 /**
  * 修改密码
  */

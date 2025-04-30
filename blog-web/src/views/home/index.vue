@@ -145,11 +145,11 @@ export default {
     this.getAllCategories();
   }, mounted() {
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-    if (id) {
-      this.$store.dispatch('giteeLogin', id)
+    const token = urlParams.get('token');
+    if (token) {
+      this.$store.dispatch('giteeLogin', token)
         .then((data) => {
-          if (data && data.token) {
+          if (data) {
             this.$message.success("登录成功");
             // 登录成功后刷新用户信息
             this.$store.dispatch('getUserInfo');

@@ -41,18 +41,31 @@ public class EmailUtil {
     private final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
 
-    public void getJavaMailSenderImpl() {
-        javaMailSender.setHost(host);
-        javaMailSender.setUsername(fromEmail);
-        javaMailSender.setPassword(password);
-        javaMailSender.setPort(port);
-        javaMailSender.setDefaultEncoding("UTF-8");
-        Properties p = new Properties();
-        p.setProperty("mail.smtp.auth", "true");
-        p.setProperty("mail.debug", "true");
-        javaMailSender.setJavaMailProperties(p);
-    }
-
+//    public void getJavaMailSenderImpl() {
+//        javaMailSender.setHost(host);
+//        javaMailSender.setUsername(fromEmail);
+//        javaMailSender.setPassword(password);
+//        javaMailSender.setPort(port);
+//        javaMailSender.setDefaultEncoding("UTF-8");
+//        Properties p = new Properties();
+//        p.setProperty("mail.smtp.auth", "true");
+//        p.setProperty("mail.debug", "true");
+//        javaMailSender.setJavaMailProperties(p);
+//    }
+public void getJavaMailSenderImpl() {
+    javaMailSender.setHost(host);
+    javaMailSender.setUsername(fromEmail);
+    javaMailSender.setPassword(password);
+    javaMailSender.setPort(port);
+    javaMailSender.setDefaultEncoding("UTF-8");
+    Properties p = new Properties();
+    p.setProperty("mail.smtp.auth", "true");
+    p.setProperty("mail.debug", "true");
+    p.setProperty("mail.smtp.ssl.enable", "true");
+    p.setProperty("mail.smtp.socketFactory.port", String.valueOf(port));
+    p.setProperty("mail.smtp.socketFactory.class", "jakarta.net.ssl.SSLSocketFactory");
+    javaMailSender.setJavaMailProperties(p);
+}
     /**
      * 发送验证码
      *
@@ -74,17 +87,11 @@ public class EmailUtil {
                 "      <div style=\"max-width:800px;padding-bottom:10px;margin:20px auto 0 auto;\">\n" +
                 "        <table cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #fff;border-collapse: collapse; border:1px solid #e5e5e5;box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);text-align: left;width: 100%;font-size: 14px;border-spacing: 0;\">\n" +
                 "          <tbody>\n" +
-                "            <tr style=\"background-color: #f8f8f8;\">\n" +
-                "              <td>\n" +
-                "                <img style=\"padding: 15px 0 15px 30px;width:50px\" src=\"https://foruda.gitee.com/avatar/1739413372327645883/13781_d029020a68_1739413372.png\" />" +
-                "                <span>拾壹博客 </span>\n" +
-                "              </td>\n" +
-                "            </tr>\n" +
                 "            <tr>\n" +
                 "              <td class=\"p-intro\">\n" +
                 "                <h1 style=\"font-size: 26px; font-weight: bold;\">验证您的邮箱地址</h1>\n" +
-                "                <p style=\"line-height:1.75em;\">感谢您使用 拾壹博客. </p>\n" +
-                "                <p style=\"line-height:1.75em;\">以下是您的邮箱验证码，请将它输入到  <span style=\"color:#409eff;\">拾壹博客</span> 的邮箱验证码输入框中:</p>\n" +
+                "                <p style=\"line-height:1.75em;\">感谢您使用 码云星链. </p>\n" +
+                "                <p style=\"line-height:1.75em;\">以下是您的邮箱验证码，请将它输入到  <span style=\"color:#409eff;\">码云星链</span> 的邮箱验证码输入框中:</p>\n" +
                 "              </td>\n" +
                 "            </tr>\n" +
                 "            <tr>\n" +
@@ -100,7 +107,7 @@ public class EmailUtil {
                 "            <tr>\n" +
                 "              <td class=\"p-intro\">\n" +
                 "                <hr>\n" +
-                "                <p style=\"text-align: center;line-height:1.75em;\">shiyi - <a href='https://www.shiyit.com' style='text-decoration: none;color:#409eff'>拾壹博客</a></p>\n" +
+                "                <p style=\"text-align: center;line-height:1.75em;\">shiyi - <a href='https://www.shiyit.com' style='text-decoration: none;color:#409eff'>码云星链</a></p>\n" +
                 "              </td>\n" +
                 "            </tr>\n" +
                 "          </tbody>\n" +
@@ -131,7 +138,7 @@ public class EmailUtil {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mineHelper = new MimeMessageHelper(mimeMessage, true);
         // 设置邮件主题
-        mineHelper.setSubject("您有一封来自 拾壹博客 的回执！");
+        mineHelper.setSubject("您有一封来自 码云星链 的回执！");
         // 设置邮件发送者
         mineHelper.setFrom(Objects.requireNonNull(javaMailSender.getUsername()));
         // 设置邮件接收者，可以有多个接收者，中间用逗号隔开

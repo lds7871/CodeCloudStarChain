@@ -23,7 +23,7 @@
             :class="{ active: paymentMethod === 'alipay' }"
             @click="paymentMethod = 'alipay'"
           >
-            <i class="fab fa-alipay method-icon"></i>
+            <i class="fab  method-icon"></i>
             <span class="method-name">支付宝</span>
             <i class="fas fa-check-circle check-icon"></i>
           </div>
@@ -32,31 +32,13 @@
             :class="{ active: paymentMethod === 'wechat' }"
             @click="paymentMethod = 'wechat'"
           >
-            <i class="fab fa-weixin method-icon"></i>
-            <span class="method-name">微信支付</span>
+            <i class="fab   fa-money method-icon"></i>
+            <span class="method-name">余额支付</span>
             <i class="fas fa-check-circle check-icon"></i>
           </div>
         </div>
       </div>
 
-      <!-- 支付二维码区域 -->
-      <div class="qr-section" v-loading="qrLoading">
-        <template v-if="showQRCode">
-          <div class="qr-wrapper">
-            <div class="qr-code">
-              <img :src="qrCodeUrl" alt="支付二维码">
-            </div>
-            <div class="qr-tip">
-              <i class="fas" :class="paymentMethod === 'alipay' ? 'fa-alipay' : 'fa-weixin'"></i>
-              <span>{{ paymentMethod === 'alipay' ? '请使用支付宝扫码支付' : '请使用微信扫码支付' }}</span>
-            </div>
-          </div>
-          <div class="payment-status">
-            <div class="amount">支付金额：<span>￥{{ price }}</span></div>
-            <div class="order-no">订单号：{{ orderNo }}</div>
-          </div>
-        </template>
-      </div>
     </div>
 
     <div slot="footer" class="dialog-footer">
@@ -77,8 +59,7 @@
 </template>
 
 <script>
-import { createOrder, checkOrderStatus } from '@/api/payment'
-
+import {rhgeSuccess} from '@/api/user'
 export default {
   name: 'PaymentDialog',
   props: {
@@ -107,76 +88,89 @@ export default {
       showQRCode: false,
       qrCodeUrl: this.paymentMethod === 'alipay' ? this.$store.state.webSiteInfo.aliPay : this.$store.state.webSiteInfo.weixinPay,
       orderNo: '',
-      checkTimer: null
+      checkTimer: null,
+      query: {
+        userId: undefined,
+        art_id: undefined,
+        total_amount: undefined,
+        out_trade_no: undefined,
+        trade_status: undefined,
+        gmt_payment: undefined,
+      },
+      user: {}
     }
   },
   methods: {
-    async handlePay() {
-      this.loading = true
-      this.qrLoading = true
-      try {
-        // 创建订单
-        const res = await createOrder({
-          articleId: this.articleId,
-          paymentMethod: this.paymentMethod,
-          amount: this.price
-        })
-        
-        this.orderNo = res.data.orderNo
-        this.qrCodeUrl = res.data.qrCodeUrl
-        this.showQRCode = true
-        
-        // 开始轮询支付状态
-        this.startCheckingPayment()
-      } catch (error) {
-        this.$message.error('创建订单失败，请重试')
-      } finally {
-        this.loading = false
-        this.qrLoading = false
+async handlePay() {
+  this.loading = true;
+  try {
+    const timestamp = Date.now();
+    const params = {
+      subject: "付费文章",
+      traceNo: timestamp,
+      totalAmount: this.price
+    };
+    
+    // 使用 import.meta.env 访问环境变量，并对参数进行编码
+    const url = `${import.meta.env.VITE_APP_API_URL}/alipay/pay?` + 
+      `subject=${encodeURIComponent("付费文章")}&` +
+      `traceNo=${encodeURIComponent(timestamp)}&` +
+      `totalAmount=${encodeURIComponent(this.price)}`;
+    
+    // 在新窗口打开支付页面
+    const payWindow = window.open(url, '_self');
+    
+    // 检查窗口是否成功打开
+    if (payWindow === null) {
+      this.$message.error('请允许浏览器打开新窗口进行支付');
+    }
+    
+  } catch (error) {
+    console.error('支付错误:', error);
+    this.$message.error('创建订单失败，请重试');
+  } finally {
+    this.loading = false;
+  }
+}, payReturn() {
+      if (this.$route.query.out_trade_no) {
+        console.log("进入支付回调...");
+        this.query = {
+          art_id: this.articleId, // 使用props传入的文章ID
+          userId: JSON.parse(localStorage.getItem("user")).id,
+          out_trade_no: this.$route.query.out_trade_no,
+          total_amount: parseFloat(this.$route.query.total_amount),
+          trade_status: this.$route.query.trade_status,
+          gmt_payment: this.$route.query.gmt_payment
+        };
+
+        rhgeSuccess(this.query).then(res => {
+          if (res.data.code === 1) {
+            this.handlePaymentSuccess();
+            // 刷新页面以显示完整内容
+            window.location.reload();
+          }
+        }).catch(e => {
+          console.error('支付验证失败:', e);
+          this.$message.error('支付验证失败，请联系管理员');
+        });
       }
     },
-    startCheckingPayment() {
-      this.checkTimer = setInterval(async () => {
-        const status = await this.checkPaymentStatus(false)
-        if (status === 'SUCCESS') {
-          this.handlePaymentSuccess()
-        }
-      }, 3000)
-    },
-    async checkPaymentStatus(showMessage = true) {
-      try {
-        const res = await checkOrderStatus(this.orderNo)
-        if (res.data.status === 'SUCCESS') {
-          this.handlePaymentSuccess()
-          return 'SUCCESS'
-        } else if (showMessage) {
-          this.$message.warning('未检测到支付完成，请确认支付状态')
-        }
-        return res.data.status
-      } catch (error) {
-        if (showMessage) {
-          this.$message.error('检查支付状态失败，请刷新页面重试')
-        }
-        return 'ERROR'
-      }
-    },
+
     handlePaymentSuccess() {
-      clearInterval(this.checkTimer)
-      this.$message.success('支付成功')
-      this.$emit('payment-success')
-      this.handleClose()
-    },
+      this.$message.success('支付成功，即将显示完整内容');
+      this.$emit('payment-success');
+      this.handleClose();
+      
+      // 存储支付状态到本地
+      localStorage.setItem(`article_paid_${this.articleId}`, 'true');
+  },
     handleClose() {
-      clearInterval(this.checkTimer)
       this.showQRCode = false
       this.qrCodeUrl = ''
       this.orderNo = ''
       this.$emit('update:visible', false)
     }
   },
-  beforeDestroy() {
-    clearInterval(this.checkTimer)
-  }
 }
 </script>
 
