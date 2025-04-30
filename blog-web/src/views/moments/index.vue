@@ -180,7 +180,6 @@ export default {
   padding: 0 20px;
   position: relative;
   z-index: 2;
-  background: var(--card-bg);
 }
 
 .moment-item {
@@ -268,9 +267,10 @@ export default {
 }
 
 .moment-content-wrapper {
- background: #ffffff;
+  background: var(--card-bg);
   padding: 16px;
   border-radius: 0 $border-radius-lg*2 $border-radius-lg*2 $border-radius-lg*2;
+
   @media screen and (max-width: 768px) {
     border-radius: $border-radius-lg;
   }
