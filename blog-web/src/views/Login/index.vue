@@ -374,6 +374,7 @@ export default {
           } catch (error) {
             this.$message.error(error.message || "注册失败，请重试");
           } finally {
+
             this.loading = false;
           }
         } else {

@@ -14,6 +14,7 @@ import com.mojian.vo.article.ArticleListVo;
 import com.mojian.vo.comment.CommentListVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +28,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    private  SysUserMapper sysUserMapper;
 
     private final SysCommentMapper commentMapper;
 
     private final SysArticleMapper articleMapper;
-
+    private RedisTemplate<SysUser, Object> redisTemplate;
     @Autowired
     private WeChatMapper weChatMapper;
     private final SysTagMapper tagMapper;
+    @Autowired
+    private GiteeMapper giteeMapper;
 
     @Override
     public IPage<CommentListVo> selectMyComment() {
@@ -79,4 +82,15 @@ public class UserServiceImpl implements UserService {
         return articleMapper.selectMyArticle(PageUtil.getPage(),article);
     }
 
+    @Override
+    public Integer selectMyBalance(Integer userId) {
+        Object wx = redisTemplate.opsForValue().get("userInfo");
+        Object gitee = redisTemplate.opsForValue().get("giteeInfo");
+        if(wx!= null){
+            return  weChatMapper.selectBanlanceByOpenId(userId);
+        }else if(gitee!=null){
+            return giteeMapper.selectBanlanceByOpenId(userId);
+        }
+        return sysUserMapper.selectBalcanceByUser(userId);
+    }
 }

@@ -22,4 +22,7 @@
         select id,unique_id,name,avatar_url,email,mobile,last_login_time,ip,ip_location,os,browser,signature,created_at,updated_at,role_id
         from gitee_info where id = #{userId}
     </select>
+    <select id="selectBanlanceByOpenId" resultType="java.lang.Integer">
+        select balance from gitee_info where id = #{openId}
+    </select>
 </mapper>

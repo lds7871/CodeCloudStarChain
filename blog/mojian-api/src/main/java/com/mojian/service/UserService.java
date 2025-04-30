@@ -55,4 +55,5 @@ public interface UserService {
      */
     IPage<ArticleListVo> selectMyArticle(SysArticle article);
 
+    Integer selectMyBalance(Integer userId);
 }

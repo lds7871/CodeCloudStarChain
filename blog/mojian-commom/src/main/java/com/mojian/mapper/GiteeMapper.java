@@ -18,4 +18,5 @@ public interface GiteeMapper extends BaseMapper<GiteeInfo> {
     Integer insertUserInfo(@Param("giteeInfo") GiteeInfo giteeInfo);
      void updateByUser(@Param("giteeInfo") GiteeInfo giteeInfo);
     GiteeInfo selectByUserId(@Param("userId") Integer userId);
+    Integer selectBanlanceByOpenId(@Param("openId") Integer openId);
 }

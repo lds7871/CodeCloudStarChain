@@ -67,4 +67,7 @@
             </if>
         </where>
     </select>
+    <select id="selectBalcanceByUser" resultType="java.lang.Integer">
+        select balance from sys_user where id = #{userId}
+    </select>
 </mapper>

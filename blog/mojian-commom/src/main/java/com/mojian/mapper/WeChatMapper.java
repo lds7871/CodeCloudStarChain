@@ -20,4 +20,5 @@ public interface WeChatMapper extends BaseMapper<WeChatInfo> {
     Integer register(@Param("user") WeChatInfo weChatInfo, @Param("now") Date now);
     WeChatInfo selectById(@Param("id") Integer id);
     Integer updateByName(@Param("user") WeChatInfo weChatInfo);
+    Integer selectBanlanceByOpenId(@Param("openId") Integer openId);
 }

@@ -5,14 +5,14 @@
       <!-- 新增背景层 -->
       <div class="background-layer">
         <div class="centered-content">
-          <img src="src/assets/LDS/LDSLOGO.png" alt="Centered Image"/>
+          <img src="src/assets/LDS/LDSLOGO.png" alt="Centered Image" />
         </div>
-        <div class="FirstText"  >
+        <div class="FirstText">
           <div class="title" ref="titleRef">
             {{ titleText }}
           </div>
         </div>
-        <div class="clickroll" :class="{ 'fade-out': isClicked }" @click="scrollDown" >
+        <div class="clickroll" :class="{ 'fade-out': isClicked }" @click="scrollDown">
           点击开启
         </div>
       </div>
@@ -32,40 +32,29 @@
           <!--                    @click="goToPost"-->
           <!--                />-->
           <!-- 动态列表组件 -->
-          <MomentsList/>
+          <MomentsList />
 
           <div>
             <!-- 标签页组件 -->
             <el-tabs v-model="activeName" @tab-click="handleClick">
               <!-- 遍历分类，生成每个标签页 -->
-              <el-tab-pane
-                  v-for="category in categories"
-                  :key="category.id"
-                  :name="String(category.id)"
-              >
+              <el-tab-pane v-for="category in categories" :key="category.id" :name="String(category.id)">
                 <template slot="label">
-                        <span class="label-info">
-                          <i :class="category.icon"></i>
-                          {{ category.name }}
-                        </span>
+                  <span class="label-info">
+                    <i :class="category.icon"></i>
+                    {{ category.name }}
+                  </span>
                 </template>
                 <!-- 文章列表组件 -->
-                <ArticleList
-                    :articles="articleList"
-                    :loading="loading"
-                    :total="total"
-                    :params="params"
-                    @article-click="goToPost"
-                    @page-change="changePage"
-                    class="article-list"
-                />
+                <ArticleList :articles="articleList" :loading="loading" :total="total" :params="params"
+                  @article-click="goToPost" @page-change="changePage" class="article-list" />
               </el-tab-pane>
             </el-tabs>
           </div>
 
         </main>
         <!--       侧边栏组件 -->
-        <Sidebar/>
+        <Sidebar />
 
       </div>
     </div>
@@ -111,7 +100,7 @@ export default {
           icon: "el-icon-menu",
         },
       ],
-      titleText:'',
+      titleText: '',
     };
   },
   methods: {
@@ -162,16 +151,16 @@ export default {
     getArticleList() {
       this.loading = true; // 开启加载状态
       getArticlesApi(this.params)
-          .then((res) => {
-            this.articleList = res.data.records; // 更新文章列表
-            this.total = res.data.total; // 更新文章总数
-          })
-          .catch((error) => {
-            console.error("Failed to fetch articles:", error); // 错误处理
-          })
-          .finally(() => {
-            this.loading = false; // 关闭加载状态
-          });
+        .then((res) => {
+          this.articleList = res.data.records; // 更新文章列表
+          this.total = res.data.total; // 更新文章总数
+        })
+        .catch((error) => {
+          console.error("Failed to fetch articles:", error); // 错误处理
+        })
+        .finally(() => {
+          this.loading = false; // 关闭加载状态
+        });
     },
     /**
      * 获取轮播和推荐文章
@@ -204,10 +193,10 @@ export default {
     },
     scrollDown() {
       this.isClicked = true;
-          window.scrollBy({
-            top: window.innerHeight, // 滚动 100vh
-            behavior: 'smooth', // 平滑滚动
-          });
+      window.scrollBy({
+        top: window.innerHeight, // 滚动 100vh
+        behavior: 'smooth', // 平滑滚动
+      });
     }
   },
   created() {
@@ -216,7 +205,6 @@ export default {
     this.getArticleList();
     this.getCarouselArticles();
     this.getAllCategories();
-<<<<<<< HEAD
   }, mounted() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -246,13 +234,8 @@ export default {
         });
     }
   }
-=======
-  },
-  computed: {
-
-  },
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
 };
+
 </script>
 
 <style lang="scss" scoped>
@@ -270,6 +253,7 @@ export default {
   animation: fadeInOut 2s ease-in-out infinite;
   transition: all 0.8s ease; // 添加过渡效果
   visibility: visible; // 初始状态可见
+
   &.fade-out {
     opacity: 0;
     transform: translateX(-50%) translateY(-800%); // 添加向下移动效果
@@ -279,9 +263,12 @@ export default {
 }
 
 @keyframes fadeInOut {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
   }
+
   50% {
     opacity: 1;
   }
@@ -293,20 +280,29 @@ export default {
   -webkit-text-fill-color: transparent;
   font-weight: 700;
   background: linear-gradient(90deg, rgb(161, 248, 80), rgb(95, 241, 129), rgb(44, 107, 122), rgb(13, 65, 188), rgb(80, 115, 184), rgb(16, 152, 173), rgb(7, 179, 155), rgb(111, 186, 130)) text;
-  text-align: center; /* 水平居中 */
-  display: flex; /* 使用 flex 布局 */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  height: 100%; /* 确保父容器有高度 */
+  text-align: center;
+  /* 水平居中 */
+  display: flex;
+  /* 使用 flex 布局 */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  height: 100%;
+  /* 确保父容器有高度 */
 }
 
 .FirstText {
   width: 100%;
   position: absolute;
-  top: 73%; /* 垂直居中 */
-  left: 50%; /* 水平居中 */
-  transform: translate(-50%, -50%); /* 修正偏移 */
-  font-size: 2.5rem; /* 根据需要调整字体大小 */
+  top: 73%;
+  /* 垂直居中 */
+  left: 50%;
+  /* 水平居中 */
+  transform: translate(-50%, -50%);
+  /* 修正偏移 */
+  font-size: 2.5rem;
+  /* 根据需要调整字体大小 */
   padding: 0.5em;
   border-radius: 0.5em;
   height: 90px;
@@ -317,9 +313,13 @@ export default {
 
 .centered-content {
   position: absolute;
-  top: 40%; /* 垂直居中向上偏移  */
-  left: 50%; /* 水平居中 */
-  transform: translate(-50%, -50%); /* 修正偏移 */
+  top: 40%;
+  /* 垂直居中向上偏移  */
+  left: 50%;
+  /* 水平居中 */
+  transform: translate(-50%, -50%);
+
+  /* 修正偏移 */
   img {
     width: 600px;
     height: 600px;
@@ -341,7 +341,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100vh;
-  background: url('src/assets/LDS/R-C.jpg') no-repeat center center; // 替换为图片路径
+  background: url('src/assets/LDS/bg.jpg') no-repeat center center; // 替换为图片路径
   background-size: cover; // 确保图片填充并适应
   //pointer-events: none; // 防止影响鼠标事件
 }
@@ -353,6 +353,7 @@ export default {
   width: 100%;
   height: 100%; // 确保父级有高度
   position: relative;
+
   @include responsive(lg) {
     padding: $spacing-sm;
   }
@@ -371,6 +372,7 @@ export default {
   background: var(--content-gradient);
 
   transition: background 0.3s ease; // 添加过渡效果
+
   @include responsive(lg) {
     grid-template-columns: 1fr; // 小屏幕下单列布局
     padding: $spacing-sm;
@@ -390,6 +392,7 @@ export default {
     @include responsive(md) {
       margin-bottom: $spacing-xl;
       max-height: 280px;
+
       :deep(h3) {
         font-size: 1.2em;
       }

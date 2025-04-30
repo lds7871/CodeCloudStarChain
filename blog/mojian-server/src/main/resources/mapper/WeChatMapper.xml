@@ -19,4 +19,7 @@
     <select id="selectById" resultType="com.mojian.dto.user.WeChatInfo">
         select * from we_chat_info where id = #{id}
     </select>
+    <select id="selectBanlanceByOpenId" resultType="java.lang.Integer">
+        select balance from we_chat_info where openid = #{openId}
+    </select>
 </mapper>

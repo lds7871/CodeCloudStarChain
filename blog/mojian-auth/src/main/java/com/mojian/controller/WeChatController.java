@@ -118,6 +118,7 @@ public class WeChatController {
                 User user = JSON.parseObject(userInfoString, User.class);
                 WeChatInfo weChatInfo = BeanCopyUtil.copyObj(user, WeChatInfo.class);
                 System.out.println("微信"+weChatInfo);
+                redisTemplate.opsForValue().set("userInfo", weChatInfo);
                 WeChatInfo loggedInInfo = weChatService.login(weChatInfo);
                 if (loggedInInfo != null) {
                     return new ResponseEntity<>(loggedInInfo, HttpStatus.OK);

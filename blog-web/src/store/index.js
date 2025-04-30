@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { loginApi, logoutApi, getUserInfoApi, getwxUserInfoApi, giteeLoginApi, checkQrCodeStatus } from '@/api/auth'
-import { getToken, setToken, removeToken } from '@/utils/cookie'
+import { getToken, setToken, removeToken, removeAuthorization } from '@/utils/cookie'
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -105,10 +105,8 @@ export default new Vuex.Store({
           const res = await getUserInfoApi()
           data = res.data
         }
-        alert("我进来了")
         if (data.token) {
           commit('SET_TOKEN', data.token)
-          alert("我进来了111")
           commit('SET_USER_INFO', data)
           return Promise.resolve(data)
         }
@@ -176,22 +174,21 @@ export default new Vuex.Store({
         return Promise.reject(error)
       }
     },
+
     /**
      * 退出登录
      */
     async logout({ commit }) {
       try {
-        await logoutApi();
+        await logoutApi()
       } catch (error) {
         console.error('登出错误:', error);
       } finally {
         removeToken();
+        removeAuthorization();
         commit('SET_USER_INFO', null);
         // 清理localStorage
-        localStorage.removeItem("userInfo");
-        localStorage.removeItem("giteeId");
-        localStorage.removeItem("avatar");
-        localStorage.removeItem("nickname");
+        localStorage.clear();
       }
     },
 

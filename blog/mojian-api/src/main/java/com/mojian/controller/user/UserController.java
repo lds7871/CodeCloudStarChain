@@ -70,4 +70,9 @@ public class UserController {
     public Result<IPage<ArticleListVo>> selectMyArticle(SysArticle article){
         return Result.success(userService.selectMyArticle(article));
     }
+    @GetMapping("/balance")
+    @Operation(summary = "获取我的文章")
+    public Result<Integer>  selectMyBalance(@RequestParam Integer userId){
+        return  Result.success(userService.selectMyBalance(userId));
+    }
 }

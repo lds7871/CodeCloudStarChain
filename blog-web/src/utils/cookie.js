@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 
 const TokenKey = 'blog_token'
+const Authorization = "Authorization"
 
 export function getToken() {
   return Cookies.get(TokenKey)
@@ -13,6 +14,10 @@ export function setToken(token) {
 
 export function removeToken() {
   return Cookies.remove(TokenKey)
+} 
+
+export function removeAuthorization() {
+  return Cookies.remove(Authorization)
 } 
 
 export function setCookieExpires(key,value,expires) {

@@ -5,32 +5,25 @@
       <!-- 用户信息卡片 -->
       <el-card class="user-card">
         <div class="avatar-section">
-<<<<<<< HEAD
           <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
             <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl || userInfo.avatarUrl"
               alt="用户头像"></el-avatar>
-=======
-          <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0"
-            aria-label="更换头像">
-            <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
-            <div class="upload-overlay" inert>
-              <i class="el-icon-camera"></i>
+
+            <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
+              <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
+              <div class="upload-overlay" inert>
+                <i class="el-icon-camera"></i>
+              </div>
             </div>
           </div>
         </div>
         <h3 class="username">{{ userInfo.nickname || userInfo.name }}</h3>
         <p class="signature">{{ userInfo.signature || '这个人很懒，还没有写简介...' }}</p>
-        
+
         <!-- 添加签到按钮 -->
         <div class="sign-in-section">
-          <el-button 
-            type="primary" 
-            :disabled="signInStatus"
-            @click="handleSignIn"
-            size="small"
-            :loading="signInLoading"
-          >
+          <el-button type="primary" :disabled="signInStatus" @click="handleSignIn" size="small"
+            :loading="signInLoading">
             <i class="el-icon-check"></i>
             {{ signInStatus ? '今日已签到' : '立即签到' }}
           </el-button>
@@ -190,16 +183,16 @@
                 <h3>账户余额</h3>
                 <div class="balance-amount">
                   <span class="currency">¥</span>
-                  <span class="amount" >{{ balance }}</span> <!-- 这里接受传值 -->
+                  <span class="amount">{{ balance }}</span> <!-- 这里接受传值 -->
                 </div>
                 <el-button type="primary" size="medium">充值</el-button>
               </div>
             </el-card>
           </div>
           <!-- 右侧区域 - 占40% -->
-          <div class="balance-right" >
-            <el-card class="balance-stats" >
-                <span>理性消费提示：适度消费，量入为出，让每一分钱都创造价值。</span>
+          <div class="balance-right">
+            <el-card class="balance-stats">
+              <span>理性消费提示：适度消费，量入为出，让每一分钱都创造价值。</span>
             </el-card>
           </div>
         </div>
@@ -396,11 +389,7 @@
 
     </main>
 
-    <AvatarCropper 
-      :visible.sync="showCropper"
-      :user="userInfo"
-      @update-avatar="handleAvatarUpdate"
-    />
+    <AvatarCropper :visible.sync="showCropper" :user="userInfo" @update-avatar="handleAvatarUpdate" />
 
   </div>
 </template>
@@ -409,16 +398,12 @@
 import {
   getUserInfoApi, updateProfileApi, updatePasswordApi,
   getMyCommentApi, delMyCommentApi, getMyLikeApi, getMyReplyApi, getMyFeedbackApi, addFeedbackApi,
-  signInApi, getSignInStatusApi, getSignInStatsApi,getBalanceApi
+  signInApi, getSignInStatusApi, getSignInStatsApi, getBalanceApi
 } from '@/api/user'
 import { getMyArticleApi, likeArticleApi, delArticleApi } from '@/api/article'
 import { getDictDataApi } from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
-<<<<<<< HEAD
 import { getwxUserInfoApi, giteeLoginApi } from '@/api/auth'
-=======
-
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
 import { marked } from "marked";
 export default {
   name: 'Profile',
@@ -601,7 +586,6 @@ export default {
     },
   },
   created() {
-<<<<<<< HEAD
     if (localStorage.getItem('userInfo')) {
       getwxUserInfoApi(localStorage.getItem("openId")).then(res => {
         console.log(res.data);
@@ -639,13 +623,11 @@ export default {
         Object.assign(this.profileForm, res.data.sysUser)
       })
     }
-=======
     getUserInfoApi().then(res => {
       this.userInfo = res.data.sysUser
       Object.assign(this.profileForm, res.data.sysUser)
     })
 
->>>>>>> e1d5090ff65b7b8653640d6352d117786bc98195
     this.getFeedbackDict()
     // 获取签到状态和统计
     this.getSignInStatus()
@@ -972,7 +954,7 @@ export default {
      */
     handleSignIn() {
       if (this.signInStatus.hasSignedIn) return
-      
+
       this.signInLoading = true
       signInApi().then(res => {
         this.$message.success('签到成功！')
@@ -1013,6 +995,7 @@ export default {
         padding: 20px;
         font-size: 34px;
         letter-spacing: 10px;
+
         h3 {
           color: var(--text-secondary);
           margin-bottom: 15px;
@@ -1182,9 +1165,11 @@ export default {
     }
   }
 }
-.el-menu-item{
+
+.el-menu-item {
   color: var(--text-secondary) !important;
 }
+
 .nav-menu {
   border-radius: 8px;
   background: var(--card-bg);
@@ -1614,24 +1599,24 @@ export default {
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin: 16px 0;
-  
+
   .sign-in-stats {
     display: flex;
     justify-content: center;
     gap: 24px;
     margin-top: 16px;
-    
+
     .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      
+
       .label {
         font-size: 12px;
         color: var(--text-secondary);
       }
-      
+
       .value {
         font-size: 16px;
         font-weight: 600;

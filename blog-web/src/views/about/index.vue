@@ -19,18 +19,18 @@ export default {
   methods: {
     initImagePreview() {
       this.$nextTick(() => {
-        setTimeout(() => {  
-        const content = this.$refs.content;
-        if (content) {
-          const images = content.getElementsByTagName('img');
-          Array.from(images).forEach(img => {
-            img.style.cursor = 'zoom-in';
-            img.addEventListener('click', () => {
-              this.$refs.imagePreview.show(img.src);
+        setTimeout(() => {
+          const content = this.$refs.content;
+          if (content) {
+            const images = content.getElementsByTagName('img');
+            Array.from(images).forEach(img => {
+              img.style.cursor = 'zoom-in';
+              img.addEventListener('click', () => {
+                this.$refs.imagePreview.show(img.src);
+              });
             });
-          });
-        }
-      }, 500); 
+          }
+        }, 500);
       });
     }
   }
@@ -38,15 +38,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .about-page {
   max-width: 1200px;
   margin: 0 auto;
   margin-top: $spacing-lg;
   margin-bottom: $spacing-md;
+
   @include responsive(lg) {
     padding: $spacing-sm;
   }
+
   .about-content {
     line-height: 1.8;
     color: var(--text-primary);
@@ -56,9 +57,10 @@ export default {
 
 
 }
+
 @include responsive(sm) {
   :deep(img) {
-      width: 100% !important;
+    width: 100% !important;
   }
 }
 </style>
