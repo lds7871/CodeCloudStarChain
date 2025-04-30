@@ -5,7 +5,7 @@
       <!-- 新增背景层 -->
       <div class="background-layer">
         <div class="centered-content">
-          <img src="src/assets/LDS/LDSLOGO.png" alt="Centered Image"/>
+          <img src="@/assets/LDS/LDSLOGO.png" alt="Centered Image" />
         </div>
         <div class="FirstText">
           <div class="title" ref="titleRef">
@@ -32,40 +32,29 @@
           <!--                    @click="goToPost"-->
           <!--                />-->
           <!-- 动态列表组件 -->
-          <MomentsList/>
+          <MomentsList />
 
           <div>
             <!-- 标签页组件 -->
             <el-tabs v-model="activeName" @tab-click="handleClick">
               <!-- 遍历分类，生成每个标签页 -->
-              <el-tab-pane
-                  v-for="category in categories"
-                  :key="category.id"
-                  :name="String(category.id)"
-              >
+              <el-tab-pane v-for="category in categories" :key="category.id" :name="String(category.id)">
                 <template slot="label">
-                        <span class="label-info">
-                          <i :class="category.icon"></i>
-                          {{ category.name }}
-                        </span>
+                  <span class="label-info">
+                    <i :class="category.icon"></i>
+                    {{ category.name }}
+                  </span>
                 </template>
                 <!-- 文章列表组件 -->
-                <ArticleList
-                    :articles="articleList"
-                    :loading="loading"
-                    :total="total"
-                    :params="params"
-                    @article-click="goToPost"
-                    @page-change="changePage"
-                    class="article-list"
-                />
+                <ArticleList :articles="articleList" :loading="loading" :total="total" :params="params"
+                  @article-click="goToPost" @page-change="changePage" class="article-list" />
               </el-tab-pane>
             </el-tabs>
           </div>
 
         </main>
         <!--       侧边栏组件 -->
-        <Sidebar/>
+        <Sidebar />
 
       </div>
     </div>
@@ -78,7 +67,7 @@ import ArticleList from "@/components/ArticleList/index.vue";
 import Carousel from "@/views/home/components/carousel.vue";
 import Sidebar from "@/components/Sidebar/index.vue";
 import MomentsList from "@/views/home/components/moments.vue";
-import {getAllCategoriesApi, getArticlesApi, getCarouselArticlesApi,} from "@/api/article";
+import { getAllCategoriesApi, getArticlesApi, getCarouselArticlesApi, } from "@/api/article";
 
 export default {
   name: "Home",
@@ -158,16 +147,16 @@ export default {
     getArticleList() {
       this.loading = true; // 开启加载状态
       getArticlesApi(this.params)
-          .then((res) => {
-            this.articleList = res.data.records; // 更新文章列表
-            this.total = res.data.total; // 更新文章总数
-          })
-          .catch((error) => {
-            console.error("Failed to fetch articles:", error); // 错误处理
-          })
-          .finally(() => {
-            this.loading = false; // 关闭加载状态
-          });
+        .then((res) => {
+          this.articleList = res.data.records; // 更新文章列表
+          this.total = res.data.total; // 更新文章总数
+        })
+        .catch((error) => {
+          console.error("Failed to fetch articles:", error); // 错误处理
+        })
+        .finally(() => {
+          this.loading = false; // 关闭加载状态
+        });
     },
     /**
      * 获取轮播和推荐文章
@@ -217,28 +206,28 @@ export default {
     const token = urlParams.get('token');
     if (token) {
       this.$store.dispatch('giteeLogin', token)
-          .then((data) => {
-            if (data) {
-              this.$message.success("登录成功");
-              // 登录成功后刷新用户信息
-              this.$store.dispatch('getUserInfo');
-              // 移除 URL 中的 code 参数，但不刷新页面
-              const newUrl = window.location.pathname;
-              window.history.replaceState({}, '', newUrl);
-              // 延迟跳转，确保数据已经保存
-              setTimeout(() => {
-                this.$router.replace('/');
-              }, 300);
-            } else {
-              this.$message.error("登录失败：未获取到用户信息");
-            }
-          })
-          .catch(error => {
-            this.$message.error("登录失败，请重试");
-            console.error(error);
-            // 登录失败后清理状态
-            this.$store.dispatch('logout');
-          });
+        .then((data) => {
+          if (data) {
+            this.$message.success("登录成功");
+            // 登录成功后刷新用户信息
+            this.$store.dispatch('getUserInfo');
+            // 移除 URL 中的 code 参数，但不刷新页面
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+            // 延迟跳转，确保数据已经保存
+            setTimeout(() => {
+              this.$router.replace('/');
+            }, 300);
+          } else {
+            this.$message.error("登录失败：未获取到用户信息");
+          }
+        })
+        .catch(error => {
+          this.$message.error("登录失败，请重试");
+          console.error(error);
+          // 登录失败后清理状态
+          this.$store.dispatch('logout');
+        });
     }
   }
   ,
@@ -248,6 +237,7 @@ export default {
 
 <style lang="scss" scoped>
 .clickroll {
+  cursor: pointer;
   border-radius: 15px;
   position: absolute;
   left: 50%;
@@ -261,6 +251,7 @@ export default {
   animation: fadeInOut 2s ease-in-out infinite;
   transition: all 0.8s ease; // 添加过渡效果
   visibility: visible; // 初始状态可见
+
   &.fade-out {
     opacity: 0;
     transform: translateX(-50%) translateY(-800%); // 添加向下移动效果
@@ -270,9 +261,12 @@ export default {
 }
 
 @keyframes fadeInOut {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
   }
+
   50% {
     opacity: 1;
   }
@@ -284,20 +278,29 @@ export default {
   -webkit-text-fill-color: transparent;
   font-weight: 700;
   background: linear-gradient(90deg, rgb(161, 248, 80), rgb(95, 241, 129), rgb(44, 107, 122), rgb(13, 65, 188), rgb(80, 115, 184), rgb(16, 152, 173), rgb(7, 179, 155), rgb(111, 186, 130)) text;
-  text-align: center; /* 水平居中 */
-  display: flex; /* 使用 flex 布局 */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  height: 100%; /* 确保父容器有高度 */
+  text-align: center;
+  /* 水平居中 */
+  display: flex;
+  /* 使用 flex 布局 */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  height: 100%;
+  /* 确保父容器有高度 */
 }
 
 .FirstText {
   width: 100%;
   position: absolute;
-  top: 73%; /* 垂直居中 */
-  left: 50%; /* 水平居中 */
-  transform: translate(-50%, -50%); /* 修正偏移 */
-  font-size: 2.5rem; /* 根据需要调整字体大小 */
+  top: 73%;
+  /* 垂直居中 */
+  left: 50%;
+  /* 水平居中 */
+  transform: translate(-50%, -50%);
+  /* 修正偏移 */
+  font-size: 2.5rem;
+  /* 根据需要调整字体大小 */
   padding: 0.5em;
   border-radius: 0.5em;
   height: 90px;
@@ -308,9 +311,13 @@ export default {
 
 .centered-content {
   position: absolute;
-  top: 40%; /* 垂直居中向上偏移  */
-  left: 50%; /* 水平居中 */
-  transform: translate(-50%, -50%); /* 修正偏移 */
+  top: 40%;
+  /* 垂直居中向上偏移  */
+  left: 50%;
+  /* 水平居中 */
+  transform: translate(-50%, -50%);
+
+  /* 修正偏移 */
   img {
     width: 600px;
     height: 600px;
@@ -332,7 +339,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100vh;
-  background: url('src/assets/LDS/R-C.jpg') no-repeat center center; // 替换为图片路径
+  background: url('@/assets/LDS/bg.jpg') no-repeat center center; // 替换为图片路径
   background-size: cover; // 确保图片填充并适应
   //pointer-events: none; // 防止影响鼠标事件
 }
@@ -344,6 +351,7 @@ export default {
   width: 100%;
   height: 100%; // 确保父级有高度
   position: relative;
+
   @include responsive(lg) {
     padding: $spacing-sm;
   }
@@ -362,6 +370,7 @@ export default {
   background: var(--content-gradient);
 
   transition: background 0.3s ease; // 添加过渡效果
+
   @include responsive(lg) {
     grid-template-columns: 1fr; // 小屏幕下单列布局
     padding: $spacing-sm;
@@ -381,6 +390,7 @@ export default {
     @include responsive(md) {
       margin-bottom: $spacing-xl;
       max-height: 280px;
+
       :deep(h3) {
         font-size: 1.2em;
       }

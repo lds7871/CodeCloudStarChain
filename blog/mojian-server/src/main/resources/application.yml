@@ -54,4 +54,4 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.mojian.controller
-
+filePath: /opt/blogimg

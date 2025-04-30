@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.x.file.storage.core.FileInfo;
 import org.dromara.x.file.storage.core.FileStorageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileController {
 
+    @Value("${filePath}")
+    private String filePath;
     private final FileDetailService fileDetailService;
     private final FileStorageService fileStorageService;
 
@@ -74,10 +77,12 @@ public class FileController {
     @Operation(summary = "上传文件")
     public Result<String> upload(MultipartFile file, String source) {
         String path = DateUtil.parseDateToStr(DateUtil.YYYYMMDD, DateUtil.getNowDate()) + "/";
+
         //这个source可在前端上传文件时提供，可用来区分是头像还是文章图片等
         if (StringUtils.isNotBlank(source)) {
             path = path + source + "/";
         }
+        System.out.println("路径为："+path);
         //获取文件名和后缀
         FileInfo fileInfo = fileStorageService.of(file)
                 .setPath(path)
