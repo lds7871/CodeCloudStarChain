@@ -1,6 +1,6 @@
 <template>
   <div :class="{ 'dark': settingsStore.theme === 'dark' }">
-    <router-view ></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -17,10 +17,8 @@ onMounted(() => {
 </script>
 
 <style>
-
-
-
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -59,45 +57,47 @@ html, body {
 
 /* 深色模式下的组件样式 */
 :root[data-theme='dark'] {
+
   .el-container,
   .el-main {
     background-color: var(--el-bg-color-page);
   }
+}
 
-  .el-header,
-  .el-aside,
-  .el-menu,
-  .el-card,
-  .el-dialog,
-  .el-drawer {
+.el-header,
+.el-aside,
+.el-menu,
+.el-card,
+.el-dialog,
+.el-drawer {
+  background-color: var(--el-bg-color-container);
+  border-color: var(--el-border-color);
+}
+
+.el-table {
+  --el-table-bg-color: var(--el-bg-color-container);
+  --el-table-tr-bg-color: var(--el-bg-color-container);
+  --el-table-border-color: var(--el-border-color);
+  --el-table-header-bg-color: var(--el-bg-color-container);
+  --el-table-row-hover-bg-color: var(--el-fill-color-light);
+
+  th,
+  td {
     background-color: var(--el-bg-color-container);
-    border-color: var(--el-border-color);
+    border-bottom-color: var(--el-border-color);
   }
+}
 
-  .el-table {
-    --el-table-bg-color: var(--el-bg-color-container);
-    --el-table-tr-bg-color: var(--el-bg-color-container);
-    --el-table-border-color: var(--el-border-color);
-    --el-table-header-bg-color: var(--el-bg-color-container);
-    --el-table-row-hover-bg-color: var(--el-fill-color-light);
+.el-input__inner,
+.el-textarea__inner {
+  background-color: var(--el-bg-color-container);
+  border-color: var(--el-border-color);
+  color: var(--el-text-color-primary);
+}
 
-    th, td {
-      background-color: var(--el-bg-color-container);
-      border-bottom-color: var(--el-border-color);
-    }
-  }
-
-  .el-input__inner,
-  .el-textarea__inner {
-    background-color: var(--el-bg-color-container);
-    border-color: var(--el-border-color);
-    color: var(--el-text-color-primary);
-  }
-
-  .el-dropdown-menu {
-    background-color: var(--el-bg-color-container);
-    border-color: var(--el-border-color);
-  }
+.el-dropdown-menu {
+  background-color: var(--el-bg-color-container);
+  border-color: var(--el-border-color);
 }
 
 /* 字体大小设置 */
@@ -189,12 +189,29 @@ body {
 }
 
 /* 标题和特殊文本 */
-h1 { font-size: calc(var(--el-font-size-base) * 2); }
-h2 { font-size: calc(var(--el-font-size-base) * 1.75); }
-h3 { font-size: calc(var(--el-font-size-base) * 1.5); }
-h4 { font-size: calc(var(--el-font-size-base) * 1.25); }
-h5 { font-size: calc(var(--el-font-size-base) * 1.1); }
-h6 { font-size: var(--el-font-size-base); }
+h1 {
+  font-size: calc(var(--el-font-size-base) * 2);
+}
+
+h2 {
+  font-size: calc(var(--el-font-size-base) * 1.75);
+}
+
+h3 {
+  font-size: calc(var(--el-font-size-base) * 1.5);
+}
+
+h4 {
+  font-size: calc(var(--el-font-size-base) * 1.25);
+}
+
+h5 {
+  font-size: calc(var(--el-font-size-base) * 1.1);
+}
+
+h6 {
+  font-size: var(--el-font-size-base);
+}
 
 /* 表格内容 */
 .el-table th,
@@ -204,6 +221,7 @@ h6 { font-size: var(--el-font-size-base); }
 
 /* 表单项 */
 .el-form {
+
   .el-form-item__label,
   .el-form-item__content,
   .el-input__inner,
@@ -215,6 +233,7 @@ h6 { font-size: var(--el-font-size-base); }
 
 /* 菜单项 */
 .el-menu {
+
   .el-menu-item,
   .el-sub-menu__title {
     font-size: var(--el-font-size-base);
@@ -247,5 +266,4 @@ h6 { font-size: var(--el-font-size-base); }
 .el-popover__title {
   font-family: 'Handwriting', sans-serif !important;
 }
-
 </style>

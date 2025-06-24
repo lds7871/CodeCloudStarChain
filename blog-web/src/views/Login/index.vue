@@ -26,7 +26,7 @@
 
           <div class="third-party-login">
             <div v-for="(item, type) in loginTypes" :key="type" class="login-icon-wrapper"
-              @click="handleThirdPartyLogin(type)" v-if="type !== 'wechat'">
+              @click="handleThirdPartyLogin(type)">
               <el-tooltip :content="item.title" placement="top">
                 <div :class="['login-icon', type]">
                   <i :class="item.icon"></i>
@@ -171,7 +171,7 @@ import {
   checkQrCodeStatus,
 } from "@/api/auth";
 import { setCookie } from "@/utils/cookie";
-import SliderVerify from "./components/SliderVerify.vue";
+import SliderVerify from "@/views/Login/components/SliderVerify.vue";
 export default {
   name: "Login",
   components: {

@@ -19,5 +19,6 @@ public class AlipayVO {
     private double totalAmount;//总价
     private String subject;//商品名称
     private String alipayTraceNo;
+    private String id;
 //http://localhost:9090/alipay/pay?name=购买榴莲订单&orderNo=8&total=99.00
 }

@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 9092
 spring:
   servlet:
     multipart:
@@ -30,10 +30,12 @@ spring:
 
   data:
     redis:
+#      host: 113.45.240.54
       host: 127.0.0.1
       port: 6379
-      timeout: 3000
-      database: 8
+      database: 1
+      timeout: 30000
+#      password: "123456"
 
 #==============================邮箱配置=======================================
   mail:
@@ -68,8 +70,8 @@ knife4j:
 wechat:
   app-id: wx9102d631d271b410
   app-secret: beba658104a18fc76de51759129ba0e6
-  domain: http://6a34010f.r33.cpolar.top
-  redirect-uri: webchat/authCallback
+  domain: http://ticw.top
+  redirect-uri: wechat/authCallback
 
 #==============================豆包推理AI配置=======================================
 ai:
@@ -100,7 +102,7 @@ gitee:
 #  # 授权类型
 #  authorizationGrantType: authorization_code
   # 回调地址
-  redirectUri: http://127.0.0.1:80/oauth/callback
+  redirectUri: http://113.45.240.54:9092/oauth/callback
   # 授权范围
 #  scope:
 #    - user_info
@@ -111,11 +113,3 @@ github:
   app-id:
   app-secret:
   redirect-url: https://www.shiyit.com/shiyi/mojian/api/auth/callback/github
-##支付宝沙箱支付
-#alipay:
-#  appId: 9021000142645003
-#  appPrivateKey: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCs0hzCWY0SOht65sv8vx1OpzdQBQU+0t8IxG6gJAwh+OzUE4xGP1tJz5iW9GMT3z9e7CKjnT4ZsAZaKOPh2Jw95zVzOsTNX8hWMyJdOcWivj6Da+q3n6Ryyg0j9V55hYlTJlNRXV9lE8R3QFwFx/i/JzHnYgqOWMql/DaaHUYWERudU9Oyg7Ce6bQc5jHqL0RUr3rMV2J0TTW+VLXraine8Rm9C7aYBeAQTZ+MwHvZJu2iXhE8/FuSvO55NOWeH/snmCWKTIIzpeGLo+Up3UkCqaP2rYF9W0wZeRnEM5Fd7duGVOijSBGCswRkCzyr8SdJgpF+WYo2y7lYFUJKHCIVAgMBAAECggEAXPpR5LH/Ns4yWKXxG1LK9rT6CkAZOVqEChh8mAWszV46NEMsFeMiPwzEQHrNDzTtyCjs3e/MKE/OqxUSvUAnlxpcZFk65m9gvheWpmddkBggU95skkv+Uo+oEC+Dm4efgS++ZakBmMTQz4O9vpJ+noD81Uqm+TyGElUmHzYereG2CAP9xSUR7mlbDXWfGr4LcE8zyJAZxfNGlY7kvTJdAR+zsPKnZo0432p1btKtyqqp3xszWKybTis/7mKmZ5j7I25Z6zV84fY3MRssgWQHItzfKYjeRRrmoLKaUXmKtyECjBgpJ6y/r1dQPDdRv1MiuQD/U7DWsHay526yzxWDxQKBgQDWBHaKqF7bhXKS2ICpZwpBHQIvTOvMdtyB4WhMsSoiFw5MxZMWRVrxXjjtsZpnMFUa2yOHXd8yg97QFWzE4xXAa1MS+2Zt3+djG2RNtrtILYauYSXw1ToDJYGsWxnlmA7UhsCrvSmZoyTyNSsOdn/VcLzLu2ZGb4eRioezhgTwwwKBgQDOuNUciebc7hxIUNf0no1WlKTKyMZGa9J4KR6bvu+h/dOmMqZFVuGuYl1hnD4Sh5PWCFr32vnJfwoLWvEBngnakthDY33/py6F77C4nn8LIPr0FeGnzblUizPG6wsiS/JXv+CF0zwpTIHEeDIwUvyZQNrL8yUGntnlAT5mvXd0RwKBgQDOWLdCsVvkJCJ32y8SJjsI1MNKf8vJ88Bfqck6SIbrH3e2JbjPfEdW+RXCd777RuqHXko/Ng8BUYv+7OlWW+yY/eG3J5V20q7yK3LmSwz/ZoW4lApUzgGFDyCb4apyZ83Es7gI3fXCID57GTBOXYqbbHtbo2/U8auwc/Sq7sjMqQKBgBUrGi+U834WJ/FDzglvnvuJtyJI0vztF51UYJ0EPVeyPVUchKg/EFciHXvcWwLcvUfCjUYqNz/p8WZeRqWqwEmQlfK4onNmdD4k4EzXdhz2oJwUDYp4Z4z/wCqTcQ1vB37y2BP8IIH+Ip+yyzjllpY+7OjLmjQGWju4F+K/bhcLAoGBAMtHqy3AbhQl2f216gWxwo5qk4dhtLO/M1xFnXZ9eZP+TNL4HSRJ46lc8DcPWZ+3ga3fa2tEL0gVdWs2zadyNUqAlCkgFf1ZOUpurYgBao1TQF3gxBTIyMNBh1KqYQ8XqDNcYDcmZVg8bdL2n5Uj4UZVvu2KREfkzyZiASS/yLcX
-#  alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi2Vk8j0Xsb1FZ52LjQzHWMVxmt+qyAG1yZv04pbIwvEtOAODq8B4hDu2tlVyp3dfbOiVtHk1Ex2CfU92wA6qtKO0RqaFPFWAsZ360w47+MBE1ZpQjc1NfnmI/lD18U++Fx/refw9dRshx65Pa6sPas0b5dBEzQhoLXH1TCQkH9l80rqqdxq7TBo3OdAkxfpZC2DduRjN9LCS4YubKyVb1GFYPHZNPLOPiuGQWyOAyjrDkMJqqJ1vSkDI/qO5EG8SXfz3HnPnpLb6cyNTfKX2U74j3QI33ciAF6fkpsDPeNxcb8ui5kWm7ccal+mr7r6xULP5ZGfPf3DCOE9ZFPJsvQIDAQAB
-#  notifyUrl: http://6a34010f.r33.cpolar.top/alipay/notify
-#  returnUrlTwo: http://localhost:3000/post/296
-#  returnUrlThree: http://113.45.240.54/client/#/order

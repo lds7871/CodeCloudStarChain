@@ -149,12 +149,6 @@ export default {
           colorClass: 'hot-link'
         },
         {
-          name: '资源',
-          path: '/resources',
-          icon: 'fas fa-cloud-download-alt',
-          colorClass: 'resource-link'
-        },
-        {
           name: '相册',
           path: '/photos',
           icon: 'fas fa-images',
@@ -183,13 +177,6 @@ export default {
               path: '/about',
               icon: 'fas fa-user',
               colorClass: 'about-me-link'
-            },
-            {
-              name: '后台管理',
-              path: import.meta.env.VITE_APP_ADMIN_URL || 'http://localhost:3000',
-              icon: 'fas fa-tv',
-              colorClass: 'admin-link',
-              external: true
             }
           ]
         }

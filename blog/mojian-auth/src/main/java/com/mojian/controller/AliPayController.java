@@ -38,7 +38,8 @@ public class AliPayController {
         System.out.println("out_trade_no"+aliPay.getTraceNo());
         System.out.println("total_amount"+aliPay.getTotalAmount());
         System.out.println("subject"+aliPay.getSubject());
-
+        String id = aliPay.getId();
+        System.out.println(id);
         // 1. 创建Client，通用SDK提供的Client，负责调用支付宝的API
         AlipayClient alipayClient = new DefaultAlipayClient(GATEWAY_URL, aliPayConfig.getAppId(),
                 aliPayConfig.getAppPrivateKey(), FORMAT, CHARSET, aliPayConfig.getAlipayPublicKey(), SIGN_TYPE);
@@ -53,7 +54,7 @@ public class AliPayController {
         request.setBizContent(bizContent.toString());
         System.out.println("付费文章"+aliPay.getSubject());
        if("付费文章".equals(aliPay.getSubject())){
-            request.setReturnUrl(aliPayConfig.getReturnUrlTwo());
+            request.setReturnUrl(aliPayConfig.getReturnUrlTwo()+"/"+id);
         }
         // 执行请求，拿到响应的结果，返回给浏览器
         System.out.println(1111);

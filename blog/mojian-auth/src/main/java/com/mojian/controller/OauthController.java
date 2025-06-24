@@ -33,14 +33,16 @@ public class OauthController {
         String url = oauthService.choiceLoginType();
         response.sendRedirect(url);
     }
+
     @CrossOrigin
     @GetMapping("/callback")
     public void redirectUri(String code,HttpServletResponse response) throws IOException {
         String result = oauthService.getOauthToken(code);
         ThirdlyResult thirdlyResult = (ThirdlyResult) JSON.parseObject(result, ThirdlyResult.class);
         GiteeInfo userInfo = oauthService.getUserInfo(thirdlyResult.getAccessToken());
-        response.sendRedirect("http://localhost:3000/?token="+userInfo.getToken());
+        response.sendRedirect("http://113.45.240.54/blogclient/#/?token="+userInfo.getToken());
     }
+
     @GetMapping("/getGiteeUserInfo")
     @CrossOrigin
     public Result<GiteeInfo> getGiteeUserInfo() {
@@ -52,5 +54,4 @@ public class OauthController {
         }
         return null;
     }
-
 }

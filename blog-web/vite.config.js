@@ -5,9 +5,9 @@ import { loadEnv } from 'vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 
 export default defineConfig(({ command, mode }) => {
-
   const env = loadEnv(mode, process.cwd());
   return {
+    base: '/blogclient/',
     server: {
       // 允许IP访问
       host: "0.0.0.0",
@@ -45,10 +45,10 @@ export default defineConfig(({ command, mode }) => {
         scss: {
           api: 'modern-compiler',
           additionalData: `
-                  @import "@/styles/variables.scss";
-                  @import "@/styles/mixins.scss";
-                  @import "@/styles/global.scss";
-                  @import "@/styles/elmentui.scss";
+                  @import "@/assets/styles/variables.scss";
+                  @import "@/assets/styles/mixins.scss";
+                  @import "@/assets/styles/global.scss";
+                  @import "@/assets/styles/elmentui.scss";
                 `
         }
       }

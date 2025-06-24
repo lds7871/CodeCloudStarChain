@@ -20,7 +20,7 @@ export function loginApi(data: LoginParams) {
 // 微信扫码获取用户信息
 export function getQrCode() {
   return request({
-    url: 'http://655ae3f5.r33.cpolar.top/wechat/qrCode',
+    url: '/wechat/qrCode',
     method: 'get',
     responseType: 'text'
   })
@@ -35,7 +35,7 @@ export function logoutApi() {
 // 检查扫码状态
 export function checkQrCodeStatus() {
   return request({
-    url: 'http://655ae3f5.r33.cpolar.top/wechat/checkQrCodeStatus',
+    url: '/wechat/checkQrCodeStatus',
     method: 'get'
   })
 }

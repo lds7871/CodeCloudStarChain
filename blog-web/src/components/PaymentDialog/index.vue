@@ -1,12 +1,6 @@
 <template>
-  <el-dialog
-    title="支付"
-    :visible.sync="visible"
-    width="500px"
-    :close-on-click-modal="false"
-    custom-class="payment-dialog"
-    @close="handleClose"
-  >
+  <el-dialog title="支付" :visible.sync="visible" width="500px" :close-on-click-modal="false"
+    custom-class="payment-dialog" @close="handleClose">
     <div class="payment-content">
       <!-- 商品信息 -->
       <div class="product-info">
@@ -18,20 +12,12 @@
       <div class="payment-methods">
         <div class="method-title">选择支付方式</div>
         <div class="method-list">
-          <div
-            class="method-item"
-            :class="{ active: paymentMethod === 'alipay' }"
-            @click="paymentMethod = 'alipay'"
-          >
+          <div class="method-item" :class="{ active: paymentMethod === 'alipay' }" @click="paymentMethod = 'alipay'">
             <i class="fab  method-icon"></i>
             <span class="method-name">支付宝</span>
             <i class="fas fa-check-circle check-icon"></i>
           </div>
-          <div
-            class="method-item"
-            :class="{ active: paymentMethod === 'wechat' }"
-            @click="paymentMethod = 'wechat'"
-          >
+          <div class="method-item" :class="{ active: paymentMethod === 'wechat' }" @click="paymentMethod = 'wechat'">
             <i class="fab   fa-money method-icon"></i>
             <span class="method-name">余额支付</span>
             <i class="fas fa-check-circle check-icon"></i>
@@ -59,7 +45,7 @@
 </template>
 
 <script>
-import {rhgeSuccess} from '@/api/user'
+import { rhgeSuccess } from '@/api/user'
 export default {
   name: 'PaymentDialog',
   props: {
@@ -101,37 +87,37 @@ export default {
     }
   },
   methods: {
-async handlePay() {
-  this.loading = true;
-  try {
-    const timestamp = Date.now();
-    const params = {
-      subject: "付费文章",
-      traceNo: timestamp,
-      totalAmount: this.price
-    };
-    
-    // 使用 import.meta.env 访问环境变量，并对参数进行编码
-    const url = `${import.meta.env.VITE_APP_API_URL}/alipay/pay?` + 
-      `subject=${encodeURIComponent("付费文章")}&` +
-      `traceNo=${encodeURIComponent(timestamp)}&` +
-      `totalAmount=${encodeURIComponent(this.price)}`;
-    
-    // 在新窗口打开支付页面
-    const payWindow = window.open(url, '_self');
-    
-    // 检查窗口是否成功打开
-    if (payWindow === null) {
-      this.$message.error('请允许浏览器打开新窗口进行支付');
-    }
-    
-  } catch (error) {
-    console.error('支付错误:', error);
-    this.$message.error('创建订单失败，请重试');
-  } finally {
-    this.loading = false;
-  }
-}, payReturn() {
+    async handlePay() {
+      this.loading = true;
+      try {
+        const timestamp = Date.now();
+        const params = {
+          subject: "付费文章",
+          traceNo: timestamp,
+          totalAmount: this.price
+        };
+        const param = this.$route.params.id;
+        // 使用 import.meta.env 访问环境变量，并对参数进行编码
+        const url = `${import.meta.env.VITE_APP_API_URL}/alipay/pay?` +
+          `subject=${encodeURIComponent("付费文章")}&` +
+          `traceNo=${encodeURIComponent(timestamp)}&` +
+          `totalAmount=${encodeURIComponent(this.price)}&` + `id=${encodeURIComponent(param)}`;
+
+        // 在新窗口打开支付页面
+        const payWindow = window.open(url, '_self');
+
+        // 检查窗口是否成功打开
+        if (payWindow === null) {
+          this.$message.error('请允许浏览器打开新窗口进行支付');
+        }
+
+      } catch (error) {
+        console.error('支付错误:', error);
+        this.$message.error('创建订单失败，请重试');
+      } finally {
+        this.loading = false;
+      }
+    }, payReturn() {
       if (this.$route.query.out_trade_no) {
         console.log("进入支付回调...");
         this.query = {
@@ -160,10 +146,10 @@ async handlePay() {
       this.$message.success('支付成功，即将显示完整内容');
       this.$emit('payment-success');
       this.handleClose();
-      
+
       // 存储支付状态到本地
       localStorage.setItem(`article_paid_${this.articleId}`, 'true');
-  },
+    },
     handleClose() {
       this.showQRCode = false
       this.qrCodeUrl = ''
@@ -233,11 +219,11 @@ async handlePay() {
     .method-icon {
       font-size: 24px;
       color: var(--text-primary);
-      
+
       &.fa-alipay {
         color: #1677FF;
       }
-      
+
       &.fa-weixin {
         color: #07C160;
       }
@@ -313,11 +299,11 @@ async handlePay() {
 
       i {
         font-size: 1.2em;
-        
+
         &.fa-alipay {
           color: #1677FF;
         }
-        
+
         &.fa-weixin {
           color: #07C160;
         }
@@ -332,7 +318,7 @@ async handlePay() {
 
     .amount {
       margin-bottom: $spacing-sm;
-      
+
       span {
         color: #E6162D;
         font-weight: bold;
@@ -345,4 +331,4 @@ async handlePay() {
     }
   }
 }
-</style> 
+</style>

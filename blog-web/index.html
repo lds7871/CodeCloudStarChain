@@ -2,14 +2,15 @@
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8"/>
-    <link rel="icon" href="%VITE_APP_LOGO%"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="keywords" content="%VITE_APP_KEYWORDS%"/>
-    <meta name="description" content="%VITE_APP_DESCRIPTION%"/>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="%VITE_APP_LOGO%" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="keywords" content="%VITE_APP_KEYWORDS%" />
+    <meta name="description" content="%VITE_APP_DESCRIPTION%" />
     <title>%VITE_APP_TITLE%</title>
-    <script src="src/utils/pageInteraction.js"></script>
-    <link rel="stylesheet" href="src/styles/sakana.min.css">
+    <!--<script src="src/utils/pageInteraction.js"></script>-->
+    <script type="module" src="/src/main.js"></script>
+    <link rel="stylesheet" href="src/assets/styles/sakana.min.css">
     <script async onload="initSakanaWidget()" src="src/components/sakana.min.js"></script>
     <script>
         var _hmt = _hmt || [];
@@ -21,18 +22,17 @@
         })();
 
 
-        function initSakanaWidget() {
-            new SakanaWidget().mount('#sakana-widget');
-        }
+        // function initSakanaWidget() {
+        //     new SakanaWidget().mount('#sakana-widget');
+        // }
     </script>
 
 
 </head>
 
 <body>
-<div id="app"></div>
-<div id="sakana-widget" style="position: fixed; bottom: 12px; right: 0; z-index: 999;"></div>
-<script type="module" src="/src/main.js"></script>
+    <div id="app"></div>
+    <div id="sakana-widget" style="position: fixed; bottom: 12px; right: 0; z-index: 999;"></div>
 </body>
 
 </html>

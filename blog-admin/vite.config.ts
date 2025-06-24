@@ -8,7 +8,7 @@ import { svgBuilder } from './src/plugins/svgBuilder'
 export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
   // 获取环境变量
   const env = loadEnv(mode, process.cwd())
-  
+
   return {
     css: {
       preprocessorOptions: {
@@ -17,12 +17,13 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
         },
       },
     },
-    plugins: [vue(),svgBuilder('./src/icons/svg/'), AutoImport({
+    plugins: [vue(), svgBuilder('./src/icons/svg/'), AutoImport({
       imports: [
         'vue',
         'vue-router',
         'pinia'
       ],
+
       dts: 'src/auto-imports.d.ts',
       // 可以选择是否自动导入 Vue 的组合式 API
       vueTemplate: true,
@@ -37,6 +38,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
         '@': path.resolve(__dirname, 'src')
       }
     },
+
     server: {
       host: '0.0.0.0',
       port: Number(env.VITE_APP_PORT) || 3000,

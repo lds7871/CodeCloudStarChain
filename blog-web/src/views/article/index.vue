@@ -99,14 +99,10 @@
           <div class="ai-header" @click="isAiDescriptionExpanded = !isAiDescriptionExpanded">
             <i class="fas fa-robot"></i>
             <span>AI 摘要</span>
-            <i class="fas" :class="isAiDescriptionExpanded ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+            <i class="fas" :class="isAiDescriptionExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"
+              style="margin-left:auto;"></i>
           </div>
-          <transition
-                name="expand"
-                @enter="startTransition"
-                @leave="endTransition"
-                mode="out-in"
-          >
+          <transition name="expand" @enter="startTransition" @leave="endTransition" mode="out-in">
             <div class="ai-content" v-show="isAiDescriptionExpanded">
               <span class="typing-text" ref="typingText"></span>
               <div class="ai-description-text">
@@ -117,10 +113,10 @@
         </div>
 
         <!-- 文章内容 -->
-        <article class="article-content" >
+        <article class="article-content">
           <!-- 免费内容 -->
-       <div v-if="article.readType === 1 || isPaid" v-html="article.content"></div>
-          
+          <div v-if="article.readType === 1 || isPaid" v-html="article.content"></div>
+
           <!-- 会员内容 -->
           <div v-else-if="article.readType === 2" class="locked-content member">
             <div class="preview-content" v-html="getPreviewContent(article.content)"></div>
@@ -133,18 +129,18 @@
               <el-button type="primary" @click="handleUpgrade">立即开通会员</el-button>
             </div>
           </div>
-          
+
           <!-- 付费内容 -->
-         <div v-else class="payment-notice">
-          <div class="preview-content" v-html="getPreviewContent(article.content)"></div>
-         <div class="payment-mask">
-        <i class="el-icon-lock"></i>
-        <h3>付费内容</h3>
-        <p>支付后可查看完整内容</p>
-        <el-button type="primary" @click="handlePurchase">
-          立即购买 ￥{{ article.price }}
-        </el-button>
-      </div>
+          <div v-else class="payment-notice">
+            <div class="preview-content" v-html="getPreviewContent(article.content)"></div>
+            <div class="payment-mask">
+              <i class="el-icon-lock"></i>
+              <h3>付费内容</h3>
+              <p>支付后可查看完整内容</p>
+              <el-button type="primary" @click="handlePurchase">
+                立即购买 ￥{{ article.price }}
+              </el-button>
+            </div>
           </div>
         </article>
 
@@ -163,7 +159,8 @@
               </div>
               <div v-else class="notice-item">
                 <i class="fas fa-share-alt"></i>
-                <span>本文转载自：<a :href="article.originalUrl" target="_blank" rel="noopener noreferrer">{{ article.originalUrl || '未知来源' }}</a></span>
+                <span>本文转载自：<a :href="article.originalUrl" target="_blank" rel="noopener noreferrer">{{
+                  article.originalUrl || '未知来源' }}</a></span>
               </div>
               <div class="notice-item">
                 <i class="fas fa-calendar-alt"></i>
@@ -173,7 +170,8 @@
                 <i class="fab fa-creative-commons-sa"></i>
                 <span>
                   版权协议：
-                  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">
+                  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"
+                    rel="noopener noreferrer">
                     CC BY-NC-SA 4.0
                   </a>
                 </span>
@@ -260,13 +258,9 @@
         </footer>
 
         <!-- 添加评论组件 -->
-        <Comment 
-          :article-id="$route.params.id" 
-          :comment-count="article.commentNum || 0"
-          :article-author-id="article.userId || ''" 
-          @comment-added="handleCommentAdded"
-          @comment-deleted="handleCommentDeleted"
-        />
+        <Comment :article-id="$route.params.id" :comment-count="article.commentNum || 0"
+          :article-author-id="article.userId || ''" @comment-added="handleCommentAdded"
+          @comment-deleted="handleCommentDeleted" />
       </main>
 
       <!-- 侧边栏 -->
@@ -274,8 +268,8 @@
         <div class="toc-container">
           <div class="toc-header">
             <div class="title-wrapper">
-            <i class="fas fa-list"></i>
-            <span>目录</span>
+              <i class="fas fa-list"></i>
+              <span>目录</span>
             </div>
             <div class="progress-wrapper" :class="{ completed: readProgress === 100 }">
               <i class="fas fa-book-reader"></i>
@@ -294,17 +288,9 @@
       </aside>
     </div>
     <mj-image-preview ref="imagePreview" />
-    <payment-dialog
-      :visible.sync="showPaymentDialog"
-      :title="article.title"
-      :price="1"
-      :article-id="$route.params.id"
-      @payment-success="handlePaymentSuccess"
-    />
-    <membership-dialog
-      :visible.sync="showMembershipDialog"
-      @payment-success="handleMembershipSuccess"
-    />
+    <payment-dialog :visible.sync="showPaymentDialog" :title="article.title" :price="1" :article-id="$route.params.id"
+      @payment-success="handlePaymentSuccess" />
+    <membership-dialog :visible.sync="showMembershipDialog" @payment-success="handleMembershipSuccess" />
   </div>
 </template>
 
@@ -316,7 +302,7 @@ import Comment from '@/components/Comment/index.vue'
 import PaymentDialog from '@/components/PaymentDialog/index.vue'
 import MembershipDialog from '@/components/MembershipDialog/index.vue'
 import { marked } from 'marked'
-import {checkSuccess } from '@/api/user';
+import { checkSuccess } from '@/api/user';
 export default {
   name: 'Article',
   components: {
@@ -326,7 +312,7 @@ export default {
   },
   data() {
     return {
-       query: {
+      query: {
         userId: undefined,
         art_id: undefined,
       },
@@ -367,7 +353,7 @@ export default {
     currentUrl() {
       return window.location.href
     },
-     showContent() {
+    showContent() {
       // 如果文章不需要付费或已经支付，则显示完整内容
       return !this.article.needPay || this.isPaid;
     }
@@ -390,7 +376,7 @@ export default {
 
         // 等待下一个 tick，确保文章内容渲染完成
         await this.$nextTick()
-        
+
         // 使用 setTimeout 确保 DOM 完全渲染
         setTimeout(() => {
           this.generateToc()
@@ -401,10 +387,10 @@ export default {
           this.addLineNumbers()
           this.initImagePreview()
           this.updateActionBarPosition()
-          
+
           // 添加一个额外的延时来处理代码块的展开/折叠
           this.initializeCodeBlocks()
-          
+
           // AI摘要
           if (this.article.aiDescribe) {
             const typingText = this.$refs.typingText
@@ -686,7 +672,7 @@ export default {
         })
 
         // 收集所有图片URL用于预览
-        this.images = Array.from(document.querySelectorAll('.article-content img')).map(img => 
+        this.images = Array.from(document.querySelectorAll('.article-content img')).map(img =>
           img.getAttribute('data-src') || img.getAttribute('src')
         )
 
@@ -771,16 +757,16 @@ export default {
 
         // 获取代码块的实际高度
         const actualHeight = pre.scrollHeight
-        
+
         if (actualHeight > 500) {
           // 添加折叠类
           pre.classList.add('collapsed')
-          
+
           // 创建展开按钮
           const expandButton = document.createElement('button')
           expandButton.className = 'expand-button'
           expandButton.innerHTML = '<i class="fas fa-chevron-down"></i>展开代码'
-          
+
           // 添加点击事件
           expandButton.onclick = (e) => {
             e.stopPropagation()
@@ -795,7 +781,7 @@ export default {
               this.collapsedCodeBlocks.add(index)
             }
           }
-          
+
           pre.appendChild(expandButton)
         }
       })
@@ -807,7 +793,7 @@ export default {
       const codeBlocks = document.querySelectorAll('.article-content pre code')
       codeBlocks.forEach((code) => {
         const pre = code.parentElement
-        
+
         // 检查是否已添加行号
         if (!pre.querySelector('.line-numbers')) {
           const lines = code.textContent.split('\n').length
@@ -921,7 +907,7 @@ export default {
     this.$nextTick(() => {
       this.initImagePreview()
     })
-    if(this.$route.query.out_trade_no){
+    if (this.$route.query.out_trade_no) {
       this.isPaid = true;
     }
   },
@@ -939,7 +925,7 @@ export default {
     '$route'(to, from) {
       if (to.params.id !== from.params.id) {
         // 重新获取文章数据
-        this.getArticleData() 
+        this.getArticleData()
       }
     }
   }
@@ -951,6 +937,7 @@ export default {
   max-width: 1300px;
   margin: 0 auto;
   padding: $spacing-lg;
+
   @include responsive(lg) {
     padding: $spacing-sm;
   }
@@ -1177,8 +1164,8 @@ export default {
     font-size: 14px;
     line-height: 1.5;
     position: relative;
-    color:rgb(239, 89, 84);
-    background:rgb(243, 244, 244);
+    color: rgb(239, 89, 84);
+    background: rgb(243, 244, 244);
     border-radius: 6px;
     padding: $spacing-xs;
     margin: 0 $spacing-xs;
@@ -1196,7 +1183,7 @@ export default {
 
     &.collapsed {
       max-height: 300px;
-      
+
       &::after {
         content: '';
         position: absolute;
@@ -1279,7 +1266,7 @@ export default {
       font-size: 14px;
       line-height: 1.5;
       position: relative;
-    
+
     }
 
     /* 添加仿 macOS 风格的按钮 */
@@ -1344,8 +1331,8 @@ export default {
 
   :deep(img.lazy-image) {
     opacity: 0;
-  
-    
+
+
     &.loaded {
       opacity: 1;
     }
@@ -1416,12 +1403,12 @@ export default {
 
   .locked-content {
     position: relative;
-    
+
     .preview-content {
       max-height: 300px;
       overflow: hidden;
       position: relative;
-      
+
       &::after {
         content: '';
         position: absolute;
@@ -1433,7 +1420,7 @@ export default {
         pointer-events: none;
       }
     }
-    
+
     .content-locker {
       position: relative;
       margin-top: -60px;
@@ -1443,7 +1430,7 @@ export default {
       border-radius: $border-radius-lg;
       box-shadow: $shadow-lg;
       z-index: 1;
-      
+
       .locker-icon {
         width: 60px;
         height: 60px;
@@ -1453,41 +1440,41 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         i {
           font-size: 1.8em;
           color: $primary;
         }
       }
-      
+
       h3 {
         color: var(--text-primary);
         font-size: 1.4em;
         margin-bottom: $spacing-sm;
       }
-      
+
       p {
         color: var(--text-secondary);
         margin-bottom: $spacing-lg;
       }
-      
+
       .el-button {
         padding: $spacing-sm $spacing-xl;
         font-size: 1.1em;
       }
     }
-    
+
     &.member .locker-icon {
       background: rgba(#FFD700, 0.1);
-      
+
       i {
         color: #FFD700;
       }
     }
-    
+
     &.paid .locker-icon {
       background: rgba(#E6162D, 0.1);
-      
+
       i {
         color: #E6162D;
       }
@@ -1733,7 +1720,7 @@ export default {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--border-color);
     backdrop-filter: blur(10px);
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -1755,7 +1742,7 @@ export default {
       position: relative;
       border-bottom: 1px solid var(--border-color);
       justify-content: space-between;
-      
+
       .title-wrapper {
         display: flex;
         align-items: center;
@@ -1788,7 +1775,7 @@ export default {
           font-variant-numeric: tabular-nums;
           min-width: 3em;
           text-align: right;
-          
+
           &::after {
             content: '%';
             margin-left: 2px;
@@ -1811,13 +1798,11 @@ export default {
         top: 0;
         bottom: 0;
         width: 1px;
-        background: linear-gradient(
-          to bottom,
-          transparent,
-          rgba($primary, 0.1),
-          rgba($primary, 0.1),
-          transparent
-        );
+        background: linear-gradient(to bottom,
+            transparent,
+            rgba($primary, 0.1),
+            rgba($primary, 0.1),
+            transparent);
       }
 
       .toc-item {
@@ -1855,9 +1840,8 @@ export default {
         &:hover {
           color: $primary;
           background: linear-gradient(90deg,
-            rgba($primary, 0.05),
-            rgba($primary, 0.02)
-          );
+              rgba($primary, 0.05),
+              rgba($primary, 0.02));
           padding-left: 20px;
 
           &::before {
@@ -1870,9 +1854,8 @@ export default {
         &.active {
           color: $primary;
           background: linear-gradient(90deg,
-            rgba($primary, 0.1),
-            rgba($primary, 0.05)
-          );
+              rgba($primary, 0.1),
+              rgba($primary, 0.05));
           font-weight: 500;
           padding-left: 20px;
 
@@ -1901,10 +1884,11 @@ export default {
           font-size: 0.88em;
         }
 
-        &.level-5, &.level-6 {
+        &.level-5,
+        &.level-6 {
           font-size: 0.86em;
           opacity: 0.8;
-          
+
           &:hover {
             opacity: 1;
           }
@@ -1919,9 +1903,11 @@ export default {
   0% {
     box-shadow: 0 0 0 0 rgba($primary, 0.4);
   }
+
   70% {
     box-shadow: 0 0 0 4px rgba($primary, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba($primary, 0);
   }
@@ -1963,6 +1949,7 @@ export default {
 
   .action-item {
     cursor: pointer;
+
     .action-button {
       width: 40px;
       height: 40px;
@@ -2021,7 +2008,7 @@ export default {
       transition: all 0.3s ease;
       pointer-events: none;
       width: 510px;
-      
+
       &::before {
         content: '';
         position: absolute;
@@ -2076,7 +2063,7 @@ export default {
   @include responsive(sm) {
     margin: $spacing-sm;
   }
-  
+
 
 
   .ai-header {
@@ -2098,6 +2085,7 @@ export default {
     padding: $spacing-md;
     overflow: hidden;
   }
+
   .ai-description-text {
     margin-top: $spacing-sm;
     color: #8c8a8e;
@@ -2120,5 +2108,4 @@ export default {
 .expand-leave-from {
   opacity: 1;
 }
-
 </style>

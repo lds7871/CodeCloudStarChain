@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import coverImage from '@/assets/133487507047962275.jpg';
 import { getMessagesApi, addMessageApi } from "@/api/message";
 import VueDanmaku from 'vue-danmaku';
 export default {
@@ -109,10 +110,9 @@ export default {
       });
     }
   },
-  computed: {
+ computed: {
     cover() {
-      var cover = '/src/assets/133487507047962275.jpg';
-      return "background: url(" + cover + ") center center / cover no-repeat";
+      return `background: url(${coverImage}) center center / cover no-repeat`;
     }
   }
 };
