@@ -17,3 +17,12 @@ export function getBottomDataApi() {
     method: 'get'
   })
 }
+
+// 获取访问趋势数据
+export function getVisitTrendApi(type: string) {
+  return request({
+    url: '/sys/dashboard/trend',
+    method: 'get',
+    params: { type }
+  })
+}

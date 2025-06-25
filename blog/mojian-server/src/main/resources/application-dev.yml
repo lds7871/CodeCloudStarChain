@@ -7,12 +7,13 @@ spring:
       max-request-size: 50MB
   datasource:
 #    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
-    url: jdbc:mysql://localhost:3306/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: 1234
+
 #    password: Xwt@0629Cw
 #    password: "0629"
+    password: Xwt@0629Cw
     hikari:
       # 连接最大存活时间，建议设置比数据库的 wait_timeout 小几分钟
       max-lifetime: 300000  # 5分钟

@@ -42,6 +42,16 @@ public class RedisConstants {
     public static final String BLOG_VIEWS_COUNT = "blog_views_count";
 
     /**
+     * 每日访问量 redis key，格式: blog_visit:日期(yyyy-MM-dd)
+     */
+    public static final String BLOG_VISIT_DAY = "blog_visit:";
+    
+    /**
+     * 每日浏览量 redis key，格式: blog_view:日期(yyyy-MM-dd)
+     */
+    public static final String BLOG_VIEW_DAY = "blog_view:";
+
+    /**
      * 防重提交 redis key
      */
     public static final String REPEAT_SUBMIT_KEY = "repeat_submit:";

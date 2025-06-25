@@ -19,9 +19,14 @@ import eu.bitwalker.useragentutils.UserAgent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
-import java.util.*;
+import cn.hutool.core.date.DateUtil;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -80,15 +85,36 @@ public class HomeServiceImpl implements HomeService {
         // 生成唯一用户标识
         String uuid = ipAddress + browser.getName() + operatingSystem.getName();
         String md5 = DigestUtils.md5DigestAsHex(uuid.getBytes());
+        
+        // 获取当前日期
+        String today = DateUtil.format(new Date(), "yyyy-MM-dd");
+        
         // 判断是否访问
         if (!redisUtil.sIsMember(RedisConstants.UNIQUE_VISITOR, md5)) {
             // 访客量+1
             redisUtil.increment(RedisConstants.UNIQUE_VISITOR_COUNT, 1);
             // 保存唯一标识
             redisUtil.sAdd(RedisConstants.UNIQUE_VISITOR, md5);
+            
+            // 记录每日访问量
+            String visitKey = RedisConstants.BLOG_VISIT_DAY + today;
+            redisUtil.increment(visitKey, 1);
+            // 设置过期时间为1年，确保数据不会丢失
+            if (redisUtil.getExpire(visitKey, TimeUnit.SECONDS) == -1) {
+                redisUtil.expire(visitKey, 365, TimeUnit.DAYS);
+            }
         }
-        // 访问量+1
+        
+        // 总访问量+1
         redisUtil.increment(RedisConstants.BLOG_VIEWS_COUNT, 1);
+        
+        // 每日浏览量+1
+        String viewKey = RedisConstants.BLOG_VIEW_DAY + today;
+        redisUtil.increment(viewKey, 1);
+        // 设置过期时间为1年，确保数据不会丢失
+        if (redisUtil.getExpire(viewKey, TimeUnit.SECONDS) == -1) {
+            redisUtil.expire(viewKey, 365, TimeUnit.DAYS);
+        }
     }
 
     @Override
