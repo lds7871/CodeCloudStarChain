@@ -7,8 +7,13 @@
           <div class="profile-header">
             <div class="header-backdrop"></div>
             <div class="header-content">
-              <el-avatar :size="100" :src="userInfo.weChatInfo?.headimgurl || userInfo.sysUser?.avatar"
-                class=" profile-avatar" />
+              <div class="avatar-wrapper" @click="showCropper = true">
+                <el-avatar
+                  :size="100"
+                  :src="userInfo.weChatInfo?.headimgurl || userInfo.sysUser?.avatar"
+                  class="profile-avatar"
+                />
+              </div>
               <h2 class="profile-name">{{ userInfo.weChatInfo?.nickname || userInfo.sysUser?.nickname }}</h2>
             </div>
           </div>
@@ -125,13 +130,20 @@
         </el-card>
       </el-col>
     </el-row>
+    <AvatarCropper v-model="showCropper" @success="onAvatarSuccess" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { getUserProfileApi, updateUserProfileApi, updateUserPwdApi, getWxUserApi, updateWXUserProfileApi } from '@/api/system/user'
-import { fa } from 'element-plus/es/locale'
+import {ElMessage} from 'element-plus'
+import {
+  getUserProfileApi,
+  getWxUserApi,
+  updateUserProfileApi,
+  updateUserPwdApi,
+  updateWXUserProfileApi
+} from '@/api/system/user'
+import AvatarCropper from '@/components/Upload/AvatarCropper.vue'
 
 const activeTab = ref('basic')
 const userFormRef = ref()
@@ -194,6 +206,8 @@ const pwdRules = reactive<any>({
 // 添加loading状态
 const submitLoading = ref(false)
 const pwdLoading = ref(false)
+
+const showCropper = ref(false)
 
 // 获取用户信息
 const getUser = async () => {
@@ -268,9 +282,17 @@ const submitPwdForm = async () => {
     pwdLoading.value = false
   }
 }
+
 const isWxUser = computed(() => {
   return !!localStorage.getItem('userInfo')
 })
+
+async function onAvatarSuccess(url: string) {
+  userInfo.value.weChatInfo.headimgurl = url
+  // 调用后端接口保存头像
+  await updateUserProfileApi({ id: userInfo.value.sysUser.id, weChatInfo: { headimgurl: url } })
+  ElMessage.success('头像已更新')
+}
 
 onMounted(() => {
   getUser()
@@ -311,6 +333,15 @@ onMounted(() => {
     justify-content: center;
     color: white;
     padding: 20px;
+
+    .avatar-wrapper {
+      cursor: pointer;
+      display: inline-block;
+      position: relative;
+      &:hover .profile-avatar {
+        box-shadow: 0 0 0 2px #36cfc9;
+      }
+    }
 
     .profile-avatar {
       border: 4px solid rgba(255, 255, 255, 0.8);

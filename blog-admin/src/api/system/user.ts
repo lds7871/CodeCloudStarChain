@@ -115,15 +115,6 @@ export function updateUserPwdApi(oldPassword: string, newPassword: string) {
   })
 }
 
-// 用户头像上传
-export function uploadAvatar(data: any) {
-  return request({
-    url: '/system/user/profile/avatar',
-    method: 'post',
-    data: data
-  })
-}
-
 export function verifyPassword(password: string) {
   return request({
     url: `/sys/user/verifyPassword/${password}`,
