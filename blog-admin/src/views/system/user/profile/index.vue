@@ -288,10 +288,13 @@ const isWxUser = computed(() => {
 })
 
 async function onAvatarSuccess(url: string) {
-  userInfo.value.weChatInfo.headimgurl = url
-  // 调用后端接口保存头像
-  await updateUserProfileApi({ id: userInfo.value.sysUser.id, weChatInfo: { headimgurl: url } })
+  // 1. 立即更新本地头像，页面立刻响应
+  userInfo.value.sysUser.avatar = url
+  // 2. 后端保存
+  await updateUserProfileApi({ id: userInfo.value.sysUser.id, avatar: url })
   ElMessage.success('头像已更新')
+  // 3. 可选：重新拉取用户信息，确保数据一致
+  // await getUser()
 }
 
 onMounted(() => {
