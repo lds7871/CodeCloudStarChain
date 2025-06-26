@@ -65,4 +65,19 @@ public interface AuthService {
      * @return
      */
     Captcha getCaptcha();
+
+    /**
+     * 发送绑定邮箱验证码
+     */
+    Boolean sendBindEmailCode(String email) throws MessagingException;
+
+    /**
+     * 绑定邮箱
+     */
+    Boolean bindEmail(EmailRegisterDto dto);
+
+    /**
+     * 解绑邮箱
+     */
+    Boolean unbindEmail();
 }

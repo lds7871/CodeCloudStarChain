@@ -159,17 +159,16 @@ public class AuthServiceImpl implements AuthService {
 //        }
 
 
-
-            List<String> permissions;
-            Integer userRoleId = roleMapper.getUserRoleId(user.getId());
-            List<String> roleList = roleMapper.selectLists(userRoleId);
-            if (roleList.contains(Constants.ADMIN)) {
-                permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
-            } else {
-                permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
-            }
-            loginUserInfo.setRoles(roleList);
-            loginUserInfo.setPermissions(permissions);
+        List<String> permissions;
+        Integer userRoleId = roleMapper.getUserRoleId(user.getId());
+        List<String> roleList = roleMapper.selectLists(userRoleId);
+        if (roleList.contains(Constants.ADMIN)) {
+            permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+        } else {
+            permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
+        }
+        loginUserInfo.setRoles(roleList);
+        loginUserInfo.setPermissions(permissions);
         return loginUserInfo;
     }
 
@@ -186,10 +185,10 @@ public class AuthServiceImpl implements AuthService {
         //获取菜单权限列表
         List<String> permissions;
         if (roleList.contains(Constants.ADMIN)) {
-                permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
-                System.out.println("权限为："+permissions);
+            permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+            System.out.println("权限为：" + permissions);
         } else {
-                permissions = menuMapper.getPermissionListByUserId(user.getId(), MenuTypeEnum.BUTTON.getCode());
+            permissions = menuMapper.getPermissionListByUserId(user.getId(), MenuTypeEnum.BUTTON.getCode());
         }
         weChatInfo.setRoles(roleList);
         weChatInfo.setId(user.getId());
@@ -253,11 +252,6 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
-//    @Override
-//    public String renderAuth(String source) {
-//        return null;
-//    }
-
 
     @Override
     public String renderAuth(String source) throws AuthException {
@@ -279,7 +273,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("第三方登录验证结果:{}", result);
     }
 
-//    @Override
+    //    @Override
 //    public void authLogin(AuthCallback callback, HttpServletResponse httpServletResponse) throws IOException {
 //        AuthRequest authRequest = getAuthRequest(source);
 //        AuthResponse<AuthUser> response = authRequest.login(callback);
@@ -333,10 +327,6 @@ public class AuthServiceImpl implements AuthService {
             throw new ServiceException("验证码已过期或输入错误");
         }
     }
-
-
-    
-
 
     private LoginUserInfo wechatLogin(String openId) {
 
@@ -429,4 +419,58 @@ public class AuthServiceImpl implements AuthService {
         }
         return authRequest;
     }
+
+    @Override
+    public Boolean sendBindEmailCode(String email) throws MessagingException {
+        // 校验邮箱是否已被其他用户绑定
+        Users exist = sysUserMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getEmail, email));
+        if (exist != null) {
+            throw new ServiceException("该邮箱已被绑定，请更换其他邮箱");
+        }
+        emailUtil.sendBindCode(email); // 见下方EmailUtil实现
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean bindEmail(EmailRegisterDto dto) {
+        // 校验验证码
+        emailUtil.validateBindCode(dto.getEmail(), dto.getCode());
+
+        // 获取当前登录用户
+        Integer userId = StpUtil.getLoginIdAsInt();
+        Users user = sysUserMapper.selectById(userId);
+        if (user == null) {
+            throw new ServiceException("用户不存在");
+        }
+        // 检查邮箱是否已被其他用户绑定
+        Users exist = sysUserMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getEmail, dto.getEmail()));
+        if (exist != null && !exist.getId().equals(userId)) {
+            throw new ServiceException("该邮箱已被其他账号绑定");
+        }
+        // 绑定邮箱
+        user.setEmail(dto.getEmail());
+        sysUserMapper.updateById(user);
+
+        // 删除验证码
+        emailUtil.deleteBindCode(dto.getEmail());
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unbindEmail() {
+        Integer userId = StpUtil.getLoginIdAsInt();
+        Users user = sysUserMapper.selectById(userId);
+        if (user == null) {
+            throw new ServiceException("用户不存在");
+        }
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new ServiceException("当前账号未绑定邮箱");
+        }
+        user.setEmail("");
+        sysUserMapper.updateById(user);
+        return true;
+    }
+
 }

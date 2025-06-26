@@ -83,6 +83,7 @@ export function getQrCode() {
     responseType: 'text'
   })
 }
+
 // 获取微信用户信息
 export function getwxUserInfoApi(openid) {
   return request({

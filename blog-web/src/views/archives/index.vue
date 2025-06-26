@@ -57,7 +57,8 @@
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import Sidebar from '@/components/Sidebar/index.vue'
-import { getArchivesApi } from '@/api/article'
+import {getArchivesApi} from '@/api/article'
+
 gsap.registerPlugin(ScrollTrigger)
 
 export default {
@@ -104,7 +105,7 @@ export default {
     }
   },
   async created() {
-    const res = await getArchive7哦sApi()
+    const res = await getArchivesApi()
     this.archives = res.data
     this.archives.forEach(item => {
       this.$set(this.collapsedYears, item.year, false)
