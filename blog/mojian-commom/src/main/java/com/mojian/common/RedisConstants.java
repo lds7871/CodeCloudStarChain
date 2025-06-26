@@ -15,7 +15,6 @@ public class RedisConstants {
      */
     public static final String USER_SIGN = "user_sign:";
 
-
     /**
      * 验证码 redis key
      */
@@ -107,7 +106,6 @@ public class RedisConstants {
      */
     public static final long MONTH_EXPIRE = 30 * 24 * 60 * 60;
 
-
     /**
      * 微信登录用户状态
      */
@@ -127,4 +125,9 @@ public class RedisConstants {
      * 网站配置
      */
     public static final String WEB_CONFIG_KEY = "sys_webconfig";
+
+    /**
+     * 绑定邮箱验证码
+     */
+    public static final String BIND_EMAIL_CODE_KEY = "bind:email:code:";
 }

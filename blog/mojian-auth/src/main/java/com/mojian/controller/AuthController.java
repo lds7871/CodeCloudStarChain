@@ -6,8 +6,9 @@ import com.mojian.common.Result;
 import com.mojian.dto.Captcha;
 import com.mojian.dto.EmailRegisterDto;
 import com.mojian.dto.LoginDTO;
+import com.mojian.dto.user.LoginUserInfo;
+import com.mojian.dto.user.WeChatInfo;
 import com.mojian.service.AuthService;
-
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import com.mojian.dto.user.*;
-import javax.annotation.Resource;
+
 import java.io.IOException;
 
 
@@ -80,5 +80,29 @@ public class AuthController {
     @GetMapping("/auth/wxinfo")
     public Result<WeChatInfo> getWxUserInfo(@RequestParam String openid,@RequestParam(defaultValue = "admin") String source) {
         return Result.success(authService.getWxLoginUserInfo(openid,source));
+    }
+
+    /**
+     * 发送绑定邮箱验证码
+     */
+    @GetMapping("/api/sendBindEmailCode")
+    public Result<Boolean> sendBindEmailCode(String email) throws MessagingException {
+        return Result.success(authService.sendBindEmailCode(email));
+    }
+
+    /**
+     * 绑定邮箱
+     */
+    @PostMapping("/api/email/bind")
+    public Result<Boolean> bindEmail(@RequestBody EmailRegisterDto dto) {
+        return Result.success(authService.bindEmail(dto));
+    }
+
+    /**
+     * 解绑邮箱
+     */
+    @PostMapping("/api/email/unbind")
+    public Result<Boolean> unbindEmail() {
+        return Result.success(authService.unbindEmail());
     }
 }

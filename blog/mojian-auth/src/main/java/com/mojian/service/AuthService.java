@@ -7,7 +7,6 @@ import com.mojian.dto.user.LoginUserInfo;
 import com.mojian.dto.user.WeChatInfo;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.zhyd.oauth.model.AuthCallback;
 
 import java.io.IOException;
@@ -24,6 +23,7 @@ public interface AuthService {
      */
     LoginUserInfo getLoginUserInfo(String source);
     WeChatInfo getWxLoginUserInfo(String openId, String source);
+
     /**
      * 发送注册邮箱验证码
      * @param email
@@ -64,4 +64,19 @@ public interface AuthService {
      * @return
      */
     Captcha getCaptcha();
+
+    /**
+     * 发送绑定邮箱验证码
+     */
+    Boolean sendBindEmailCode(String email) throws MessagingException;
+
+    /**
+     * 绑定邮箱
+     */
+    Boolean bindEmail(EmailRegisterDto dto);
+
+    /**
+     * 解绑邮箱
+     */
+    Boolean unbindEmail();
 }

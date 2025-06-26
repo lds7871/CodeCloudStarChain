@@ -80,7 +80,16 @@
             <el-input v-model="profileForm.nickname" :placeholder="'请输入昵称'" aria-label="昵称输入框"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email">
-            <el-input v-model="profileForm.email" placeholder="请输入邮箱" aria-label="邮箱输入框"></el-input>
+            <el-input
+              v-model="profileForm.email"
+              placeholder="点击绑定按钮绑定"
+              readonly
+              aria-label="邮箱输入框"
+            >
+              <template v-if="!profileForm.email" slot="append">
+                <span style="color:#409eff;cursor:pointer;" @click="$refs.bindingTab && ($refs.bindingTab.active = 'binding');showBindEmail = true">绑定</span>
+              </template>
+            </el-input>
           </el-form-item>
           <el-form-item label="个人简介">
             <el-input type="textarea" v-model="profileForm.signature" :rows="4"
@@ -132,6 +141,39 @@
                            @click="account.isBound ? unbindAccount(account.type) : bindAccount(account.type)">
                   {{ account.isBound ? '解除绑定' : '立即绑定' }}
                 </el-button>
+              </div>
+            </div>
+          </el-card>
+          <el-card class="binding-item">
+            <div class="binding-content">
+              <div class="account-info">
+                <div class="account-icon">
+                  <i class="el-icon-message" style="color: #409EFF"></i>
+                </div>
+                <div class="account-details">
+                  <span class="account-name">邮箱</span>
+                  <span class="account-desc">{{ userInfo.email ? userInfo.email : '未绑定邮箱' }}</span>
+                </div>
+              </div>
+              <div class="binding-status">
+                <el-tag :type="userInfo.email ? 'success' : 'info'" size="small" effect="dark" class="status-tag">
+                  {{ userInfo.email ? '已绑定' : '未绑定' }}
+                </el-tag>
+                <el-button
+                  v-if="!userInfo.email"
+                  type="primary"
+                  size="small"
+                  icon="el-icon-link"
+                  @click="showBindEmail = true"
+                >立即绑定</el-button>
+                <el-button
+                  v-else
+                  type="danger"
+                  size="small"
+                  icon="el-icon-close"
+                  :loading="unbindEmailLoading"
+                  @click="handleUnbindEmail"
+                >解绑</el-button>
               </div>
             </div>
           </el-card>
@@ -421,6 +463,46 @@
         @update-avatar="handleAvatarUpdate"
     />
 
+    <!-- 邮箱绑定弹窗 -->
+    <el-dialog
+      title="绑定邮箱"
+      :visible.sync="showBindEmail"
+      width="420px"
+      custom-class="bind-email-dialog"
+      @close="resetBindEmailForm"
+      append-to-body
+      :close-on-click-modal="true"
+    >
+      <el-alert
+        title="为了您的账户安全，绑定邮箱后部分操作将需要邮箱验证。"
+        type="info"
+        :closable="false"
+        show-icon
+        style="margin-bottom: 24px;"
+      >
+      </el-alert>
+      <el-form :model="bindEmailForm" :rules="bindEmailRules" ref="bindEmailForm" label-width="80px" class="bind-email-form">
+        <el-form-item label="邮箱地址" prop="email">
+          <el-input v-model="bindEmailForm.email" placeholder="请输入您的邮箱" prefix-icon="el-icon-message" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="验证码" prop="code">
+          <el-input v-model="bindEmailForm.code" placeholder="请输入6位验证码" prefix-icon="el-icon-key">
+            <el-button
+              slot="append"
+              :disabled="emailCodeTimer > 0 || !bindEmailForm.email || !isValidEmail(bindEmailForm.email)"
+              @click="sendBindEmailCode"
+            >
+              {{ emailCodeTimer > 0 ? `${emailCodeTimer}s 后重发` : '获取验证码' }}
+            </el-button>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="showBindEmail = false" size="medium">取 消</el-button>
+        <el-button type="primary" @click="submitBindEmail" :loading="bindEmailLoading" size="medium" icon="el-icon-check">确认绑定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -443,7 +525,7 @@ import {
 import {delArticleApi, getMyArticleApi, likeArticleApi} from '@/api/article'
 import {getDictDataApi} from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
-import {getwxUserInfoApi, giteeLoginApi} from '@/api/auth'
+import {bindEmailApi, getwxUserInfoApi, giteeLoginApi, sendBindEmailCodeApi, unbindEmailApi} from '@/api/auth'
 
 import {marked} from "marked";
 
@@ -547,10 +629,6 @@ export default {
           {required: true, message: '请输入用户名', trigger: 'blur'},
           {min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur'}
         ],
-        email: [
-          {required: true, message: '请输入邮箱', trigger: 'blur'},
-          {type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur'}
-        ]
       },
       params: {
         pageNum: 1,
@@ -588,6 +666,21 @@ export default {
       signInLoading: false,
       showCropper: false,
       balance: 0,
+      showBindEmail: false,
+      bindEmailForm: { email: '', code: '' },
+      bindEmailRules: {
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码', trigger: 'blur' }
+        ]
+      },
+      emailCodeTimer: 0,
+      bindEmailLoading: false,
+      unbindEmailLoading: false,
+      emailCodeTimerInterval: null,
     }
   },
 
@@ -626,6 +719,11 @@ export default {
           break
       }
     },
+    showBindEmail(val) {
+      if (!val) {
+        this.resetBindEmailForm()
+      }
+    }
   },
   created() {
     if (localStorage.getItem('userInfo')) {
@@ -1018,6 +1116,86 @@ export default {
      */
     handleAvatarUpdate(newAvatarUrl) {
       this.userInfo.avatar = newAvatarUrl;
+    },
+    sendBindEmailCode() {
+      this.$refs.bindEmailForm.validateField('email', error => {
+        if (error) return
+        this.emailCodeTimer = 60
+        sendBindEmailCodeApi(this.bindEmailForm.email).then(() => {
+          this.$message.success('验证码已发送，请查收邮箱')
+          this.emailCodeTimerInterval = setInterval(() => {
+            this.emailCodeTimer--
+            if (this.emailCodeTimer <= 0) {
+              clearInterval(this.emailCodeTimerInterval)
+              this.emailCodeTimerInterval = null
+            }
+          }, 1000)
+        }).catch(err => {
+          this.emailCodeTimer = 0
+          if (err.message && err.message.includes('已被绑定')) {
+            this.$message.error('该邮箱已被其他账号绑定，请更换邮箱')
+          } else {
+            this.$message.error(err.message || '验证码发送失败')
+          }
+        })
+      })
+    },
+    // 绑定邮箱
+    submitBindEmail() {
+      this.$refs.bindEmailForm.validate(valid => {
+        if (!valid) return
+        this.bindEmailLoading = true
+        bindEmailApi(this.bindEmailForm).then(() => {
+          this.$message.success('邮箱绑定成功')
+          this.showBindEmail = false
+          this.resetBindEmailForm()
+          this.getUserInfo() // 刷新用户信息
+        }).catch(err => {
+          if (err.message && err.message.includes('已被绑定')) {
+            this.$message.error('该邮箱已被其他账号绑定，请更换邮箱')
+          } else {
+            this.$message.error(err.message || '绑定失败')
+          }
+        }).finally(() => {
+          this.bindEmailLoading = false
+        })
+      })
+    },
+    // 刷新用户信息
+    getUserInfo() {
+      getUserInfoApi().then(res => {
+        this.userInfo = res.data.sysUser
+      })
+    },
+    // 弹窗关闭时清理
+    resetBindEmailForm() {
+      this.bindEmailForm = { email: '', code: '' }
+      this.emailCodeTimer = 0
+      if (this.emailCodeTimerInterval) {
+        clearInterval(this.emailCodeTimerInterval)
+        this.emailCodeTimerInterval = null
+      }
+    },
+    isValidEmail(email) {
+      return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)
+    },
+    // 解绑邮箱
+    handleUnbindEmail() {
+      this.$confirm('解绑后将无法通过该邮箱找回密码，确定要解绑吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.unbindEmailLoading = true
+        unbindEmailApi().then(() => {
+          this.$message.success('邮箱解绑成功')
+          this.getUserInfo()
+        }).catch(err => {
+          this.$message.error(err.message || '解绑失败')
+        }).finally(() => {
+          this.unbindEmailLoading = false
+        })
+      }).catch(() => {})
     },
   }
 }
@@ -1667,6 +1845,34 @@ export default {
         color: var(--primary-color);
       }
     }
+  }
+}
+
+:deep(.bind-email-dialog) {
+  border-radius: 10px;
+
+  .el-dialog__header {
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 24px;
+  }
+
+  .el-dialog__body {
+    padding: 24px 30px 0;
+  }
+
+  .el-dialog__footer {
+    padding: 20px 24px;
+  }
+
+  .el-form-item__label {
+    font-weight: 500;
+  }
+
+  .el-input-group__append .el-button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
 </style>

@@ -2,8 +2,6 @@ package com.mojian.service.impl;
 
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mojian.common.Constants;
@@ -16,18 +14,17 @@ import com.mojian.dto.user.LoginUserInfo;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysConfig;
 import com.mojian.entity.SysRole;
-import com.mojian.enums.LoginTypeEnum;
-import com.mojian.mapper.*;
-import com.mojian.service.AuthService;
 import com.mojian.entity.SysUser;
+import com.mojian.enums.LoginTypeEnum;
 import com.mojian.enums.MenuTypeEnum;
 import com.mojian.exception.ServiceException;
+import com.mojian.mapper.*;
+import com.mojian.service.AuthService;
 import com.mojian.utils.*;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.exception.AuthException;
 import me.zhyd.oauth.model.AuthCallback;
@@ -37,16 +34,16 @@ import me.zhyd.oauth.request.*;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -194,7 +191,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean sendEmailCode(String email) throws  MessagingException {
+    public Boolean sendEmailCode(String email) throws MessagingException {
         emailUtil.sendCode(email);
         return true;
     }
@@ -396,6 +393,59 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException("授权地址无效");
         }
         return authRequest;
+    }
+
+    @Override
+    public Boolean sendBindEmailCode(String email) throws MessagingException {
+        // 校验邮箱是否已被其他用户绑定
+        SysUser exist = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, email));
+        if (exist != null) {
+            throw new ServiceException("该邮箱已被绑定，请更换其他邮箱");
+        }
+        emailUtil.sendBindCode(email); // 见下方EmailUtil实现
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean bindEmail(EmailRegisterDto dto) {
+        // 校验验证码
+        emailUtil.validateBindCode(dto.getEmail(), dto.getCode());
+
+        // 获取当前登录用户
+        Integer userId = StpUtil.getLoginIdAsInt();
+        SysUser user = sysUserMapper.selectById(userId);
+        if (user == null) {
+            throw new ServiceException("用户不存在");
+        }
+        // 检查邮箱是否已被其他用户绑定
+        SysUser exist = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, dto.getEmail()));
+        if (exist != null && !exist.getId().equals(userId)) {
+            throw new ServiceException("该邮箱已被其他账号绑定");
+        }
+        // 绑定邮箱
+        user.setEmail(dto.getEmail());
+        sysUserMapper.updateById(user);
+
+        // 删除验证码
+        emailUtil.deleteBindCode(dto.getEmail());
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unbindEmail() {
+        Integer userId = StpUtil.getLoginIdAsInt();
+        SysUser user = sysUserMapper.selectById(userId);
+        if (user == null) {
+            throw new ServiceException("用户不存在");
+        }
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new ServiceException("当前账号未绑定邮箱");
+        }
+        user.setEmail("");
+        sysUserMapper.updateById(user);
+        return true;
     }
 
 }
