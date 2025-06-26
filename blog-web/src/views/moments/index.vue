@@ -32,17 +32,6 @@
               <img v-for="(img, index) in moment.images" :key="img" v-lazy="img"
                 @click="previewImage(moment.images, index)" />
             </div>
-            <!-- 添加操作按钮 -->
-            <div class="moment-actions">
-              <button class="action-btn" @click="handleComment(moment)">
-                <i class="fas fa-comment"></i>
-                <span>留言</span>
-              </button>
-              <button class="action-btn" @click="handleShare(moment)">
-                <i class="fas fa-share-alt"></i>
-                <span>分享</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -59,8 +48,8 @@
 </template>
 
 <script>
-import { formatTime } from '@/utils/time'
-import { getMoments } from '@/api/moments'
+import {formatTime} from '@/utils/time'
+import {getMoments} from '@/api/moments'
 
 export default {
   name: 'Moments',
@@ -76,7 +65,6 @@ export default {
       },
     }
   },
-
   mounted() {
     this.fetchMoments()
   },
@@ -84,9 +72,7 @@ export default {
   methods: {
     parseImages(images) {
       if (!images) return []
-      const parsedImages = images.split(',').filter(img => img)
-      console.log('Parsed image URLs:', parsedImages)
-      return parsedImages
+      return images.split(',').filter(img => img)
     },
     async fetchMoments() {
       try {
@@ -126,24 +112,6 @@ export default {
 
     formatTime(time) {
       return formatTime(time)
-    },
-
-    /**
-     * 处理留言点击
-     * @param {Object} moment - 当前说说对象
-     */
-    handleComment(moment) {
-      // TODO: 实现留言功能
-      console.log('留言:', moment)
-    },
-
-    /**
-     * 处理分享点击
-     * @param {Object} moment - 当前说说对象
-     */
-    handleShare(moment) {
-      // TODO: 实现分享功能
-      console.log('分享:', moment)
     }
   }
 }
@@ -176,7 +144,7 @@ export default {
 
 .moments-list {
   max-width: 800px;
-  margin: -100px auto 0;
+  margin: -200px auto 0;
   padding: 0 20px;
   position: relative;
   z-index: 2;
@@ -331,39 +299,6 @@ export default {
 
     i {
       color: $primary;
-    }
-  }
-}
-
-.moment-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: color 0.3s;
-
-    &:hover {
-      color: var(--primary-color);
-    }
-
-    i {
-      font-size: 14px;
-    }
-
-    span {
-      font-size: 13px;
     }
   }
 }
