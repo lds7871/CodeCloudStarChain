@@ -130,7 +130,7 @@
         </el-card>
       </el-col>
     </el-row>
-    <AvatarCropper v-model="showCropper" @success="onAvatarSuccess" />
+    <AvatarCropper v-model="showCropper" :avatar="userInfo.sysUser.avatar" @success="onAvatarSuccess" />
   </div>
 </template>
 

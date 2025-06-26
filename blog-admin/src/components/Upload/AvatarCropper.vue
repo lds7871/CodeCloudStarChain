@@ -24,7 +24,7 @@
     <el-row>
       <el-col :lg="2" :sm="3" :xs="3">
         <el-upload :show-file-list="false" :before-upload="beforeUpload" accept="image/*">
-          <el-button>选择图片</el-button>
+          <el-button :icon="Upload" style="display: flex; flex-direction: row-reverse;">选择图片</el-button>
         </el-upload>
       </el-col>
       <el-col :lg="{span: 1, offset: 2}" :sm="2" :xs="2">
@@ -52,9 +52,9 @@ import 'vue-cropper/dist/index.css'
 import {VueCropper} from 'vue-cropper'
 import {uploadApi} from '@/api/file'
 import {ElMessage} from 'element-plus'
-import {Minus, Plus, RefreshLeft, RefreshRight} from '@element-plus/icons-vue'
+import {Minus, Plus, RefreshLeft, RefreshRight, Upload} from '@element-plus/icons-vue'
 
-const props = defineProps<{ modelValue: boolean }>()
+const props = defineProps<{ modelValue: boolean, avatar?: string }>()
 const emit = defineEmits(['update:modelValue', 'success'])
 
 const visible = ref(props.modelValue)
@@ -64,6 +64,13 @@ watch(visible, (v: boolean) => emit('update:modelValue', v))
 const img = ref<string | null>(null)
 const cropper = ref<any>(null)
 const previews = ref<any>({})
+
+// 关键：弹窗打开时赋值当前头像
+watch(() => visible.value, (v) => {
+  if (v && props.avatar) {
+    img.value = props.avatar
+  }
+})
 
 function beforeUpload(file: File) {
   const reader = new FileReader()
@@ -110,6 +117,12 @@ async function submitCrop() {
       ElMessage.error('上传失败')
     }
   })
+}
+
+function close() {
+  visible.value = false
+  img.value = null
+  previews.value = {}
 }
 </script>
 
