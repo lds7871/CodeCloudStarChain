@@ -11,28 +11,21 @@ import lombok.Getter;
 @Getter
 public enum LoginTypeEnum {
 
+    Account(1,"账号密码登录"),
 
-    EMAIL("email", "邮箱登录"),
+    EMAIL(2, "邮箱登录"),
 
-    QQ("qq", "QQ登录"),
+    GITEE(3, "码云登录"),
 
-    WEIBO("weibo", "微博登录"),
-
-    GITEE("gitee", "码云登录"),
-
-    WECHAT("wechat", "微信登录"),
-
-    APPLET("applet", "小程序登录"),
-
-    GITHUB("github", "github登录");
+    WECHAT(4, "微信登录");
 
 
-    private final String type;
+    private final Integer type;
 
 
     private final String desc;
 
-    LoginTypeEnum(String type, String desc) {
+    LoginTypeEnum(Integer type, String desc) {
         this.type = type;
         this.desc = desc;
     }

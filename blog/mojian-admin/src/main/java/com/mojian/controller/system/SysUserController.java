@@ -7,11 +7,11 @@ import com.mojian.dto.user.SysUserAddAndUpdateDto;
 import com.mojian.common.Result;
 import com.mojian.dto.user.UpdatePwdDTO;
 import com.mojian.dto.user.WeChatInfo;
-import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import com.mojian.mapper.WeChatMapper;
 import com.mojian.service.SysUserService;
-import com.mojian.vo.user.SysUserVo;
 import com.mojian.vo.user.SysUserProfileVo;
+import com.mojian.vo.user.UsersVo;
 import com.mojian.vo.user.WxUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +32,7 @@ public class SysUserController {
 
     @GetMapping
     @Operation(summary = "获取用户列表")
-    public Result<IPage<SysUserVo>> listUsers(SysUser sysUser) {
+    public Result<IPage<UsersVo>> listUsers(Users sysUser) {
         return Result.success(sysUserService.listUsers(sysUser));
     }
 
@@ -87,7 +87,7 @@ public class SysUserController {
     @OperationLogger("修改个人信息")
     @Operation(summary = "修改个人信息")
     @SaCheckPermission("sys:user:update")
-    public Result<SysUserProfileVo> updateProfile(@RequestBody SysUser user) {
+    public Result<SysUserProfileVo> updateProfile(@RequestBody Users user) {
         sysUserService.updateProfile(user);
         return Result.success();
     }
@@ -111,7 +111,7 @@ public class SysUserController {
     @OperationLogger("重置密码")
     @Operation(summary = "重置密码")
     @SaCheckPermission("sys:user:reset")
-    public Result<Boolean> resetPassword(@RequestBody SysUser user) {
+    public Result<Boolean> resetPassword(@RequestBody Users user) {
         return Result.success(sysUserService.resetPassword(user));
     }
 }

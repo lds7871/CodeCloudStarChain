@@ -104,7 +104,7 @@ export default {
     }
   },
   async created() {
-    const res = await getArchivesApi()
+    const res = await getArchive7哦sApi()
     this.archives = res.data
     this.archives.forEach(item => {
       this.$set(this.collapsedYears, item.year, false)

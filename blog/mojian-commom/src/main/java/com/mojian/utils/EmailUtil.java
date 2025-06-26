@@ -108,7 +108,7 @@ public void getJavaMailSenderImpl() {
                 "            <tr>\n" +
                 "              <td class=\"p-intro\">\n" +
                 "                <hr>\n" +
-                "                <p style=\"text-align: center;line-height:1.75em;\">shiyi - <a href='https://www.shiyit.com' style='text-decoration: none;color:#409eff'>码云星链</a></p>\n" +
+                "                <p style=\"text-align: center;line-height:1.75em;\">icw - <a href='https://www.shiyit.com' style='text-decoration: none;color:#409eff'>码云星链</a></p>\n" +
                 "              </td>\n" +
                 "            </tr>\n" +
                 "          </tbody>\n" +

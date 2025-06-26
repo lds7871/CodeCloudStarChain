@@ -299,6 +299,7 @@ export default {
       try {
         await this.$store.dispatch("loginAction", this.loginForm);
         this.$refs.sliderVerify?.verifySuccessEvent();
+        localStorage.setItem("userInfo", "email");
         this.$message.success("登录成功");
         this.handleClose();
       } catch (error) {
@@ -587,7 +588,6 @@ export default {
                   })
                   .catch(error => {
                     console.error('登录失败：', error);
-                    this.$message.error("登录失败，请重试");
                   });
               } else if (res.status === 'EXPIRED') {
                 this.qrCodeExpired = true;
@@ -598,7 +598,7 @@ export default {
             }).catch(error => {
               console.error('检查二维码状态失败：', error);
             });
-          }, 3000);
+          }, 1000);
         } else {
           clearInterval(this.qrCodeTimer);
         }

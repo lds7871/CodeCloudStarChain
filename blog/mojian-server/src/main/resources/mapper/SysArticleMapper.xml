@@ -89,7 +89,7 @@
             u.avatar
         FROM sys_article a
         LEFT JOIN sys_category c ON a.category_id = c.id
-        LEFT JOIN sys_user u ON a.user_id = u.id
+        LEFT JOIN users u ON a.user_id = u.id
         WHERE a.status = 1
         <if test="tagId != null">
             AND a.id in (SELECT article_id FROM sys_article_tag WHERE tag_id = #{tagId})
@@ -127,7 +127,7 @@
             (SELECT COUNT(sal.id) FROM sys_article_like sal WHERE sal.article_id = a.id) AS likeNum
         FROM sys_article a
         LEFT JOIN sys_category c ON a.category_id = c.id
-        LEFT JOIN sys_user u ON a.user_id = u.id
+        LEFT JOIN users u ON a.user_id = u.id
         where a.id = #{id}
     </select>
 
@@ -164,7 +164,7 @@
             u.avatar
         FROM sys_article a
         LEFT JOIN sys_category c ON a.category_id = c.id
-        left join sys_user u on a.user_id = u.id
+        left join users u on a.user_id = u.id
         <where>
             <if test="query.status != null">
                 a.status = #{query.status}

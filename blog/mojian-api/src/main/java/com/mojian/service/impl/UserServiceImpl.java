@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysArticle;
 import com.mojian.entity.SysComment;
-import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import com.mojian.mapper.*;
 import com.mojian.service.UserService;
 import com.mojian.utils.PageUtil;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private final SysCommentMapper commentMapper;
 
     private final SysArticleMapper articleMapper;
-    private RedisTemplate<SysUser, Object> redisTemplate;
+    private RedisTemplate<Users, Object> redisTemplate;
     @Autowired
     private WeChatMapper weChatMapper;
     private final SysTagMapper tagMapper;
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateProfile(SysUser user) {
+    public void updateProfile(Users user) {
         sysUserMapper.updateById(user);
     }
 

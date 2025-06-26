@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/file")
@@ -86,7 +87,7 @@ public class FileController {
         //获取文件名和后缀
         FileInfo fileInfo = fileStorageService.of(file)
                 .setPath(path)
-                .setSaveFilename(RandomUtil.randomNumbers(2) + "_" + file.getOriginalFilename()) //随机俩个数字，避免相同文件名时文件名冲突
+                .setSaveFilename(UUID.randomUUID() + "_" + file.getOriginalFilename()) //随机俩个数字，避免相同文件名时文件名冲突
                 .putAttr("source",source)
                 .upload();
 

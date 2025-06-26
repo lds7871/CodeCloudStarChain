@@ -23,7 +23,6 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(serializer);
 
-        // Hash 的 key 也采用 StringRedisSerializer 的序列化方式
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(serializer);
 

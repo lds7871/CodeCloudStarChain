@@ -38,5 +38,4 @@ public class GiteeInfo implements Serializable {
     private Integer roleId;
     private List<String> roles;
     private List<String> permissions;
-
 }

@@ -2,6 +2,7 @@ package com.mojian.dto.user;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -23,7 +24,7 @@ public class WeChatInfo implements Serializable {
 
     private String headimgurl;
 
-    private String sex;
+    private Integer sex;
 
     private String token;
 
@@ -43,6 +44,6 @@ public class WeChatInfo implements Serializable {
     private String ipLocation;
     private String os;
     private String browser;
-    private String signature;
+    private String userInfo;
 
 }

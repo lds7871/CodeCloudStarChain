@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
+    private Integer id;
     private String openid;
     private String nickname;
     private String headimgurl;

@@ -17,10 +17,13 @@ export function loginApi(data) {
  * 退出登录
  * @returns 
  */
-export function logoutApi() {
+export function logoutApi(userInfo) {
   return request({
     url: '/auth/logout',
-    method: 'post'
+    method: 'delete',
+    params: {
+      userInfo: userInfo
+    }
   })
 }
 
@@ -75,14 +78,11 @@ export function forgotPasswordApi(data) {
 // 微信扫码获取用户信息
 export function getQrCode() {
   return request({
-    url: 'wechat/qrCode',
+    url: '/wechat/qrCode',
     method: 'get',
     responseType: 'text'
   })
 }
-
-
-
 // 获取微信用户信息
 export function getwxUserInfoApi(openid) {
   return request({
@@ -90,7 +90,6 @@ export function getwxUserInfoApi(openid) {
     method: "get",
     params: {
       openid: openid,
-      source: "user"
     }
   })
 }
