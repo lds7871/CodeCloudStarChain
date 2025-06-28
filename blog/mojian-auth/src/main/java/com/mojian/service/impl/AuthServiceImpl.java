@@ -2,8 +2,8 @@ package com.mojian.service.impl;
 
 import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.mojian.common.Constants;
 import com.mojian.common.RedisConstants;
 import com.mojian.config.properties.*;
@@ -15,6 +15,7 @@ import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysConfig;
 import com.mojian.entity.SysRole;
 import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import com.mojian.enums.LoginTypeEnum;
 import com.mojian.enums.MenuTypeEnum;
 import com.mojian.exception.ServiceException;
@@ -22,28 +23,26 @@ import com.mojian.mapper.*;
 import com.mojian.service.AuthService;
 import com.mojian.utils.*;
 import jakarta.mail.MessagingException;
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.config.AuthConfig;
-import me.zhyd.oauth.exception.AuthException;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.*;
 import me.zhyd.oauth.utils.AuthStateUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -99,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         // 查询用户
-        SysUser user = userMapper.selectByUsername(loginDTO.getUsername());
+        Users user = userMapper.selectByUsername(loginDTO.getUsername());
 
         //校验是否能够登录
         validateLogin(loginDTO, user);
@@ -116,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
         return loginUserInfo;
     }
 
-    private static void validateLogin(LoginDTO loginDTO, SysUser user) {
+    private static void validateLogin(LoginDTO loginDTO, Users user) {
         if (user == null) {
             throw new ServiceException("登录用户不存在");
         }
@@ -140,7 +139,7 @@ public class AuthServiceImpl implements AuthService {
     public LoginUserInfo getLoginUserInfo(String source) {
         // 获取当前登录用户ID
         Integer userId = StpUtil.getLoginIdAsInt();
-        SysUser user = userMapper.selectById(1);
+        Users user = userMapper.selectById(1);
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
@@ -148,46 +147,62 @@ public class AuthServiceImpl implements AuthService {
         LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
 
         //获取菜单权限列表
-        if (source.equalsIgnoreCase(Constants.ADMIN)) {
+//        if (source.equalsIgnoreCase(Constants.ADMIN)) {
+//            List<String> permissions;
+//            List<String> roles = roleMapper.selectRolesCodeByUserId(1);
+//            if (roles.contains(Constants.ADMIN)) {
+//                permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+//            } else {
+//                permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
+//            }
+//            loginUserInfo.setRoles(roles);
+//            loginUserInfo.setPermissions(permissions);
+//        }
+
+
+
             List<String> permissions;
-            List<String> roles = roleMapper.selectRolesCodeByUserId(1);
-            if (roles.contains(Constants.ADMIN)) {
+            Integer userRoleId = roleMapper.getUserRoleId(user.getId());
+            List<String> roleList = roleMapper.selectLists(userRoleId);
+            if (roleList.contains(Constants.ADMIN)) {
                 permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
             } else {
                 permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
             }
-            loginUserInfo.setRoles(roles);
+            loginUserInfo.setRoles(roleList);
             loginUserInfo.setPermissions(permissions);
-        }
-
         return loginUserInfo;
     }
 
     @Override
-    public WeChatInfo getWxLoginUserInfo(String openId, String source) {
-        System.out.println("资源值为："+source);
+    public WeChatInfo getWxLoginUserInfo(String openId) {
         // 获取当前登录用户ID
-        WeChatInfo user = weChatMapper.login(openId);
+        Users user = userMapper.login(openId);
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
+        WeChatInfo weChatInfo = new WeChatInfo();
+        Integer userRoleId = roleMapper.getUserRoleId(user.getId());
+        List<String> roleList = roleMapper.selectLists(userRoleId);
         //获取菜单权限列表
-        if (source.equalsIgnoreCase(Constants.ADMIN)) {
-            List<String> permissions;
-            List<String> roles = roleMapper.selectLists(user.getRoleId());
-            System.out.println("角色为："+roles);
-            roles.add(Constants.ADMIN);
-            if (roles.contains(Constants.ADMIN)) {
+        List<String> permissions;
+        if (roleList.contains(Constants.ADMIN)) {
                 permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                 System.out.println("权限为："+permissions);
-            } else {
-                permissions = menuMapper.getPermissionListByUserId(user.getRoleId(), MenuTypeEnum.BUTTON.getCode());
-            }
-            user.setRoles(roles);
-            user.setPermissions(permissions);
+        } else {
+                permissions = menuMapper.getPermissionListByUserId(user.getId(), MenuTypeEnum.BUTTON.getCode());
         }
-
-        return user;
+        weChatInfo.setRoles(roleList);
+        weChatInfo.setId(user.getId());
+        weChatInfo.setPermissions(permissions);
+        weChatInfo.setHeadimgurl(user.getAvatar());
+        weChatInfo.setOpenid(user.getUsername());
+        weChatInfo.setSex(user.getSex());
+        weChatInfo.setEmail(user.getEmail());
+        weChatInfo.setMobile(user.getMobile());
+        weChatInfo.setUserInfo(user.getUserInfo());
+        weChatInfo.setNickname(user.getNickname());
+        return weChatInfo;
     }
 
     @Override
@@ -202,26 +217,25 @@ public class AuthServiceImpl implements AuthService {
 
         validateEmailCode(dto);
 
-        SysUser sysUser = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, dto.getEmail()));
+        Users sysUser = sysUserMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getUsername, dto.getEmail()));
         if (sysUser != null) {
             throw new ServiceException("当前邮箱已注册，请前往登录");
         }
-
         //获取随机头像
         String avatar = avatarList[(int) (Math.random() * avatarList.length)];
-        sysUser = SysUser.builder()
+        sysUser = Users.builder()
                 .username(dto.getEmail())
                 .password(BCrypt.hashpw(dto.getPassword()))
                 .nickname(dto.getNickname())
                 .email(dto.getEmail())
                 .avatar(avatar)
+                .loginType(1)
+                .type(2)
                 .status(Constants.YES)
                 .build();
         sysUserMapper.insert(sysUser);
-
         //添加用户角色信息
         insertRole(sysUser);
-
         redisUtil.delete(RedisConstants.CAPTCHA_CODE_KEY + dto.getEmail());
         return true;
     }
@@ -230,7 +244,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(rollbackFor = Exception.class)
     public Boolean forgot(EmailRegisterDto dto) {
         validateEmailCode(dto);
-        SysUser sysUser = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, dto.getEmail()));
+        Users sysUser = sysUserMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getEmail, dto.getEmail()));
         if (sysUser == null) {
             throw new ServiceException("当前邮箱未注册，请前往注册");
         }
@@ -240,55 +254,73 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
+//    @Override
+//    public String renderAuth(String source) {
+//        return null;
+//    }
+
 
     @Override
-    public String renderAuth(String source) {
+    public String renderAuth(String source) throws AuthException {
         AuthRequest authRequest = getAuthRequest(source);
         return authRequest.authorize(AuthStateUtils.createState());
     }
 
-
     @Override
-    public void authLogin(AuthCallback callback,String source, HttpServletResponse httpServletResponse) throws IOException {
+    public void authLogin(AuthCallback callback, String source, HttpServletResponse httpServletResponse) throws IOException, AuthException {
         AuthRequest authRequest = getAuthRequest(source);
         AuthResponse<AuthUser> response = authRequest.login(callback);
 
         if (response.getData() == null) {
-            log.info("用户取消了 {} 第三方登录",source);
+            log.info("用户取消了 {} 第三方登录", source);
             httpServletResponse.sendRedirect("https://www.shiyit.com");
             return;
         }
         String result = com.alibaba.fastjson.JSONObject.toJSONString(response.getData());
         log.info("第三方登录验证结果:{}", result);
-
-        com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(result);
-        Object uuid = jsonObject.get("uuid");
-        // 获取用户ip信息
-        String ipAddress = IpUtil.getIp();
-        String ipSource = IpUtil.getIp2region(ipAddress);
-        // 判断是否已注册
-        SysUser user = userMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, uuid));
-        if (ObjectUtils.isEmpty(user)) {
-            // 保存账号信息
-            user = SysUser.builder()
-                    .username(uuid.toString())
-                    .password(UUID.randomUUID().toString())
-                    .loginType(source)
-                    .lastLoginTime(LocalDateTime.now())
-                    .ipLocation(ipAddress)
-                    .ip(ipSource)
-                    .status(Constants.YES)
-                    .nickname(source + "-" +getRandomString(6))
-                    .avatar(jsonObject.get("avatar").toString())
-                    .build();
-            userMapper.insert(user);
-            //添加角色
-            insertRole(user);
-        }
-
-        StpUtil.login(user.getId());
-        httpServletResponse.sendRedirect("https://www.shiyit.com/?token=" + StpUtil.getTokenValue());
     }
+
+//    @Override
+//    public void authLogin(AuthCallback callback, HttpServletResponse httpServletResponse) throws IOException {
+//        AuthRequest authRequest = getAuthRequest(source);
+//        AuthResponse<AuthUser> response = authRequest.login(callback);
+//
+//        if (response.getData() == null) {
+//            log.info("用户取消了 {} 第三方登录",source);
+//            httpServletResponse.sendRedirect("https://www.shiyit.com");
+//            return;
+//        }
+//        String result = com.alibaba.fastjson.JSONObject.toJSONString(response.getData());
+//        log.info("第三方登录验证结果:{}", result);
+//
+//        com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(result);
+//        Object uuid = jsonObject.get("uuid");
+//        // 获取用户ip信息
+//        String ipAddress = IpUtil.getIp();
+//        String ipSource = IpUtil.getIp2region(ipAddress);
+//        // 判断是否已注册
+//        Users user = userMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getUsername, uuid));
+//        if (ObjectUtils.isEmpty(user)) {
+//            // 保存账号信息
+//            user = Users.builder()
+//                    .username(uuid.toString())
+//                    .password(UUID.randomUUID().toString())
+//                    .loginType(source)
+//                    .lastLoginTime(LocalDateTime.now())
+//                    .ipLocation(ipAddress)
+//                    .ip(ipSource)
+//                    .status(Constants.YES)
+//                    .nickname(source + "-" +getRandomString(6))
+//                    .avatar(jsonObject.get("avatar").toString())
+//                    .build();
+//            userMapper.insert(user);
+//            //添加角色
+//            insertRole(user);
+//        }
+//
+//        StpUtil.login(user.getId());
+//        httpServletResponse.sendRedirect("https://www.shiyit.com/?token=" + StpUtil.getTokenValue());
+//    }
     @Override
     public Captcha getCaptcha() {
         Captcha captcha = new Captcha();
@@ -303,15 +335,19 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+
+    
+
+
     private LoginUserInfo wechatLogin(String openId) {
 
-        SysUser user = userMapper.selectByUsername(openId);
+        Users user = userMapper.selectByUsername(openId);
         if (ObjectUtils.isEmpty(user)) {
             String ip = IpUtil.getIp();
             String ipSource = IpUtil.getIp2region(ip);
 
             // 保存账号信息
-            user = SysUser.builder()
+            user = Users.builder()
                     .username(openId)
                     .password(BCrypt.hashpw(openId))
                     .nickname("WECHAT-" + getRandomString(6))
@@ -335,7 +371,7 @@ public class AuthServiceImpl implements AuthService {
      * 添加用户角色信息
      * @param user
      */
-    private void insertRole(SysUser user) {
+    private void insertRole(Users user) {
         SysRole sysRole = sysRoleMapper.selectOne(new LambdaQueryWrapper<SysRole>().eq(SysRole::getCode, Constants.USER));
         sysRoleMapper.addRoleUser(user.getId(), Collections.singletonList(sysRole.getId()));
     }
@@ -355,7 +391,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    private @NotNull AuthRequest getAuthRequest(String source) {
+    private @NotNull AuthRequest getAuthRequest(String source) throws AuthException {
         AuthRequest authRequest = null;
         switch (source) {
             case "gitee":
@@ -398,7 +434,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Boolean sendBindEmailCode(String email) throws MessagingException {
         // 校验邮箱是否已被其他用户绑定
-        SysUser exist = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, email));
+        Users exist = sysUserMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getEmail, email));
         if (exist != null) {
             throw new ServiceException("该邮箱已被绑定，请更换其他邮箱");
         }
@@ -414,12 +450,12 @@ public class AuthServiceImpl implements AuthService {
 
         // 获取当前登录用户
         Integer userId = StpUtil.getLoginIdAsInt();
-        SysUser user = sysUserMapper.selectById(userId);
+        Users user = sysUserMapper.selectById(userId);
         if (user == null) {
             throw new ServiceException("用户不存在");
         }
         // 检查邮箱是否已被其他用户绑定
-        SysUser exist = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, dto.getEmail()));
+        Users exist = sysUserMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getEmail, dto.getEmail()));
         if (exist != null && !exist.getId().equals(userId)) {
             throw new ServiceException("该邮箱已被其他账号绑定");
         }
@@ -436,7 +472,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(rollbackFor = Exception.class)
     public Boolean unbindEmail() {
         Integer userId = StpUtil.getLoginIdAsInt();
-        SysUser user = sysUserMapper.selectById(userId);
+        Users user = sysUserMapper.selectById(userId);
         if (user == null) {
             throw new ServiceException("用户不存在");
         }

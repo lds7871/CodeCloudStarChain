@@ -52,8 +52,10 @@ public class WeChatController {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @GetMapping("/checkQrCodeStatus")
+    @CrossOrigin
     public ResponseDTO checkQrCodeStatus() {
         WeChatInfo weChatInfo = (WeChatInfo) redisTemplate.opsForValue().get("userInfo");
+        System.out.println(weChatInfo);
         if(weChatInfo!= null){
             return ResponseDTO.success(weChatInfo);
         }
@@ -61,6 +63,7 @@ public class WeChatController {
     }
 
     @GetMapping
+    @CrossOrigin
     public String checkWebChat(WebChatRequestDTO requestDTO) throws NoSuchAlgorithmException {
         if (WebChatUtils.checkSignature(requestDTO)) {
             return requestDTO.getEchostr();//测试通过
@@ -98,7 +101,6 @@ public class WeChatController {
         url = url.replace("APPID", wechatProperties.getAppId())
                 .replace("SECRET", wechatProperties.getAppSecret())
                 .replace("CODE", code);
-
         HttpResponse httpResponse = HttpRequestUtils.doGet(url);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         if (statusCode == 200) {
@@ -120,6 +122,7 @@ public class WeChatController {
                 System.out.println("微信"+weChatInfo);
                 redisTemplate.opsForValue().set("userInfo", weChatInfo);
                 WeChatInfo loggedInInfo = weChatService.login(weChatInfo);
+                System.out.println(loggedInInfo);
                 if (loggedInInfo != null) {
                     return new ResponseEntity<>(loggedInInfo, HttpStatus.OK);
                 }

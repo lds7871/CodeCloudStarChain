@@ -34,15 +34,11 @@ service.interceptors.response.use(
       return response
     }
     const res = response.data
+    // 对特殊接口的处理 - 这些接口不需要标准的错误处理
     if (response.config.url?.includes('/wechat/checkQrCodeStatus') ||
+      response.config.url?.includes('/wechat/qrCode') ||
       response.config.url?.includes('/gitee/login') ||
-      response.config.url?.includes('/alipay/pay')) {  // 添加支付宝支付接口判断
-      return res
-    }
-
-    // 对特殊接口的处理
-    if (response.config.url?.includes('/wechat/checkQrCodeStatus') ||
-      response.config.url?.includes('/gitee/login')) {  // 添加 gitee 登录接口判断
+      response.config.url?.includes('/alipay/pay')) {
       return res
     }
 

@@ -10,11 +10,15 @@ import com.mojian.dto.user.LoginUserInfo;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.service.AuthService;
 import jakarta.mail.MessagingException;
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.zhyd.oauth.model.AuthCallback;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +34,12 @@ public class AuthController {
     private RedisTemplate<String, Object> redisTemplate;
 
     @RequestMapping("/api/auth/render/{source}")
-    public Result<String> renderAuth(HttpServletResponse response, @PathVariable String source) {
+    public Result<String> renderAuth(HttpServletResponse response, @PathVariable String source) throws AuthException {
         return Result.success(authService.renderAuth(source));
     }
 
     @RequestMapping("/api/auth/callback/{source}")
-    public void login(AuthCallback callback, @PathVariable String source, HttpServletResponse httpServletResponse) throws IOException {
+    public void login(AuthCallback callback, @PathVariable String source, HttpServletResponse httpServletResponse) throws IOException, AuthException {
         authService.authLogin(callback,source,httpServletResponse);
     }
 
@@ -51,12 +55,75 @@ public class AuthController {
         return Result.success(authService.getCaptcha());
     }
 
-    @PostMapping("/auth/logout")
-    public Result<Void> logout() {
-        StpUtil.logout();
-        redisTemplate.delete("userInfo");
-        return Result.success(null);
+    @DeleteMapping("/auth/logout")
+    public Result<Void> logout(@RequestParam("userInfo") String userInfo ) {
+        System.out.println(userInfo);
+        try {
+            StpUtil.logout();
+
+            // 安全删除key
+            this.safeDeleteKeys(userInfo);
+
+            return Result.success(null);
+
+        } catch (Exception e) {
+            return Result.error("登出失败");
+        }
     }
+    /**
+     * 使用SCAN命令安全删除key（避免阻塞Redis）
+     */
+    private void safeDeleteKeys(String userInfo) {
+        String[] patterns = {"Authorization*", "login:token:*"};
+
+        for (String pattern : patterns) {
+            this.scanAndDelete(pattern);
+        }
+        // 删除单个key
+        if(userInfo.equals("gitee")){
+            redisTemplate.delete("giteeInfo");
+        }else if(userInfo.equals("weixin")){
+            redisTemplate.delete("userInfo");
+        }
+    }
+
+    /**
+     * SCAN并删除匹配的key
+     */
+    private void scanAndDelete(String pattern) {
+        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();
+        try {
+            ScanOptions options = ScanOptions.scanOptions()
+                    .match(pattern)
+                    .count(100)  // 每次扫描100个
+                    .build();
+
+            Cursor<byte[]> cursor = connection.scan(options);
+            int deleteCount = 0;
+
+            while (cursor.hasNext()) {
+                byte[] key = cursor.next();
+                connection.del(key);
+                deleteCount++;
+
+                // 每删除50个key休息一下，避免阻塞
+                if (deleteCount % 50 == 0) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
+            cursor.close();
+        } catch (Exception e) {
+
+        } finally {
+            connection.close();
+        }
+    }
+
     @GetMapping("/api/sendEmailCode")
     public Result<Boolean> sendEmailCode(String email) throws MessagingException {
         return Result.success(authService.sendEmailCode(email));
@@ -73,13 +140,13 @@ public class AuthController {
     }
 
     @GetMapping("/auth/info")
-    public Result<LoginUserInfo> getUserInfo(@RequestParam(defaultValue = "admin") String source) {
+    public Result<LoginUserInfo> getUserInfo(String source) {
         return Result.success(authService.getLoginUserInfo(source));
     }
 
     @GetMapping("/auth/wxinfo")
-    public Result<WeChatInfo> getWxUserInfo(@RequestParam String openid,@RequestParam(defaultValue = "admin") String source) {
-        return Result.success(authService.getWxLoginUserInfo(openid,source));
+    public Result<WeChatInfo> getWxUserInfo(@RequestParam String openid) {
+        return Result.success(authService.getWxLoginUserInfo(openid));
     }
 
     /**

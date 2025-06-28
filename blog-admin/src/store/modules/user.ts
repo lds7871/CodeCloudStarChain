@@ -3,7 +3,9 @@ import { defineStore } from 'pinia';
 import { loginApi, getUserInfoApi, logoutApi, checkQrCodeStatus, getwxUserInfoApi } from "@/api/system/auth";
 import { resetRouter } from "@/router";
 import { store } from "@/store";
-import { setToken, removeToken } from "@/utils/auth";
+import { setToken, removeToken, getToken, clearAllCookies } from "@/utils/auth";
+import Cookies from 'js-cookie';
+import { ElMessage } from "element-plus";
 
 interface UserState {
   roles: string[];
@@ -45,8 +47,12 @@ export const useUserStore = defineStore("user", () => {
     return new Promise<void>((resolve, reject) => {
       loginApi(loginData)
         .then((response) => {
+          console.log(response);
+
           const { data } = response;
           setToken(data.token)
+          localStorage.setItem('userId', data.id);
+          localStorage.setItem('userInfo', 'email');
           resolve();
         })
         .catch((error) => {
@@ -81,14 +87,42 @@ export const useUserStore = defineStore("user", () => {
 */
   function logout() {
     return new Promise<void>((resolve, reject) => {
-      logoutApi()
+      const userInfo = localStorage.getItem('userInfo');
+
+      // 强制清理所有相关状态
+      const clearAllStates = () => {
+        // 清空所有cookies
+        clearAllCookies()
+        // 清空localStorage
+        localStorage.removeItem('userInfo')
+        localStorage.removeItem('userId')
+        localStorage.removeItem('openId')
+        localStorage.removeItem('headimgurl')
+        localStorage.removeItem('nickname')
+        // 重置用户状态
+        Object.assign(user.value, {
+          roles: [],
+          intro: null,
+          avatar: null,
+          nickname: null,
+          permissions: [],
+        });
+      };
+
+      logoutApi(userInfo)
         .then(() => {
-          removeToken()
-          location.reload();
+          clearAllStates();
+          ElMessage.success('退出成功');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
           resolve();
         })
         .catch((error) => {
-          reject(error);
+          // 即使退出登录API失败，也要清理本地状态
+          clearAllStates();
+          location.reload();
+          resolve();
         });
     });
   }
@@ -124,21 +158,65 @@ export const wxuseUserStore = defineStore("wxuser", () => {
 
 
   /**
-   * 微信扫码登录
-   */
+ * 微信扫码登录
+ */
   function wxlogin() {
     return new Promise((resolve, reject) => {
+      // 确保开始时是干净状态
+      console.log('开始微信登录流程');
+
       checkQrCodeStatus()
         .then((response) => {
-          const { data } = response;
-          if (data.token) {
-            setToken(data.token);
-            resolve(data);  // 返回完整的数据对象
+          console.log('wxlogin中的checkQrCodeStatus response:', response);
+          // 由于 request.ts 中的特殊处理，实际数据在 response.data 中
+          const userData = response.data;
+          console.log('wxlogin中的userData:', userData);
+
+          // 检查数据结构：userData.data.token
+          if (userData && userData.data && userData.data.token) {
+            console.log('设置token:', userData.data.token);
+            setToken(userData.data.token);
+
+            // 同时设置Authorization cookie（与账号密码登录保持一致）
+            Cookies.set('Authorization', userData.data.token, {
+              expires: 1, // 1天过期
+              path: '/',
+              sameSite: 'lax'
+            });
+            console.log('Authorization cookie已设置:', userData.data.token);
+
+            // 验证token是否设置成功
+            setTimeout(() => {
+              const currentToken = getToken();
+              console.log('token设置验证:', currentToken);
+              if (currentToken) {
+                // 保存权限信息到wxuser store
+                if (userData.data.permissions && userData.data.roles) {
+                  console.log('保存权限信息到wxuser store:', {
+                    permissions: userData.data.permissions,
+                    roles: userData.data.roles
+                  });
+
+                  // 更新微信用户store的权限信息
+                  Object.assign(wxuser.value, {
+                    permissions: userData.data.permissions || [],
+                    roles: userData.data.roles || [],
+                    nickname: userData.data.nickname,
+                    headimgurl: userData.data.headimgurl
+                  });
+                }
+
+                resolve(userData.data);  // 返回实际的用户数据对象
+              } else {
+                reject(new Error('Token设置失败'));
+              }
+            }, 50);
           } else {
-            reject(new Error('未获取到token'));
+            reject(new Error('未获取到token，userData为：' + JSON.stringify(userData)));
           }
         })
         .catch((error) => {
+          console.error('wxlogin错误:', error);
           reject(error);
         });
     });
@@ -171,19 +249,41 @@ export const wxuseUserStore = defineStore("wxuser", () => {
    */
   function logout() {
     return new Promise<void>((resolve, reject) => {
+
+      // 强制清理所有相关状态
+      const clearAllStates = () => {
+        // 清空所有cookies
+        clearAllCookies()
+        // 清空localStorage
+        localStorage.removeItem('userInfo')
+        localStorage.removeItem('openId')
+        localStorage.removeItem('headimgurl')
+        localStorage.removeItem('nickname')
+        localStorage.removeItem('userId')
+        // 重置微信用户状态
+        Object.assign(wxuser.value, {
+          roles: [],
+          intro: null,
+          headimgurl: null,
+          nickname: null,
+          permissions: [],
+        });
+      };
+
       logoutApi()
         .then(() => {
-          removeToken()
-          // 清除微信相关的本地存储
-          localStorage.removeItem('userInfo')
-          localStorage.removeItem('openId')
-          localStorage.removeItem('headimgurl')
-          localStorage.removeItem('nickname')
-          location.reload()
+          clearAllStates();
+          ElMessage.success('退出成功');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
           resolve()
         })
         .catch((error) => {
-          reject(error)
+          // 即使退出登录API失败，也要清理本地状态
+          clearAllStates();
+          location.reload()
+          resolve()
         })
     })
   }

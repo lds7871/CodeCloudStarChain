@@ -1,6 +1,7 @@
 import router from '@/router'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useUserStore, useSettingsStore } from '@/store'
+import { wxuseUserStore } from '@/store/modules/user'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
@@ -16,28 +17,58 @@ export function setupPermission() {
     }
     NProgress.start();
     const hasToken = getToken();
-    
+
     if (hasToken) {
       if (to.path === "/login") {
-        // 如果已登录，跳转首页
-        next({ path: "/" });
-        NProgress.done();
+        // 访问登录页面时，暂时允许直接进入，让登录页面自己处理清理逻辑
+        console.log('访问登录页面，允许进入');
+        next();
       } else {
         const userStore = useUserStore();
+        const wxUserStore = wxuseUserStore();
         const permissionStore = usePermissionStore();
-        
+
+        // 检查是否是微信登录
+        const userInfo = localStorage.getItem('userInfo');
+        const isWxLogin = userInfo === 'weixin';
+
         // 判断是否已经获取过用户信息
-        if (!userStore.user.nickname) {
+        const hasUserInfo = isWxLogin
+          ? (wxUserStore.wxuser.nickname || localStorage.getItem('nickname'))
+          : userStore.user.nickname;
+
+        if (!hasUserInfo) {
           try {
-            // 获取用户信息
-            await userStore.getUserInfo();
+            // 根据登录类型获取用户信息
+            if (isWxLogin) {
+              // 微信登录：直接从localStorage获取用户信息，不需要调用API
+              const nickname = localStorage.getItem('nickname');
+              const headimgurl = localStorage.getItem('headimgurl');
+              const openId = localStorage.getItem('openId');
+
+              if (nickname && openId) {
+                // 设置微信用户信息到store
+                Object.assign(wxUserStore.wxuser, {
+                  nickname: nickname,
+                  headimgurl: headimgurl,
+                  openId: openId
+                });
+                console.log('微信用户信息已从localStorage恢复:', wxUserStore.wxuser);
+              } else {
+                throw new Error('微信用户信息不完整');
+              }
+            } else {
+              // 普通登录：调用API获取用户信息
+              await userStore.getUserInfo();
+            }
+
             // 生成可访问路由
             const accessRoutes = await permissionStore.generateRoutes();
             // 添加路由前检查和打印日志
             if (Array.isArray(accessRoutes) && accessRoutes.length > 0) {
               accessRoutes.forEach((route: any) => {
                 if (route && typeof route === 'object') {
-                  if(route.meta?.isExternal) {
+                  if (route.meta?.isExternal) {
                     return;
                   }
                   router.addRoute(route);
@@ -53,8 +84,12 @@ export function setupPermission() {
             }
           } catch (error) {
             console.error('Permission error:', error);
-            // 移除 token 并跳转登录页
-            await userStore.resetToken();
+            // 根据登录类型重置token
+            if (isWxLogin) {
+              await wxUserStore.resetToken();
+            } else {
+              await userStore.resetToken();
+            }
             next(`/login`);
             NProgress.done();
           }

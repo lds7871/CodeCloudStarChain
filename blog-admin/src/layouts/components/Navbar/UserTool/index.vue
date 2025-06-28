@@ -92,6 +92,10 @@ import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useUserStore, useSettingsStore, wxuseUserStore } from '@/store/index'
 import settings from '@/config/settings'
+import { logoutApi } from '@/api/system/auth'
+import Cookies from 'js-cookie'
+import { clearAllCookies } from "@/utils/auth";
+
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -146,11 +150,11 @@ const logout = () => {
     type: 'warning'
   }).then(async () => {
     if (localStorage.getItem('userInfo')) {
+      await logoutApi(localStorage.getItem('userInfo'))
       await wxUserStore.logout()
-      localStorage.removeItem('userInfo')
-      localStorage.removeItem('openId')
-      localStorage.removeItem('headimgurl')
-      localStorage.removeItem('nickname')
+      localStorage.clear()
+      // 清空所有cookies
+      clearAllCookies();
     } else {
       await userStore.logout()
     }

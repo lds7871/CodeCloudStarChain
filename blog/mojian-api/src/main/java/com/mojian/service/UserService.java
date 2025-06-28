@@ -3,8 +3,8 @@ package com.mojian.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysArticle;
-import com.mojian.entity.SysFeedback;
 import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import com.mojian.vo.article.ArticleListVo;
 import com.mojian.vo.comment.CommentListVo;
 
@@ -46,7 +46,7 @@ public interface UserService {
      * 修改我的资料
      * @param user
      */
-    void updateProfile(SysUser user);
+    void updateProfile(Users user);
     void updatewxProfile(WeChatInfo weChatInfo);
 
     /**

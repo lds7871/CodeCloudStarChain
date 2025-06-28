@@ -1,6 +1,6 @@
 package com.mojian.dto.user;
 
-import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class SysUserAddAndUpdateDto {
 
     @Schema(description = "用户信息")
-    private SysUser user;
+    private Users user;
 
     @Schema(description = "角色ID列表")
     private List<Integer> roleIds;

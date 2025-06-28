@@ -26,10 +26,13 @@ export function getQrCode() {
   })
 }
 // 退出登录
-export function logoutApi() {
+export function logoutApi(userInfo?: string | null) {
   return request({
     url: '/auth/logout',
-    method: 'post',
+    method: 'delete',
+    params: {
+      userInfo: userInfo || ''
+    }
   })
 }
 // 检查扫码状态

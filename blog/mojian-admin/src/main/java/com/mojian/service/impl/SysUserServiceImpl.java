@@ -8,17 +8,17 @@ import com.mojian.common.Constants;
 import com.mojian.common.RedisConstants;
 import com.mojian.dto.user.SysUserAddAndUpdateDto;
 import com.mojian.dto.user.WeChatInfo;
+import com.mojian.entity.Users;
 import com.mojian.mapper.SysRoleMapper;
 import com.mojian.mapper.WeChatMapper;
 import com.mojian.utils.PageUtil;
-import com.mojian.entity.SysUser;
 import com.mojian.exception.ServiceException;
 import com.mojian.mapper.SysUserMapper;
 import com.mojian.service.SysUserService;
 import com.mojian.utils.RedisUtil;
 import com.mojian.vo.user.OnlineUserVo;
-import com.mojian.vo.user.SysUserVo;
 import com.mojian.vo.user.SysUserProfileVo;
+import com.mojian.vo.user.UsersVo;
 import com.mojian.vo.user.WxUserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ import javax.annotation.Resource;
 
 @Service
 @RequiredArgsConstructor
-public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, Users> implements SysUserService {
 
     private final SysRoleMapper roleMapper;
     private final RedisUtil redisUtil;
@@ -48,7 +48,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private WeChatMapper  weChatMapper;
 
     @Override
-    public IPage<SysUserVo> listUsers(SysUser sysUser) {
+    public IPage<UsersVo> listUsers(Users sysUser) {
         return baseMapper.selectUserPage(PageUtil.getPage(),sysUser);
     }
 
@@ -56,7 +56,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Transactional(rollbackFor = Exception.class)
     public void add(SysUserAddAndUpdateDto SysUserAddAndUpdateDto) {
         // 检查用户名是否已存在
-        SysUser user = SysUserAddAndUpdateDto.getUser();
+        Users user = SysUserAddAndUpdateDto.getUser();
         if (baseMapper.selectByUsername(user.getUsername()) != null) {
             throw new RuntimeException("用户名已存在");
         }
@@ -92,7 +92,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public void updatePwd(UpdatePwdDTO updatePwdDTO) {
 
-        SysUser user = this.getById(StpUtil.getLoginIdAsInt());
+        Users user = this.getById(StpUtil.getLoginIdAsInt());
         if (user == null) {
             throw new ServiceException("用户不存在");
         }
@@ -112,7 +112,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public SysUserProfileVo profile() {
 
-        SysUser sysUser = baseMapper.selectById(StpUtil.getLoginIdAsInt());
+        Users sysUser = baseMapper.selectById(StpUtil.getLoginIdAsInt());
         sysUser.setPassword(null);
         //获取角色
         List<String> roles = roleMapper.selectRolesByUserId(sysUser.getId());
@@ -129,7 +129,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public void updateProfile(SysUser user) {
+    public void updateProfile(Users user) {
         baseMapper.updateById(user);
     }
 
@@ -140,12 +140,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public Boolean verifyPassword(String password) {
-        SysUser user = baseMapper.selectById(StpUtil.getLoginIdAsInt());
+        Users user = baseMapper.selectById(StpUtil.getLoginIdAsInt());
         return BCrypt.checkpw(password, user.getPassword());
     }
 
     @Override
-    public Boolean resetPassword(SysUser user) {
+    public Boolean resetPassword(Users user) {
         user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt()));
         baseMapper.updateById(user);
         return true;

@@ -2,6 +2,7 @@ package com.mojian.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.mojian.entity.SysRole;
+import com.mojian.entity.SysUserRole;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,5 +27,12 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
     void deleteRoleByUserId(@Param("userIds") List<Integer> userId);
 
     void addRoleUser(@Param("userId") Integer userId, @Param("roleIds") List<Integer> roleIds);
+
+
+    Integer selectRoleId(@Param("userId") Integer  userId);
+
+    void insertByUserId(@Param("sysUserRole") SysUserRole sysUserRole);
+
+    Integer getUserRoleId(@Param("userId")Integer userId);
 
 }

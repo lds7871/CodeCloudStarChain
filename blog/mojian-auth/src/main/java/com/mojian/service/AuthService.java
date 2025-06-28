@@ -6,6 +6,7 @@ import com.mojian.dto.LoginDTO;
 import com.mojian.dto.user.LoginUserInfo;
 import com.mojian.dto.user.WeChatInfo;
 import jakarta.mail.MessagingException;
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.HttpServletResponse;
 import me.zhyd.oauth.model.AuthCallback;
 
@@ -22,7 +23,7 @@ public interface AuthService {
      * 获取当前登录用户信息
      */
     LoginUserInfo getLoginUserInfo(String source);
-    WeChatInfo getWxLoginUserInfo(String openId, String source);
+    WeChatInfo getWxLoginUserInfo(String openId);
 
     /**
      * 发送注册邮箱验证码
@@ -50,14 +51,14 @@ public interface AuthService {
      * @param source
      * @return
      */
-    String renderAuth(String source);
+    String renderAuth(String source) throws AuthException;
 
     /**
      * 第三方授权登录
      * @param source
      * @param httpServletResponse
      */
-    void authLogin(AuthCallback callback,String source, HttpServletResponse httpServletResponse) throws IOException;
+    void authLogin(AuthCallback callback,String source, HttpServletResponse httpServletResponse) throws IOException, AuthException;
 
     /**
      * 获取滑块验证码

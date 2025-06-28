@@ -1,6 +1,8 @@
 package com.mojian.service;
 
 import com.mojian.dto.user.GiteeInfo;
+import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 
 /**
  * @className: OauthService
@@ -13,5 +15,5 @@ import com.mojian.dto.user.GiteeInfo;
 public interface OauthService {
     String choiceLoginType();
     String getOauthToken( String code);
-    GiteeInfo getUserInfo(String accessToken);
+    SysUser getUserInfo(String accessToken);
 }

@@ -1,6 +1,6 @@
 package com.mojian.vo.user;
 
-import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import lombok.Data;
  * @description:
  */
 @Data
-public class OnlineUserVo extends SysUser {
+public class OnlineUserVo extends Users {
 
     @Schema(description = "token")
     private String tokenValue;

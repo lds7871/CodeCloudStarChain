@@ -146,6 +146,7 @@ import settings from "@/config/settings";
 import SliderVerify from "./components/SliderVerify.vue";
 import { getCaptchaSwitchApi, getQrCode, checkQrCodeStatus, getRouters } from "@/api/system/auth";
 import { usePermissionStore } from "@/store/modules/permission";
+import { setToken, getToken, removeToken, clearAllCookies } from "@/utils/auth";
 const QrCode = markRaw({
   name: "QrCode",
   render() {
@@ -212,7 +213,7 @@ const onSuccess = (captcha: any) => {
 };
 const qrCodeUrl = ref("");
 const getQrCodes = () => {
-  getQrCode().then((res) => {
+  getQrCode().then((res: any) => {
     console.log(res);
     qrCodeUrl.value = res;
     console.log("数据为：" + qrCodeUrl.value);
@@ -270,62 +271,198 @@ const refreshQrCode = async () => {
   qrCodeExpired.value = false;
   getQrCodes(); // 调用获取新二维码的方法
 };
-let openId: String;
+let openId: string;
 let qrCodeTimer: number;
-let headimgurl: String;
-let nickname: String;
+let headimgurl: string;
+let nickname: string;
+let avatar: string;
+let userId: number;
 watch(loginType, (newVal) => {
   if (newVal === "qrcode") {
+    // 只在必要时重置状态，不要清理正在使用的token
+    console.log('切换到扫码登录');
+    qrCodeExpired.value = false;
+    clearInterval(qrCodeTimer);
+
+    // 重置变量
+    openId = '';
+    headimgurl = '';
+    nickname = '';
+    avatar = '';
+    userId = 0;
+
     refreshQrCode();
-    qrCodeTimer = window.setInterval(() => {
-      checkQrCodeStatus().then(res => {
-        console.log('二维码状态：', res);
-        if (res.status === 'CONFIRMED') {
-          wxuserStore.wxlogin()
-            .then((res) => {
-              openId = res.openid;
-              headimgurl = res.headimgurl;
-              nickname = res.nickname;
-              // 确保 res.openid 存在
-              if (!res.openid) {
-                throw new Error('未获取到openid');
-              }
-              return wxuserStore.getwxUserInfo(res.openid);
-            })
-            .then(() => {
-              // 获取并生成路由
-              return permissionStore.generateRoutes();
-            })
-            .then((accessRoutes) => {
-              // 添加路由
-              accessRoutes.forEach(route => {
-                router.addRoute(route);
+
+    // 延迟启动定时器，确保二维码已生成
+    setTimeout(() => {
+      qrCodeTimer = window.setInterval(() => {
+        console.log('开始检查二维码状态...');
+        checkQrCodeStatus().then((res: any) => {
+          console.log('二维码状态检查结果：', res);
+
+          // 检查是否有意外的用户数据
+          if (res.data && res.data.data && res.data.status !== 'CONFIRMED') {
+            console.warn('警告：API返回了用户数据，但状态不是CONFIRMED：', res.data);
+            console.warn('忽略此次响应，继续等待真正的扫码确认');
+            return; // 忽略这次响应
+          }
+
+          if (res.data && res.data.status === 'WAITING') {
+            console.log('二维码状态为WAITING，继续等待扫码');
+            return; // 直接返回，不执行后续逻辑
+          } else if (res.data && res.data.status === 'SCANNED') {
+            console.log('二维码已扫描，等待确认');
+            ElMessage.success("已扫码，请在手机上确认");
+            return; // 直接返回，不执行后续逻辑
+          } else if (res.data && res.data.status === 'EXPIRED') {
+            console.log('二维码已过期');
+            qrCodeExpired.value = true;
+            clearInterval(qrCodeTimer);
+            return;
+          }
+
+          // 只有在状态为CONFIRMED时才执行登录逻辑
+          if (res.data && res.data.status === 'CONFIRMED') {
+            console.log('二维码状态为CONFIRMED，开始登录流程');
+
+            wxuserStore.wxlogin()
+              .then((loginRes: any) => {
+                console.log("wxlogin返回的数据:", loginRes);
+
+                // 直接从 loginRes 中获取数据
+                openId = loginRes.openid;
+                headimgurl = loginRes.headimgurl;
+                nickname = loginRes.nickname;
+                avatar = loginRes.headimgurl;
+                userId = loginRes.id;
+
+                // 同步权限信息到普通用户store（用于权限控制）
+                if (loginRes.permissions && loginRes.roles) {
+                  console.log('同步权限信息到普通用户store:', {
+                    permissions: loginRes.permissions,
+                    roles: loginRes.roles
+                  });
+
+                  Object.assign(userStore.user, {
+                    permissions: loginRes.permissions || [],
+                    roles: loginRes.roles || [],
+                    nickname: nickname,
+                    avatar: avatar
+                  });
+                }
+
+                // 确保 openid 存在
+                if (!loginRes.openid) {
+                  throw new Error('未获取到openid，loginRes为：' + JSON.stringify(loginRes));
+                }
+                // 跳过getwxUserInfo调用，直接使用已有的用户信息
+                console.log('扫码登录成功，直接使用用户信息:', loginRes);
+                return Promise.resolve(loginRes);
+              })
+              .then(() => {
+                // 确保token设置后再获取路由，增加更多的调试信息
+                return new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    const currentToken = getToken();
+                    console.log('开始生成路由，当前token:', currentToken);
+
+                    if (!currentToken) {
+                      console.error('Token不存在，无法生成路由');
+                      reject(new Error('Token不存在'));
+                      return;
+                    }
+                    console.log('开始调用generateRoutes');
+                    permissionStore.generateRoutes()
+                      .then((routes) => {
+                        console.log('generateRoutes成功，路由数量:', routes.length);
+                        resolve(routes);
+                      })
+                      .catch((error) => {
+                        console.error('generateRoutes失败:', error);
+                        console.log('尝试跳过路由生成，直接登录');
+                        // 跳过路由生成，返回空数组，让用户直接进入系统
+                        resolve([]);
+                      });
+                  }, 200); // 增加延迟时间
+                });
+              })
+              .then((accessRoutes: any) => {
+                // 添加路由
+                accessRoutes.forEach((route: any) => {
+                  router.addRoute(route);
+                });
+                return nextTick();
+              })
+              .then(() => {
+                ElMessage.success("扫码登录成功");
+                clearInterval(qrCodeTimer);
+
+                // 保存用户信息到localStorage
+                localStorage.setItem("userInfo", "weixin");
+                localStorage.setItem("openId", openId);
+                localStorage.setItem("headimgurl", avatar);
+                localStorage.setItem("nickname", nickname);
+                localStorage.setItem("userId", userId.toString());
+
+                // 同时保存到微信用户store
+                Object.assign(wxuserStore.wxuser, {
+                  nickname: nickname,
+                  headimgurl: avatar,
+                  openId: openId
+                });
+
+                console.log('用户信息已保存到store:', wxuserStore.wxuser);
+                console.log('权限信息已同步到用户store:', userStore.user);
+
+                // 验证token是否正确设置到cookie
+                const finalToken = getToken();
+                console.log('扫码登录完成后的token验证:', finalToken);
+                console.log('请检查开发者工具 → Application → Cookies → Neat-Admin-Token');
+
+                router.push("/");
+              })
+              .catch(error => {
+                console.error('扫码登录失败：', error);
+                clearInterval(qrCodeTimer);
+
+                // 如果是token相关的错误，直接跳转（路由生成已经被跳过）
+                if (getToken()) {
+                  console.log('Token存在，直接跳转到首页');
+                  ElMessage.success("扫码登录成功");
+
+                  // 保存用户信息到localStorage
+                  localStorage.setItem("userInfo", "weixin");
+                  localStorage.setItem("openId", openId);
+                  localStorage.setItem("headimgurl", avatar);
+                  localStorage.setItem("nickname", nickname);
+                  localStorage.setItem("userId", userId.toString());
+
+                  // 同时保存到微信用户store
+                  Object.assign(wxuserStore.wxuser, {
+                    nickname: nickname,
+                    headimgurl: avatar,
+                    openId: openId
+                  });
+
+                  console.log('用户信息已保存到store:', wxuserStore.wxuser);
+                  router.push("/");
+                } else {
+                  // Token不存在，重新开始扫码流程
+                  console.log('Token不存在，重新开始扫码流程');
+                  setTimeout(() => {
+                    if (loginType.value === 'qrcode') {
+                      refreshQrCode();
+                    }
+                  }, 2000);
+                }
               });
-              return nextTick();
-            })
-            .then(() => {
-              ElMessage.success("扫码登录成功");
-              clearInterval(qrCodeTimer);
-              localStorage.setItem("userInfo", "weixin");
-              localStorage.setItem("openId", openId);
-              localStorage.setItem("headimgurl", headimgurl);
-              localStorage.setItem("nickname", nickname);
-              router.push("/");
-            })
-            .catch(error => {
-              console.error('登录失败：', error);
-              ElMessage.error("登录失败，请重试");
-            });
-        } else if (res.status === 'EXPIRED') {
-          qrCodeExpired.value = true;
-          clearInterval(qrCodeTimer);
-        } else if (res.status === 'SCANNED') {
-          ElMessage.success("已扫码，请在手机上确认");
-        }
-      }).catch(error => {
-        console.error('检查二维码状态失败：', error);
-      });
-    }, 3000);
+          }
+        }).catch(error => {
+          console.error('检查二维码状态失败：', error);
+          // 不要显示错误信息，因为可能只是还没有扫码
+        });
+      }, 3000);
+    }, 1000); // 延迟1秒启动定时器
   } else {
     clearInterval(qrCodeTimer);
   }
@@ -335,8 +472,103 @@ onUnmounted(() => {
   clearInterval(qrCodeTimer);
 });
 
+// 重置扫码登录状态
+const resetQrCodeState = () => {
+  console.log('开始重置扫码登录状态');
+  qrCodeExpired.value = false;
+  clearInterval(qrCodeTimer);
+
+  // 重置变量
+  openId = '';
+  headimgurl = '';
+  nickname = '';
+  avatar = '';
+  userId = 0;
+
+  // 清理localStorage中的用户信息（但保留有效的登录状态）
+  const currentUserInfo = localStorage.getItem('userInfo');
+  const currentNickname = localStorage.getItem('nickname');
+  const currentOpenId = localStorage.getItem('openId');
+
+  // 只有当信息不完整或无效时才清理
+  if (!currentUserInfo ||
+    (currentUserInfo === 'weixin' && (!currentNickname || !currentOpenId ||
+      currentNickname === 'undefined' || currentOpenId === 'undefined'))) {
+    console.log('清理不完整的用户信息');
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('openId');
+    localStorage.removeItem('headimgurl');
+    localStorage.removeItem('nickname');
+    localStorage.removeItem('userId');
+  }
+
+  console.log('扫码登录状态重置完成');
+};
+
+// 监听路由变化，重置状态
+watch(() => router.currentRoute.value.path, (newPath) => {
+  if (newPath === '/login') {
+    resetQrCodeState();
+  }
+});
+
 onMounted(() => {
-  getQrCodes();
+  // 强制清理所有登录相关数据，确保干净的登录环境
+  console.log('登录页面加载，检查当前状态...');
+
+  // 检查当前localStorage中的所有数据
+  const currentData = {
+    token: getToken(),
+    userInfo: localStorage.getItem('userInfo'),
+    nickname: localStorage.getItem('nickname'),
+    openId: localStorage.getItem('openId'),
+    userId: localStorage.getItem('userId'),
+    headimgurl: localStorage.getItem('headimgurl')
+  };
+
+  console.log('当前localStorage数据:', currentData);
+
+  // 在登录页面时，强制清理所有登录相关数据
+  console.log('强制清理所有登录数据，确保重新开始...');
+  clearAllCookies();
+
+  // 清理localStorage
+  localStorage.removeItem('userInfo');
+  localStorage.removeItem('nickname');
+  localStorage.removeItem('openId');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('headimgurl');
+
+  // 清理sessionStorage
+  sessionStorage.removeItem('userInfo');
+  sessionStorage.removeItem('nickname');
+  sessionStorage.removeItem('openId');
+  sessionStorage.removeItem('userId');
+  sessionStorage.removeItem('headimgurl');
+
+  // 清理store状态
+  if (wxuserStore.wxuser) {
+    Object.assign(wxuserStore.wxuser, {
+      nickname: null,
+      headimgurl: null,
+      openId: null
+    });
+  }
+
+  // 重置所有变量
+  openId = '';
+  headimgurl = '';
+  nickname = '';
+  avatar = '';
+  userId = 0;
+
+  console.log('所有登录数据已清理完成');
+
+  // 延迟一下确保清理完成
+  setTimeout(() => {
+    // 获取二维码
+    getQrCodes();
+  }, 100);
 });
 // 添加 logo 颜色计算
 const logoColor = computed(() => {
