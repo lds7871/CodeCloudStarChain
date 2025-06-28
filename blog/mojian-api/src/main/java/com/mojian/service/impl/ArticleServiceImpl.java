@@ -4,7 +4,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.mojian.common.RedisConstants;
 import com.mojian.entity.SysArticle;
 import com.mojian.entity.SysCategory;
@@ -24,10 +23,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,12 +91,12 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleListVo> getCarouselArticle() {
-        return getArticlesByCondition(SysArticle::getIsCarousel);
+        return sysArticleMapper.getCarouselArticles();
     }
 
     @Override
     public List<ArticleListVo> getRecommendArticle() {
-        return getArticlesByCondition(SysArticle::getIsRecommend);
+        return sysArticleMapper.getRecommendArticles();
     }
 
     @Override
@@ -133,23 +130,5 @@ public class ArticleServiceImpl implements ArticleService {
                 .orderByAsc(SysCategory::getSort));
     }
 
-    private List<ArticleListVo> getArticlesByCondition(SFunction<SysArticle, Object> conditionField) {
-        LambdaQueryWrapper<SysArticle> wrapper = new LambdaQueryWrapper<SysArticle>()
-                .select(SysArticle::getId, SysArticle::getTitle, SysArticle::getCover, SysArticle::getCreateTime)
-                .orderByDesc(SysArticle::getCreateTime)
-                .eq(conditionField, 1);
-
-        List<SysArticle> sysArticles = sysArticleMapper.selectList(wrapper);
-
-        if (sysArticles == null || sysArticles.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return sysArticles.stream().map(item -> ArticleListVo.builder()
-                .id(item.getId())
-                .cover(item.getCover())
-                .title(item.getTitle())
-                .createTime(item.getCreateTime())
-                .build()).collect(Collectors.toList());
-    }
+//删除了一个private方法，改为Mapper使用
 }

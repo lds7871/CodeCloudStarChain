@@ -431,6 +431,11 @@ export default {
      * 生成目录
      */
     generateToc() {
+
+      //测试locaStorage
+      console.log("用户喜欢的标签："+localStorage.getItem('user_like_tags'))
+
+
       const headings = document.querySelectorAll('.article-content h1,.article-content h2,.article-content h3,.article-content h4,.article-content h5,.article-content h6')
       this.tocItems = Array.from(headings).map(heading => {
         const id = heading.textContent.trim().toLowerCase().replace(/\s+/g, '-')
@@ -446,6 +451,16 @@ export default {
      * 点赞
      */
     toggleLike() {
+      //文章详细页面点赞可在console.log中打印出文章的tags
+      const names = this.article.tags.map(tag => tag.name)
+      const userId = JSON.parse(localStorage.getItem("user"))["id"]
+      console.log(names)
+      console.log(userId)
+      // 将标签名称数组存储到localStorage
+      localStorage.setItem('user_like_tags', JSON.stringify(names))
+      // 将用户ID存储到localStorage
+      // localStorage.setItem('current_user_id', userId)
+
       //防止频繁点击 设置一个5秒的防抖
       if (this.likeDebounce) {
         this.$message.warning('请于 5 秒后再试')

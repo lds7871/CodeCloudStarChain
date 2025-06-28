@@ -1,5 +1,6 @@
 package com.mojian.controller.user;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mojian.common.Result;
 import com.mojian.dto.user.WeChatInfo;
@@ -72,8 +73,8 @@ public class UserController {
         return Result.success(userService.selectMyArticle(article));
     }
     @GetMapping("/balance")
-    @Operation(summary = "获取我的文章")
-    public Result<Integer>  selectMyBalance(@RequestParam Integer userId){
-        return  Result.success(userService.selectMyBalance(userId));
+    @Operation(summary = "获取我的余额")
+    public Result<Integer>  selectMyBalance(){
+        return  Result.success(userService.selectMyBalance(StpUtil.getLoginIdAsInt()));
     }
 }

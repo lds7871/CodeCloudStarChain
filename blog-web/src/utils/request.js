@@ -53,6 +53,8 @@ service.interceptors.response.use(
       return Promise.reject(new Error('当前登录已过期，请重新登录'))
     } else {
       console.log('响应数据:', res) // 添加日志
+      console.log('错误状态码:', res.code)
+      console.log('错误信息:', res.message)
       return Promise.reject(new Error(res.message || '请求失败'))
     }
   },
