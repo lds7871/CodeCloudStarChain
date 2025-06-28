@@ -257,4 +257,38 @@
         order by a.is_stick desc, a.create_time desc
     </select>
 
+    <select id="getCarouselArticles" resultMap="articleResultMap">
+        SELECT
+            a.id,
+            a.title,
+            a.summary,
+            a.cover,
+            a.quantity,
+            a.create_time,
+            c.name AS categoryName,
+            (SELECT COUNT(sc.id) FROM sys_comment sc WHERE sc.article_id = a.id) AS commentNum,
+            (SELECT COUNT(sal.id) FROM sys_article_like sal WHERE sal.article_id = a.id) AS likeNum
+        FROM sys_article a
+        LEFT JOIN sys_category c ON a.category_id = c.id
+        WHERE a.status = 1 AND a.is_carousel = 1
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="getRecommendArticles" resultMap="articleResultMap">
+        SELECT
+            a.id,
+            a.title,
+            a.summary,
+            a.cover,
+            a.quantity,
+            a.create_time,
+            c.name AS categoryName,
+            (SELECT COUNT(sc.id) FROM sys_comment sc WHERE sc.article_id = a.id) AS commentNum,
+            (SELECT COUNT(sal.id) FROM sys_article_like sal WHERE sal.article_id = a.id) AS likeNum
+        FROM sys_article a
+        LEFT JOIN sys_category c ON a.category_id = c.id
+        WHERE a.status = 1 AND a.is_recommend = 1
+        ORDER BY a.create_time DESC
+    </select>
+
 </mapper>
