@@ -24,15 +24,16 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, username, password, create_time, update_time, status,
-        ip, ip_location, os, last_login_time,
-        nickname, avatar, mobile
+        ip, ip_location, os, last_login_time, browser,
+        nickname, avatar, mobile, email, signature as user_info, sex, login_type, type, balance
     </sql>
     <update id="updateUserInfo">
-        UPDATE users
+        UPDATE sys_user
         SET ip = #{users.ip},
             ip_location = #{users.ipLocation},
             os = #{users.os},
-            last_login_time = #{users.lastLoginTime}
+            last_login_time = #{users.lastLoginTime},
+            browser = #{users.browser}
         WHERE id = #{users.id}
     </update>
 
@@ -40,7 +41,7 @@
     <select id="selectByUsername" resultType="com.mojian.entity.Users">
         select
         <include refid="Base_Column_List"/>
-        from users
+        from sys_user
         where username = #{username}
     </select>
 
@@ -60,7 +61,7 @@
             u.sex,
             u.login_type,
             sur.role_id as roleId
-        from users u
+        from sys_user u
             left join sys_user_role sur on u.id = sur.user_id
         <where>
             <if test="sysUser.nickname != null and sysUser.nickname != ''">
@@ -75,19 +76,19 @@
         </where>
     </select>
     <select id="selectBalcanceByUser" resultType="java.lang.Integer">
-        select balance from users where id = #{userId}
+        select balance from sys_user where id = #{userId}
     </select>
     <select id="selectByUniqueId" resultType="com.mojian.entity.Users">
-        select id,username,status,nickname,avatar,mobile,email,user_info,sex,login_type,type from users where username = #{uniqueId}
+        select id,username,status,nickname,avatar,mobile,email,signature as user_info,sex,login_type,type,balance,browser from sys_user where username = #{uniqueId}
     </select>
     <select id="getUserInfo" resultType="com.mojian.entity.SysUser">
-        select * from users where id = #{userId}
+        select * from sys_user where id = #{userId}
     </select>
     <select id="selectByEmail" resultType="com.mojian.entity.SysUser">
-        select * from users where email = #{email}
+        select * from sys_user where email = #{email}
     </select>
     <select id="login" resultType="com.mojian.entity.Users">
-        select * from users where username = #{openId}
+        select * from sys_user where username = #{openId}
     </select>
 
 </mapper>

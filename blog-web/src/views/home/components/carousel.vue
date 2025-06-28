@@ -24,7 +24,7 @@
           </div>
           <div class="image-wrapper">
             <img
-                :src="slide.cover || defaultImage"
+                :src="slide.cover"
                 :key="slide.cover"
                 :alt="slide.title"
                 @error="handleImageError"
@@ -83,13 +83,10 @@
 </template>
 
 <script>
-import defaultImage from '@/assets/LDS/default.png'
-
 export default {
   name: 'Carousel',
   data() {
     return {
-      defaultImage,
       randomSeed: Math.random() // 用于触发随机文章重新计算
     }
   },
@@ -97,6 +94,10 @@ export default {
     slides: {
       type: Array,
       required: true
+    },
+    defaultImage: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -148,7 +149,10 @@ export default {
   },
   methods: {
     handleImageError(e) {
-      e.target.src = defaultImage
+      if (this.defaultImage) {
+        e.target.src = this.defaultImage
+        console.log("推荐一栏显示默认图片")
+      }
     },
     getRandomChar() {
       const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{}|;:,.<>?'

@@ -41,6 +41,7 @@
           <Carousel
               v-if="carouselSlides?.length > 0"
               :slides="carouselSlides"
+              :default-image="$store.state.defaultImage || '/img/default-article.jpg'"
               @click="goToPost"
           />
           <!--           动态列表组件-->

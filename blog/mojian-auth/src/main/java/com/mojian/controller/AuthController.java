@@ -145,6 +145,10 @@ public class AuthController {
 
     @GetMapping("/auth/wxinfo")
     public Result<WeChatInfo> getWxUserInfo(@RequestParam String openid) {
+        // 验证openid参数
+        if (openid == null || openid.trim().isEmpty()) {
+            return Result.error("openid参数不能为空");
+        }
         return Result.success(authService.getWxLoginUserInfo(openid));
     }
 

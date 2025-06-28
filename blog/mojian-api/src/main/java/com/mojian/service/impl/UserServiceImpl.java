@@ -84,13 +84,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Integer selectMyBalance(Integer userId) {
-        Object wx = redisTemplate.opsForValue().get("userInfo");
-        Object gitee = redisTemplate.opsForValue().get("giteeInfo");
-        if(wx!= null){
-            return  weChatMapper.selectBanlanceByOpenId(userId);
-        }else if(gitee!=null){
-            return giteeMapper.selectBanlanceByOpenId(userId);
-        }
+        // 简化逻辑：直接从sys_user表查询用户余额
+        // 所有用户类型的余额信息都应该同步到sys_user表中
         return sysUserMapper.selectBalcanceByUser(userId);
     }
 }
