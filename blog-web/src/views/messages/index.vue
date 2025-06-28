@@ -2,6 +2,8 @@
   <div>
     <!-- banner -->
     <div class="message-banner" :style="cover">
+      <!-- 半透明渐变遮罩层 -->
+      <div class="banner-mask"></div>
       <!-- 弹幕输入框 -->
       <div class="message-container">
         <h1 class="message-title">树洞</h1>
@@ -40,8 +42,9 @@
 
 <script>
 import coverImage from '@/assets/133487507047962275.jpg';
-import { getMessagesApi, addMessageApi } from "@/api/message";
+import {addMessageApi, getMessagesApi} from "@/api/message";
 import VueDanmaku from 'vue-danmaku';
+
 export default {
   components: {
     VueDanmaku
@@ -120,8 +123,20 @@ export default {
 
 <style lang="scss" scoped>
 :deep(.el-input__inner) {
-  border-radius: 50px;
-  opacity: .6;
+  border-radius: 20px;
+  background: #fff;
+  color: #333;
+  font-size: 1rem;
+  padding: 0 16px;
+  height: 40px;
+  border: 1.5px solid #e0e6ed;
+  box-shadow: 0 1px 4px rgba(33,147,176,0.04);
+  transition: border 0.2s, box-shadow 0.2s;
+  &:focus {
+    border: 1.5px solid #2193b0;
+    box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+    background: #fafdff;
+  }
 }
 
 .message-banner {
@@ -133,9 +148,21 @@ export default {
   background-color: $primary;
   animation: header-effect 1s;
 
+  // 半透明渐变遮罩层
+  .banner-mask {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .message-container, .barrage-container {
+    position: relative;
+    z-index: 2;
+  }
 
   .message-container {
-    position: absolute;
     width: 360px;
     top: 35%;
     left: 0;
@@ -144,9 +171,15 @@ export default {
     z-index: 5;
     margin: 0 auto;
     color: #fff;
+    position: absolute;
 
     .message-title {
-      color: #eee;
+      color: #fff;
+      font-size: 2.2rem;
+      font-weight: bold;
+      text-shadow: 0 2px 16px #2193b0, 0 1px 0 #000;
+      letter-spacing: 2px;
+      margin-bottom: 1.2rem;
       animation: title-scale 1s;
     }
 
@@ -157,13 +190,27 @@ export default {
       margin-top: 2rem;
 
       .ml-3 {
+        background: #2193b0;
+        color: #fff;
+        font-weight: 500;
+        font-size: 1rem;
+        border-radius: 20px;
+        padding: 0 20px;
+        height: 40px;
+        margin-left: 10px;
+        box-shadow: 0 1px 4px rgba(33,147,176,0.08);
+        border: none;
+        transition: background 0.2s, box-shadow 0.2s;
         animation: left-in 1s ease;
-
+        &:hover {
+          background: #38b6ff;
+          box-shadow: 0 2px 8px rgba(33,147,176,0.16);
+          transform: translateY(-2px) scale(1.03);
+        }
         @keyframes left-in {
           0% {
             transform: translateY(-500%);
           }
-
           100% {
             transform: translateX(0);
           }
@@ -181,15 +228,36 @@ export default {
     width: 100%;
 
     .barrage-items {
-      background: #000;
+      background: rgba(0,0,0,0.7);
       border-radius: 100px;
       color: #fff;
-      padding: 5px 10px 5px 5px;
+      padding: 5px 16px 5px 8px;
       align-items: center;
       display: flex;
-      margin-top: 10PX;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      border: 1.5px solid transparent;
+      background-clip: padding-box;
+      transition: border 0.2s;
+      &:hover {
+        border: 1.5px solid #6dd5ed;
+      }
+      img {
+        margin-right: 8px;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.18);
+      }
     }
   }
+}
 
+@media (max-width: 600px) {
+  .message-container {
+    width: 95vw;
+    min-width: 0;
+    padding: 0 8px;
+  }
+  .barrage-container {
+    top: 120px;
+  }
 }
 </style>

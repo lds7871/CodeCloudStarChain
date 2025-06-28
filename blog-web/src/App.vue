@@ -6,7 +6,7 @@
     <router-view class="main-container" />
     <TheFooter />
     <FloatingButtons />
-    <Lantern />
+
     <div class="cursor-container"></div>
     <ContextMenu ref="contextMenuRef" />
   </div>
@@ -21,7 +21,6 @@ import { mapActions } from 'vuex'
 import { initTheme } from '@/utils/theme'
 import SearchDialog from '@/components/Search/index.vue'
 import MobileMenu from '@/layout/MobileMenu/index.vue'
-import Lantern from '@/components/Lanterns/index.vue'
 import { getCookie, removeCookie } from '@/utils/cookie'
 import ContextMenu from '@/components/ContextMenu/index.vue'
 
@@ -33,7 +32,6 @@ export default {
     FloatingButtons,
     SearchDialog,
     MobileMenu,
-    Lantern,
     ContextMenu,
   },
 
@@ -68,10 +66,40 @@ export default {
       let flag = window.location.href.indexOf("token") != -1;
       if (flag) {
         let token = window.location.href.split("token=")[1];
-        this.$store.commit('SET_TOKEN', token);
+
+        try {
+          // 1. 设置token到store (调用mutation)
+          this.$store.commit('SET_TOKEN', token);
+
+          // 2. 执行Gitee登录流程 (调用action)
+          const userData = await this.$store.dispatch('giteeLogin', token);
+
+          if (userData) {
+            this.$message.success("登录成功");
+            // 清除URL中的token参数
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete('token');
+            const newUrl = currentUrl.pathname + currentUrl.hash;
+            window.history.replaceState({}, '', newUrl);
+
+            // 延迟跳转，让消息先显示出来
+            setTimeout(() => {
+              this.$router.push('/');
+            }, 1500); // 1.5秒后跳转
+          }
+        } catch (error) {
+          console.error('登录失败:', error);
+          this.$message.error("登录失败，请重试");
+          // 登录失败也要清除URL中的token，但不跳转
+          setTimeout(() => {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete('token');
+            const newUrl = currentUrl.pathname + currentUrl.hash;
+            window.history.replaceState({}, '', newUrl);
+          }, 1500);
+        }
       }
     },
-
     /**
      * 初始化鼠标点击效果
      */

@@ -12,7 +12,11 @@ public class SaTokenConfigure implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 注册 Sa-Token 拦截器，定义详细的拦截路由
-        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
+        registry.addInterceptor(new SaInterceptor(handle -> {
+            // 如果是 /auth/info 接口，只有在已登录的情况下才检查登录状态
+            // 其他接口正常检查登录状态
+            StpUtil.checkLogin();
+        }))
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/auth/login",
@@ -27,6 +31,8 @@ public class SaTokenConfigure implements WebMvcConfigurer {
                         "/api/**",
                         "/wechat/**",
                         "/alipay/**",
+                        "/auth/wxinfo",
+                        "/auth/info",
                         "/oauth/**",
                         "/localFile/**"
                 );

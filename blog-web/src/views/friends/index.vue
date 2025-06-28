@@ -41,6 +41,7 @@
 
         <div class="friend-main">
           <div class="form-wrap" :class="{expanded: isExpanded}">
+<!--            <img src="/src/assets/friendLetterTop.png" class="before-img"  >-->
             <img src="/src/assets/friendLetterTop.png" class="before-img"  >
             <div class="envelope" @click="!isExpanded && toggleEnvelope()" style="animation: 2s ease 0s 1 normal none running hideToShow;">
 

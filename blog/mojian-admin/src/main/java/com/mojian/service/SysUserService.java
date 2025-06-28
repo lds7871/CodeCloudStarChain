@@ -4,20 +4,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mojian.dto.user.SysUserAddAndUpdateDto;
 import com.mojian.dto.user.WeChatInfo;
-import com.mojian.entity.SysUser;
 import com.mojian.dto.user.UpdatePwdDTO;
+import com.mojian.entity.Users;
 import com.mojian.vo.user.OnlineUserVo;
-import com.mojian.vo.user.SysUserVo;
 import com.mojian.vo.user.SysUserProfileVo;
+import com.mojian.vo.user.UsersVo;
 import com.mojian.vo.user.WxUserInfo;
 
 import java.util.List;
 
-public interface SysUserService extends IService<SysUser> {
+public interface SysUserService extends IService<Users> {
     /**
      * 分页查询用户
      */
-    IPage<SysUserVo> listUsers(SysUser sysUser);
+    IPage<UsersVo> listUsers(Users sysUser);
 
     /**
      * 新增用户
@@ -56,7 +56,7 @@ public interface SysUserService extends IService<SysUser> {
      * 修改个人信息
      * @param user
      */
-    void updateProfile(SysUser user);
+    void updateProfile(Users user);
     void updateWxProfile(WeChatInfo wxUserInfo);
     /**
      * 锁屏界面验证密码
@@ -70,7 +70,7 @@ public interface SysUserService extends IService<SysUser> {
      * @param user
      * @return
      */
-    Boolean resetPassword(SysUser user);
+    Boolean resetPassword(Users user);
 
     /**
      * 获取在线用户列表

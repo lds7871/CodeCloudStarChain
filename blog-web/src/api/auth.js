@@ -17,10 +17,13 @@ export function loginApi(data) {
  * 退出登录
  * @returns 
  */
-export function logoutApi() {
+export function logoutApi(userInfo) {
   return request({
     url: '/auth/logout',
-    method: 'post'
+    method: 'delete',
+    params: {
+      userInfo: userInfo
+    }
   })
 }
 
@@ -75,13 +78,11 @@ export function forgotPasswordApi(data) {
 // 微信扫码获取用户信息
 export function getQrCode() {
   return request({
-    url: 'http://6a34010f.r33.cpolar.top/wechat/qrCode',
+    url: '/wechat/qrCode',
     method: 'get',
     responseType: 'text'
   })
 }
-
-
 
 // 获取微信用户信息
 export function getwxUserInfoApi(openid) {
@@ -90,7 +91,6 @@ export function getwxUserInfoApi(openid) {
     method: "get",
     params: {
       openid: openid,
-      source: "user"
     }
   })
 }
@@ -98,7 +98,7 @@ export function getwxUserInfoApi(openid) {
 // 检查扫码状态
 export function checkQrCodeStatus() {
   return request({
-    url: 'http://6a34010f.r33.cpolar.top/wechat/checkQrCodeStatus',
+    url: '/wechat/checkQrCodeStatus',
     method: 'get'
   })
 }
@@ -123,5 +123,31 @@ export function getCaptchaSwitchApi() {
   return request({
     url: '/sys/config/getConfigByKey/slider_verify_switch',
     method: 'get'
+  })
+}
+
+// 发送绑定邮箱验证码
+export function sendBindEmailCodeApi(email) {
+  return request({
+    url: `/api/sendBindEmailCode`,
+    method: 'get',
+    params: { email }
+  })
+}
+
+// 绑定邮箱
+export function bindEmailApi(data) {
+  return request({
+    url: `/api/email/bind`,
+    method: 'post',
+    data
+  })
+}
+
+// 解绑邮箱
+export function unbindEmailApi() {
+  return request({
+    url: `/api/email/unbind`,
+    method: 'post'
   })
 }

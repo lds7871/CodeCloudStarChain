@@ -15,7 +15,6 @@ public class RedisConstants {
      */
     public static final String USER_SIGN = "user_sign:";
 
-
     /**
      * 验证码 redis key
      */
@@ -40,6 +39,16 @@ public class RedisConstants {
      * 博客浏览量
      */
     public static final String BLOG_VIEWS_COUNT = "blog_views_count";
+
+    /**
+     * 每日访问量 redis key，格式: blog_visit:日期(yyyy-MM-dd)
+     */
+    public static final String BLOG_VISIT_DAY = "blog_visit:";
+    
+    /**
+     * 每日浏览量 redis key，格式: blog_view:日期(yyyy-MM-dd)
+     */
+    public static final String BLOG_VIEW_DAY = "blog_view:";
 
     /**
      * 防重提交 redis key
@@ -97,7 +106,6 @@ public class RedisConstants {
      */
     public static final long MONTH_EXPIRE = 30 * 24 * 60 * 60;
 
-
     /**
      * 微信登录用户状态
      */
@@ -117,4 +125,9 @@ public class RedisConstants {
      * 网站配置
      */
     public static final String WEB_CONFIG_KEY = "sys_webconfig";
+
+    /**
+     * 绑定邮箱验证码
+     */
+    public static final String BIND_EMAIL_CODE_KEY = "bind:email:code:";
 }

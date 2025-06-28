@@ -1,6 +1,6 @@
 package com.mojian.vo.user;
 
-import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,7 @@ import java.util.List;
 public class SysUserProfileVo {
 
     @Schema(description = "用户信息")
-    private SysUser sysUser;
+    private Users sysUser;
 
     @Schema(description = "角色")
     private List<String> roles;

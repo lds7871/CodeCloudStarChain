@@ -5,6 +5,7 @@ import com.mojian.common.Result;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysArticle;
 import com.mojian.entity.SysUser;
+import com.mojian.entity.Users;
 import com.mojian.service.UserService;
 import com.mojian.vo.article.ArticleListVo;
 import com.mojian.vo.comment.CommentListVo;
@@ -31,7 +32,7 @@ public class UserController {
 
     @PutMapping("/updateProfile")
     @Operation(summary = "修改我的资料")
-    public Result<Void> updateProfile(@RequestBody SysUser user){
+    public Result<Void> updateProfile(@RequestBody Users user){
         userService.updateProfile(user);
         return Result.success();
     }

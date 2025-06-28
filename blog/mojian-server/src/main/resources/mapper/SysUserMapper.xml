@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mojian.mapper.SysUserMapper">
 
-    <resultMap type="com.mojian.vo.user.SysUserVo" id="SysUserPageResultVoMap">
+    <resultMap type="com.mojian.vo.user.UsersVo" id="SysUserPageResultVoMap">
         <id property="id" column="id" />
         <result property="username" column="username" />
         <result property="status" column="status" />
@@ -16,7 +16,6 @@
         <result property="sex" column="sex" />
         <result property="loginType" column="login_type" />
         <result property="createTime" column="create_time" />
-
         <collection property="roleIds" ofType="int">
             <result column="roleId"/>
         </collection>
@@ -25,15 +24,23 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, username, password, create_time, update_time, status,
-        ip, ip_location, os, last_login_time, browser,
+        ip, ip_location, os, last_login_time,
         nickname, avatar, mobile
     </sql>
+    <update id="updateUserInfo">
+        UPDATE users
+        SET ip = #{users.ip},
+            ip_location = #{users.ipLocation},
+            os = #{users.os},
+            last_login_time = #{users.lastLoginTime}
+        WHERE id = #{users.id}
+    </update>
 
     <!-- 根据用户名查询用户信息 -->
-    <select id="selectByUsername" resultType="com.mojian.entity.SysUser">
+    <select id="selectByUsername" resultType="com.mojian.entity.Users">
         select
         <include refid="Base_Column_List"/>
-        from sys_user
+        from users
         where username = #{username}
     </select>
 
@@ -53,7 +60,7 @@
             u.sex,
             u.login_type,
             sur.role_id as roleId
-        from sys_user u
+        from users u
             left join sys_user_role sur on u.id = sur.user_id
         <where>
             <if test="sysUser.nickname != null and sysUser.nickname != ''">
@@ -68,6 +75,19 @@
         </where>
     </select>
     <select id="selectBalcanceByUser" resultType="java.lang.Integer">
-        select balance from sys_user where id = #{userId}
+        select balance from users where id = #{userId}
     </select>
+    <select id="selectByUniqueId" resultType="com.mojian.entity.Users">
+        select id,username,status,nickname,avatar,mobile,email,user_info,sex,login_type,type from users where username = #{uniqueId}
+    </select>
+    <select id="getUserInfo" resultType="com.mojian.entity.SysUser">
+        select * from users where id = #{userId}
+    </select>
+    <select id="selectByEmail" resultType="com.mojian.entity.SysUser">
+        select * from users where email = #{email}
+    </select>
+    <select id="login" resultType="com.mojian.entity.Users">
+        select * from users where username = #{openId}
+    </select>
+
 </mapper>

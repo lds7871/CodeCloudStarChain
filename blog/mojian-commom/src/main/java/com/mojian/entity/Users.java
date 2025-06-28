@@ -9,21 +9,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * @className: SysUser
- * @author: Icw
- * @date: 2025/6/25 19:53
- * @Version: 1.0
- * @description:
- */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysUser {
+@TableName("users")
+@Schema(description = "用户信息")
+public class Users implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -83,17 +79,4 @@ public class SysUser {
     @TableField(fill = FieldFill.UPDATE)
     @JsonFormat(pattern = DateUtil.YYYY_MM_DD_HH_MM_SS, timezone = "GMT+8")
     private LocalDateTime updateTime;
-
-    @Schema(description = "token")
-    private String token;
-
-    @Schema(description = "角色Id")
-    private Integer roleId;
-
-    @Schema(description = "角色集合")
-    private List<String> roles;
-
-    @Schema(description = "权限集合")
-    private List<String> permissions;
-
 }

@@ -1,6 +1,7 @@
 package com.mojian.utils;
 
 import com.mojian.common.RedisConstants;
+import com.mojian.exception.ServiceException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -107,7 +108,7 @@ public void getJavaMailSenderImpl() {
                 "            <tr>\n" +
                 "              <td class=\"p-intro\">\n" +
                 "                <hr>\n" +
-                "                <p style=\"text-align: center;line-height:1.75em;\">shiyi - <a href='https://www.shiyit.com' style='text-decoration: none;color:#409eff'>码云星链</a></p>\n" +
+                "                <p style=\"text-align: center;line-height:1.75em;\">icw - <a href='https://www.shiyit.com' style='text-decoration: none;color:#409eff'>码云星链</a></p>\n" +
                 "              </td>\n" +
                 "            </tr>\n" +
                 "          </tbody>\n" +
@@ -151,5 +152,49 @@ public void getJavaMailSenderImpl() {
         javaMailSender.send(mimeMessage);
     }
 
+    public void sendBindCode(String email) throws MessagingException {
+        this.getJavaMailSenderImpl();
+        int code = (int) ((Math.random() * 9 + 1) * 100000);
+        String content = "<!DOCTYPE html>" +
+                "<html lang='zh-CN'>" +
+                "<head>" +
+                "  <meta charset='UTF-8'>" +
+                "  <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "  <title>邮箱绑定验证码</title>" +
+                "</head>" +
+                "<body style='background:#f6f8fa;padding:0;margin:0;'>" +
+                "  <div style='max-width:480px;margin:40px auto;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:32px 24px;font-family:PingFang SC,Arial,sans-serif;'>" +
+                "    <div style='text-align:center;margin-bottom:24px;'>" +
+//                "      <img src='https://static.shiyit.com/logo.png' alt='码云星链' style='height:48px;margin-bottom:8px;'/>" +
+                "      <h2 style='margin:0;font-size:22px;color:#409eff;'>邮箱绑定验证码</h2>" +
+                "    </div>" +
+                "    <p style='font-size:16px;color:#333;margin-bottom:24px;'>您好，感谢您使用 <b style='color:#409eff;'>码云星链</b>，您的邮箱绑定验证码如下：</p>" +
+                "    <div style='text-align:center;margin-bottom:24px;'>" +
+                "      <span style='display:inline-block;background:#f5f7fa;color:#409eff;font-size:32px;font-weight:bold;letter-spacing:8px;padding:12px 32px;border-radius:8px;border:1px solid #e4e7ed;'>" + code + "</span>" +
+                "    </div>" +
+                "    <p style='font-size:14px;color:#666;margin-bottom:8px;'>请在 5 分钟内输入该验证码完成邮箱绑定。</p>" +
+                "    <p style='font-size:13px;color:#999;margin-bottom:0;'>如非本人操作，请忽略此邮件。</p>" +
+                "    <hr style='border:none;border-top:1px solid #eee;margin:32px 0 16px 0;'/>" +
+                "    <div style='text-align:center;color:#bbb;font-size:12px;'>© 码云星链 | <a href='https://www.shiyit.com' style='color:#409eff;text-decoration:none;'>shiyit.com</a></div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+        this.send(email, content);
+        log.info("邮箱绑定验证码发送成功,邮箱:{},验证码:{}", email, code);
+
+        redisUtil.set(RedisConstants.BIND_EMAIL_CODE_KEY + email, code + "");
+        redisUtil.expire(RedisConstants.BIND_EMAIL_CODE_KEY + email, 300, TimeUnit.SECONDS); // 5分钟
+    }
+
+    public void validateBindCode(String email, String code) {
+        Object cacheCode = redisUtil.get(RedisConstants.BIND_EMAIL_CODE_KEY + email);
+        if (cacheCode == null || !cacheCode.equals(code)) {
+            throw new ServiceException("验证码已过期或输入错误");
+        }
+    }
+
+    public void deleteBindCode(String email) {
+        redisUtil.delete(RedisConstants.BIND_EMAIL_CODE_KEY + email);
+    }
 
 }

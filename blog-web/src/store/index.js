@@ -30,6 +30,10 @@ export default new Vuex.Store({
     SET_USER_INFO(state, userInfo) {
       state.userInfo = userInfo
       localStorage.setItem("user", JSON.stringify(userInfo))
+      console.log(userInfo);
+      if (userInfo != null) {
+        localStorage.setItem("userId", userInfo.id)
+      }
     },
 
     SET_SEARCH_VISIBLE(state, visible) {
@@ -88,6 +92,7 @@ export default new Vuex.Store({
         if (getToken()) {
           const res = await getUserInfoApi()
           commit('SET_USER_INFO', res.data)
+          localStorage.setItem("userId", res.data.id);
         }
       } catch (error) {
         console.error('获取用户信息失败：', error)
@@ -100,18 +105,28 @@ export default new Vuex.Store({
         let data
         if (userInfo) {
           const response = await checkQrCodeStatus()
+          console.log('checkQrCodeStatus 响应:', response);
           data = response.data
         } else {
           const res = await getUserInfoApi()
+          console.log('getUserInfoApi 响应:', res);
           data = res.data
+          console.log("微信数据为：" + data.id);
         }
-        if (data.token) {
+
+        console.log('最终data:', data);
+        console.log('data.token:', data.token);
+
+        localStorage.setItem("userId", data.id);
+
+        if (data && data.token) {
           commit('SET_TOKEN', data.token)
           commit('SET_USER_INFO', data)
           return Promise.resolve(data)
         }
         return Promise.reject(new Error('未获取到token'))
       } catch (error) {
+        console.error('wxlogin 错误:', error);
         return Promise.reject(error)
       }
     },
@@ -139,10 +154,12 @@ export default new Vuex.Store({
 
         if (res.data) {
           commit('SET_USER_INFO', res.data);
-          localStorage.setItem("giteeInfo", "gitee");
+          localStorage.setItem("userInfo", "gitee");
           localStorage.setItem("giteeId", res.data.id);
-          localStorage.setItem("avatar", res.data.avatarUrl);
-          localStorage.setItem("nickname", res.data.name);
+          localStorage.setItem("avatar", res.data.avatar);
+          localStorage.setItem("nickname", res.data.nickname);
+          localStorage.setItem("userId", res.data.id);
+          // 移除硬编码重定向，让页面组件处理路由跳转
           return Promise.resolve(res.data);
         }
         console.error('登录响应异常:', res); // 添加错误日志
@@ -180,7 +197,7 @@ export default new Vuex.Store({
      */
     async logout({ commit }) {
       try {
-        await logoutApi()
+        await logoutApi(localStorage.getItem("userInfo"))
       } catch (error) {
         console.error('登出错误:', error);
       } finally {
