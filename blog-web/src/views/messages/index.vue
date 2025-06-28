@@ -34,13 +34,17 @@
           <div class="brand-icon">
             <div class="icon-inner"></div>
           </div>
-          <span class="brand-text">码云树洞</span>
+          <span class="brand-text">数字树洞</span>
         </div>
         <div class="nav-stats">
           <div class="stat-item">
-            <span class="stat-number">{{ barrageList ? barrageList.length : 0 }}</span>
+            <span class="stat-number">{{ barrageList.length }}</span>
             <span class="stat-label">消息</span>
-          </div>  
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">{{ Math.floor(Math.random() * 500) + 200 }}</span>
+            <span class="stat-label">在线</span>
+          </div>
         </div>
       </div>
 
@@ -114,15 +118,15 @@
       <!-- 消息流区域 -->
       <div class="message-stream-section">
         <div class="stream-header">
-          <h3 class="stream-title">码云消息流</h3>
+          <h3 class="stream-title">实时消息流</h3>
           <div class="stream-controls">
             <div class="control-item">
               <span class="control-label">速度</span>
-              <div class="speed-slider" @click="handleSliderClick" ref="speedSlider">
-                <div class="slider-track" :style="{ width: danmakuSpeed + '%' }"></div>
-                <div class="slider-thumb" :style="{ left: danmakuSpeed + '%' }" @mousedown="startDrag"></div>
+              <div class="speed-slider-container">
+                <el-slider v-model="danmakuSpeed" :min="10" :max="100" :step="5" @change="updateDanmakuSpeed"
+                  :show-tooltip="true" :format-tooltip="formatSpeedTooltip" class="speed-slider"></el-slider>
+                <span class="speed-value">{{ danmakuSpeed }}</span>
               </div>
-              <span class="speed-value">{{ danmakuSpeed }}%</span>
             </div>
           </div>
         </div>
@@ -182,10 +186,11 @@ export default {
       content: "",
       count: null,
       timer: null,
+      speedUpdateTimer: null,
       sending: false,
       barrageList: [],
       user: this.$store.state.userInfo,
-      danmakuSpeed: 50, // 弹幕速度，范围 10-100
+      danmakuSpeed: 30,
       testData: [
         {
           avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1&backgroundColor=b6e3f4',
@@ -290,13 +295,10 @@ export default {
     listMessage() {
       getMessagesApi().then(res => {
         console.log('获取到的留言数据:', res.data);
-        this.barrageList = res.data || [];
+        this.barrageList = res.data;
         console.log('设置后的barrageList:', this.barrageList);
-        console.log('消息统计数量:', this.barrageList.length);
       }).catch(err => {
         console.error('获取留言失败:', err);
-        // 如果获取失败，确保barrageList是空数组而不是undefined
-        this.barrageList = [];
       });
     },
 
@@ -326,35 +328,29 @@ export default {
     },
 
     /**
-     * 处理滑块点击
-     */
-    handleSliderClick(event) {
-      const slider = this.$refs.speedSlider;
-      const rect = slider.getBoundingClientRect();
-      const percentage = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
-      this.danmakuSpeed = Math.round(percentage);
+ * 更新弹幕速度
+ */
+    updateDanmakuSpeed(value) {
+      // 使用防抖来避免频繁更新
+      if (this.speedUpdateTimer) {
+        clearTimeout(this.speedUpdateTimer);
+      }
+
+      this.speedUpdateTimer = setTimeout(() => {
+        this.danmakuSpeed = value;
+        // vue-danmaku组件会自动响应speeds属性的变化
+        // 不需要手动调用任何方法，组件内部会处理速度更新
+      }, 50); // 减少到50ms，让响应更快
     },
 
     /**
-     * 开始拖拽
+     * 格式化速度提示
      */
-    startDrag(event) {
-      event.preventDefault();
-      const slider = this.$refs.speedSlider;
-      const rect = slider.getBoundingClientRect();
-
-      const onMouseMove = (e) => {
-        const percentage = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-        this.danmakuSpeed = Math.round(percentage);
-      };
-
-      const onMouseUp = () => {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      };
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+    formatSpeedTooltip(value) {
+      if (value <= 20) return '慢速';
+      if (value <= 50) return '中速';
+      if (value <= 80) return '快速';
+      return '极速';
     }
   }
 };
@@ -902,62 +898,53 @@ export default {
       .control-item {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 15px;
 
         .control-label {
           font-size: 14px;
           color: rgba(255, 255, 255, 0.9);
+          white-space: nowrap;
         }
 
-        .speed-slider {
-          width: 100px;
-          height: 4px;
-          background: rgba(255, 255, 255, 0.3);
-          border-radius: 2px;
-          position: relative;
-          cursor: pointer;
-          transition: all 0.3s ease;
+        .speed-slider-container {
+          display: flex;
+          align-items: center;
+          gap: 10px;
 
-          &:hover {
-            background: rgba(255, 255, 255, 0.4);
-          }
+          .speed-slider {
+            width: 120px;
 
-          .slider-track {
-            height: 100%;
-            background: linear-gradient(90deg, #ff9a9e, #fecfef);
-            border-radius: 2px;
-            transition: width 0.2s ease;
-          }
-
-          .slider-thumb {
-            position: absolute;
-            top: -4px;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            cursor: grab;
-            transition: all 0.2s ease;
-            transform: translateX(-50%);
-
-            &:hover {
-              transform: translateX(-50%) scale(1.1);
-              box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            :deep(.el-slider__runway) {
+              background: rgba(255, 255, 255, 0.3);
+              height: 6px;
+              border-radius: 3px;
             }
 
-            &:active {
-              cursor: grabbing;
-              transform: translateX(-50%) scale(1.05);
+            :deep(.el-slider__bar) {
+              background: linear-gradient(90deg, #ff9a9e, #fecfef);
+              border-radius: 3px;
+            }
+
+            :deep(.el-slider__button) {
+              background: white;
+              border: 2px solid #ff9a9e;
+              width: 16px;
+              height: 16px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            :deep(.el-slider__button:hover) {
+              transform: scale(1.1);
+              border-color: #fecfef;
             }
           }
-        }
 
-        .speed-value {
-          font-size: 12px;
-          color: rgba(255, 255, 255, 0.9);
-          margin-left: 8px;
-          min-width: 30px;
+          .speed-value {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            min-width: 25px;
+            text-align: center;
+          }
         }
       }
     }
@@ -1302,35 +1289,12 @@ export default {
     flex-direction: column;
     gap: 15px;
     text-align: center;
-
-    .nav-stats {
-      justify-content: center;
-      gap: 30px;
-
-      .stat-item {
-        .stat-number {
-          font-size: 18px;
-        }
-
-        .stat-label {
-          font-size: 11px;
-        }
-      }
-    }
   }
 
   .stream-header {
     flex-direction: column;
     gap: 15px;
     text-align: center;
-
-    .stream-controls .control-item {
-      justify-content: center;
-
-      .speed-slider {
-        width: 80px;
-      }
-    }
   }
 
   .beautiful-message .message-bubble {

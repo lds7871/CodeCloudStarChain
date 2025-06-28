@@ -136,7 +136,7 @@ public class OauthServiceImpl implements OauthService {
                 List<String> roles = roleMapper.selectLists(Constants.UserType);
                 System.out.println("角色为："+roles);
 //                roles.add(Constants.ADMIN);
-                if (roles.contains(Constants.ADMIN)) {
+                if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {
                     permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                     System.out.println("权限为："+permissions);
                 } else {
@@ -169,7 +169,7 @@ public class OauthServiceImpl implements OauthService {
             //根据用户的id
             List<String> roles = roleMapper.selectLists(userId);
             System.out.println("角色为："+roles);
-            if (roles.contains(Constants.ADMIN)) {
+            if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {
                 permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                 System.out.println("权限为："+permissions);
             } else {

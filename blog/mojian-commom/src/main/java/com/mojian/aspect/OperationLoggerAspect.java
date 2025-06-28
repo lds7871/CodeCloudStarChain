@@ -57,7 +57,7 @@ public class OperationLoggerAspect {
         System.out.println(String.format("当前用户：%s", StpUtil.getLoginId()));
         System.out.println(String.format("当前用户角色：%s", StpUtil.getRoleList()));
         System.out.println(String.format("当前用户权限：%s", StpUtil.getPermissionList()));
-        if  (!StpUtil.hasRole(Constants.ADMIN)) {
+        if  (!StpUtil.hasRole(Constants.ADMIN) && !StpUtil.hasRole(Constants.SUPERADMIN)) {
             throw new NotPermissionException("无权限");
         }
         startTime = DateUtil.getNowDate();

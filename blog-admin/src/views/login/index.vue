@@ -123,7 +123,7 @@
       <!-- 滑块验证 -->
       <el-dialog title="请拖动滑块完成拼图" width="360px" v-model="showSliderVerify" :close-on-click-modal="false"
         @closed="refresh" append-to-body>
-        <slider-verify ref="sliderVerifyRef" @success="onSuccess" @fail="onFail" @again="onAgain" />
+        <slider-verify ref="sliderVerifyRef" @success="onSuccess" @fail="onFail" @again="onAgain" @close="onClose" />
       </el-dialog>
 
       <!-- 页脚版权信息 -->
@@ -228,8 +228,10 @@ const login = () => {
       router.push("/");
       ElMessage.success("登录成功");
     })
-    .catch(() => {
-      refresh();
+    .catch((e) => {
+      ElMessage.error(e.message);
+      // 登录失败后关闭滑动验证码
+      sliderVerifyRef?.value?.close();
     })
     .finally(() => {
       loading.value = false;
@@ -244,6 +246,10 @@ const onFail = (msg: string) => {
 /* 滑动验证异常*/
 const onAgain = () => {
   ElMessage.error("滑动操作异常，请重试");
+};
+/* 滑动验证关闭*/
+const onClose = () => {
+  showSliderVerify.value = false;
 };
 
 const toggleTheme = () => {

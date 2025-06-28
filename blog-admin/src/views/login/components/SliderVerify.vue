@@ -1,21 +1,9 @@
 <template>
-  <div
-    class="slide-verify"
-    :style="{ width: canvasWidth + 'px' }"
-    onselectstart="return false;"
-  >
+  <div class="slide-verify" :style="{ width: canvasWidth + 'px' }" onselectstart="return false;">
     <!-- 图片加载遮蔽罩 -->
-    <div
-      :class="{ 'img-loading': isLoading }"
-      :style="{ height: canvasHeight + 'px' }"
-      v-if="isLoading"
-    />
+    <div :class="{ 'img-loading': isLoading }" :style="{ height: canvasHeight + 'px' }" v-if="isLoading" />
     <!-- 认证成功后的文字提示 -->
-    <div
-      class="success-hint"
-      :style="{ height: canvasHeight + 'px' }"
-      v-if="verifySuccess"
-    >
+    <div class="success-hint" :style="{ height: canvasHeight + 'px' }" v-if="verifySuccess">
       {{ successHint }}
     </div>
     <!--刷新按钮-->
@@ -23,52 +11,27 @@
     <!--前端生成-->
     <template v-if="isFrontCheck">
       <!--验证图片-->
-      <canvas
-        ref="canvas"
-        class="slide-canvas"
-        :width="canvasWidth"
-        :height="canvasHeight"
-      />
+      <canvas ref="canvas" class="slide-canvas" :width="canvasWidth" :height="canvasHeight" />
       <!--阻塞块-->
-      <canvas
-        ref="block"
-        class="slide-block"
-        :width="canvasWidth"
-        :height="canvasHeight"
-      />
+      <canvas ref="block" class="slide-block" :width="canvasWidth" :height="canvasHeight" />
     </template>
     <!--后端生成-->
     <template v-else>
       <!--验证图片-->
-      <img
-        ref="canvasRef"
-        class="slide-canvas"
-        :width="canvasWidth"
-        :height="canvasHeight"
-      />
+      <img ref="canvasRef" class="slide-canvas" :width="canvasWidth" :height="canvasHeight" />
       <!--阻塞块-->
-      <img
-        ref="blockRef"
-        :class="['slide-block', { 'verify-fail': verifyFail }]"
-      />
+      <img ref="blockRef" :class="['slide-block', { 'verify-fail': verifyFail }]" />
     </template>
     <!-- 滑动条 -->
-    <div
-      class="slider"
-      :class="{
-        'verify-active': verifyActive,
-        'verify-success': verifySuccess,
-        'verify-fail': verifyFail,
-      }"
-    >
+    <div class="slider" :class="{
+      'verify-active': verifyActive,
+      'verify-success': verifySuccess,
+      'verify-fail': verifyFail,
+    }">
       <!--滑块-->
       <div class="slider-box" :style="{ width: sliderBoxWidth }">
         <!-- 按钮 -->
-        <div
-          class="slider-button"
-          id="slider-button"
-          :style="{ left: sliderButtonLeft }"
-        >
+        <div class="slider-button" id="slider-button" :style="{ left: sliderButtonLeft }">
           <!-- 按钮图标 -->
           <div class="slider-button-icon">
             <el-icon :size="30" style="position: absolute; top: -10px; left: -10px;">
@@ -91,7 +54,7 @@ import { ArrowRight } from '@element-plus/icons-vue'
 // Props 定义
 const props = withDefaults(defineProps<{
   blockLength?: number
-  blockRadius?: number 
+  blockRadius?: number
   canvasWidth?: number
   canvasHeight?: number
   sliderHint?: string
@@ -108,7 +71,7 @@ const props = withDefaults(defineProps<{
 })
 
 // Emits 定义
-const emit = defineEmits(['success', 'fail', 'again'])
+const emit = defineEmits(['success', 'fail', 'again', 'close'])
 
 // 辅助函数
 const sum = (x: number, y: number) => x + y
@@ -177,14 +140,14 @@ const initImage = () => {
       canvasWidth,
       canvasHeight,
     } = props
-    
+
     if (canvasCtx.value) {
       canvasCtx.value.drawImage(image, 0, 0, canvasWidth, canvasHeight)
     }
     if (blockCtx.value) {
       blockCtx.value.drawImage(image, 0, 0, canvasWidth, canvasHeight)
     }
-    
+
     // 将抠图防止最左边位置
     if (blockX.value && blockY.value && blockCtx.value) {
       let yAxle = blockY.value - props.blockRadius * 2
@@ -194,14 +157,14 @@ const initImage = () => {
         blockWidth.value,
         blockWidth.value
       )
-      
+
       if (blockRef.value) {
         blockRef.value.width = blockWidth.value
       }
-      
+
       blockCtx.value.putImageData(ImageData, 0, yAxle)
     }
-    
+
     // 图片加载完关闭遮蔽罩
     isLoading.value = false
     // 前端校验设置特殊值
@@ -228,9 +191,9 @@ const getImageSrc = () => {
   return len > 0
     ? props.imageList[getNonceByRange(0, len)]
     : `https://loyer.wang/view/ftp/wallpaper/${getNonceByRange(
-        1,
-        1000
-      )}.jpg`
+      1,
+      1000
+    )}.jpg`
 }
 
 const getNonceByRange = (start: number, end: number) => {
@@ -252,13 +215,13 @@ const drawBlock = () => {
 
 const draw = (ctx: CanvasRenderingContext2D | null, operation: 'fill' | 'clip') => {
   if (!ctx) return
-  
+
   const PI = Math.PI
   const x = blockX.value || 0
   const y = blockY.value || 0
   const l = props.blockLength
   const r = props.blockRadius
-  
+
   // 绘制
   ctx.beginPath()
   ctx.moveTo(x, y)
@@ -269,7 +232,7 @@ const draw = (ctx: CanvasRenderingContext2D | null, operation: 'fill' | 'clip') 
   ctx.lineTo(x, y + l)
   ctx.arc(x + r - 2, y + l / 2, r + 0.4, 2.76 * PI, 1.24 * PI, true)
   ctx.lineTo(x, y)
-  
+
   // 修饰
   ctx.lineWidth = 2
   ctx.fillStyle = "rgba(255, 255, 255, 0.9)"
@@ -424,18 +387,18 @@ const refresh = () => {
   setTimeout(() => {
     verifyFail.value = false
   }, 500)
-  
+
   isLoading.value = true
   verifyActive.value = false
   verifySuccess.value = false
-  
+
   if (blockRef.value) {
     blockRef.value.style.left = '0px'
   }
-  
+
   sliderBoxWidth.value = '0px'
   sliderButtonLeft.value = '0px'
-  
+
   if (isFrontCheck.value) {
     const { canvasWidth, canvasHeight } = props
     if (canvasCtx.value) {
@@ -455,6 +418,25 @@ const refresh = () => {
   }
 }
 
+// 关闭滑动验证码
+const close = () => {
+  // 重置所有状态
+  isLoading.value = true
+  verifyActive.value = false
+  verifySuccess.value = false
+  verifyFail.value = false
+
+  if (blockRef.value) {
+    blockRef.value.style.left = '0px'
+  }
+
+  sliderBoxWidth.value = '0px'
+  sliderButtonLeft.value = '0px'
+
+  // 触发关闭事件
+  emit('close')
+}
+
 // 生命周期钩子
 onMounted(() => {
   initDom()
@@ -466,7 +448,8 @@ onMounted(() => {
 defineExpose({
   refresh,
   verifySuccessEvent,
-  verifyFailEvent
+  verifyFailEvent,
+  close
 })
 </script>
 
@@ -525,6 +508,32 @@ defineExpose({
   height: 35px;
   cursor: pointer;
   background-size: 35px 470px;
+}
+
+/*关闭按钮*/
+.close-icon {
+  position: absolute;
+  right: 40px;
+  top: 0;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.close-icon::before {
+  content: '✕';
+}
+
+.close-icon:hover {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 /*验证图片*/

@@ -95,24 +95,26 @@ public class AuthServiceImpl implements AuthService {
             //校验验证码
             CaptchaUtil.checkImageCode(loginDTO.getNonceStr(), loginDTO.getValue());
         }
-
-
         // 查询用户
         Users user = userMapper.selectByUsername(loginDTO.getUsername());
+        if(!(user ==null)){
+            //校验是否能够登录
+            System.out.println(user);
+            validateLogin(loginDTO, user);
 
-        //校验是否能够登录
-        validateLogin(loginDTO, user);
+            // 执行登录
+            StpUtil.login(user.getId());
+            String tokenValue = StpUtil.getTokenValue();
 
-        // 执行登录
-        StpUtil.login(user.getId());
-        String tokenValue = StpUtil.getTokenValue();
+            // 返回用户信息
+            LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
+            loginUserInfo.setToken(tokenValue);
 
-        // 返回用户信息
-        LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
-        loginUserInfo.setToken(tokenValue);
+            StpUtil.getSession().set(Constants.CURRENT_USER, loginUserInfo);
+            return loginUserInfo;
+        }
+        throw new ServiceException("用户不存在");
 
-        StpUtil.getSession().set(Constants.CURRENT_USER, loginUserInfo);
-        return loginUserInfo;
     }
 
     private static void validateLogin(LoginDTO loginDTO, Users user) {
@@ -133,6 +135,14 @@ public class AuthServiceImpl implements AuthService {
         if (user.getUsername().equals(Constants.TEST) && loginDTO.getSource().equalsIgnoreCase("PC")) {
             throw new ServiceException("演示用户不允许门户登录！");
         }
+
+        if(loginDTO.getSource().equals("ADMIN")){
+            System.out.println(user.getType());
+            if(user.getType()==2){
+                throw new ServiceException("用户不允许登录管理系统");
+            }
+        }
+
     }
 
     @Override
@@ -164,7 +174,7 @@ public class AuthServiceImpl implements AuthService {
             List<String> permissions;
             Integer userRoleId = roleMapper.getUserRoleId(user.getId());
             List<String> roleList = roleMapper.selectLists(userRoleId);
-            if (roleList.contains(Constants.ADMIN)) {
+            if (roleList.contains(Constants.ADMIN) || roleList.contains(Constants.SUPERADMIN)) {
                 permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
             } else {
                 permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
@@ -186,7 +196,7 @@ public class AuthServiceImpl implements AuthService {
         List<String> roleList = roleMapper.selectLists(userRoleId);
         //获取菜单权限列表
         List<String> permissions;
-        if (roleList.contains(Constants.ADMIN)) {
+        if (roleList.contains(Constants.ADMIN) || roleList.contains(Constants.SUPERADMIN)) {
                 permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                 System.out.println("权限为："+permissions);
         } else {

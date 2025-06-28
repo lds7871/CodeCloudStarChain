@@ -4,10 +4,6 @@
       <div class="floating-cards">
         <span v-for="n in 12" :key="n" class="card-particle"></span>
       </div>
-      <div class="sci-fi-corners"></div>
-      <div class="data-streams">
-        <div v-for="n in 3" :key="n" class="stream-line"></div>
-      </div>
       <div class="card-header">
         <div class="author-avatar">
           <el-avatar class="avatar" :src="$store.state.webSiteInfo.authorAvatar" alt="作者头像" />
@@ -49,7 +45,7 @@
     <el-card class="section" v-if="hot.length > 0">
       <h3>
         <i class="fas fa-star"></i>
-        今日推荐
+        推荐文章
       </h3>
       <div class="post-list">
         <router-link v-for="post in hot" :key="post.id" :to="`/post/${post.id}`" class="post-item">
@@ -62,7 +58,7 @@
       </div>
     </el-card>
 
-    <el-card class="section" >
+    <el-card class="section">
       <h3>
         <i class="fas fa-tags"></i>
         标签云
@@ -157,10 +153,7 @@ export default {
   },
   mounted() {
     getRecommendArticlesApi().then(res => {
-      const articles = res.data
-      if (articles && articles.length > 0) {
-        this.setDailyRecommendedArticle(articles)
-      }
+      this.hot = res.data
     })
     // 初始化公告数据
     if (this.$store.state.notice && this.$store.state.notice.right) {
@@ -188,39 +181,6 @@ export default {
       } else {
         window.open(item.link, '_blank')
       }
-    },
-    /**
-     * 设置每日推荐文章
-     */
-    setDailyRecommendedArticle(articles) {
-      const today = new Date().toDateString() // 获取今天的日期字符串
-      const storageKey = 'dailyRecommendedArticle'
-      const dateKey = 'dailyRecommendedDate'
-      
-      // 获取存储的日期和文章
-      const storedDate = localStorage.getItem(dateKey)
-      const storedArticle = localStorage.getItem(storageKey)
-      
-      // 如果是同一天且有存储的文章，直接使用
-      if (storedDate === today && storedArticle) {
-        try {
-          const article = JSON.parse(storedArticle)
-          this.hot = [article]
-          return
-        } catch (error) {
-          console.error('解析存储的文章数据失败:', error)
-        }
-      }
-      
-      // 如果是新的一天或没有存储的文章，重新随机选择
-      const randomIndex = Math.floor(Math.random() * articles.length)
-      const selectedArticle = articles[randomIndex]
-      
-      // 存储新选择的文章和日期
-      localStorage.setItem(storageKey, JSON.stringify(selectedArticle))
-      localStorage.setItem(dateKey, today)
-      
-      this.hot = [selectedArticle]
     }
   }
 }
@@ -232,48 +192,13 @@ export default {
   top: 80px;
   width: 100%;
   max-width: 320px;
-  
-  // 整体科幻容器效果
-  &::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
-    background: linear-gradient(45deg, 
-      rgba(0, 245, 255, 0.1) 0%,
-      transparent 25%,
-      rgba(131, 56, 236, 0.1) 50%,
-      transparent 75%,
-      rgba(255, 0, 110, 0.1) 100%);
-    border-radius: 25px;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    animation: sidebarGlow 8s ease-in-out infinite;
-  }
-  
-  &:hover::before {
-    opacity: 1;
-  }
 
   .author-card {
-    // padding: $spacing-md;
+
+    padding: $spacing-md;
     margin-bottom: $spacing-lg;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     position: relative;
-    background: linear-gradient(135deg, 
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 245, 255, 0.05) 50%,
-      rgba(0, 0, 0, 0.9) 100%);
-    border: 1px solid rgba(0, 245, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 
-      0 0 30px rgba(0, 245, 255, 0.2),
-      inset 0 0 30px rgba(0, 245, 255, 0.05);
-    overflow: hidden;
-    backdrop-filter: blur(15px);
-    transition: all 0.3s ease;
 
     &::before {
       content: '';
@@ -282,131 +207,16 @@ export default {
       left: 0;
       right: 0;
       height: 120px;
-      background: linear-gradient(135deg,
-        rgba(0, 245, 255, 0.2) 0%,
-        rgba(131, 56, 236, 0.2) 50%,
-        rgba(255, 0, 110, 0.2) 100%);
+      background-image: url('https://img.shiyit.com/beijing.jpg');
+      background-size: cover;
+      background-position: center;
       transition: opacity 0.3s ease;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      z-index: 1;
+      border-top-left-radius: $border-radius-md;
+      border-top-right-radius: $border-radius-md;
     }
-    
-    // 多个科幻装饰元素
-    &::after {
-      content: '';
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 30px;
-      height: 30px;
-      background: transparent;
-      border: 2px solid rgba(0, 245, 255, 0.4);
-      clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-      animation: hexRotate 6s linear infinite;
-      z-index: 3;
-    }
-    
-    // 科幻边框装饰
-    .sci-fi-corners {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 4;
-      
-      &::before, &::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        border: 2px solid transparent;
-      }
-      
-      // 左上角
-      &::before {
-        top: 15px;
-        left: 15px;
-        border-top-color: #00f5ff;
-        border-left-color: #00f5ff;
-        animation: cornerPulse 3s ease-in-out infinite;
-      }
-      
-      // 右下角
-      &::after {
-        bottom: 15px;
-        right: 15px;
-        border-bottom-color: #ff006e;
-        border-right-color: #ff006e;
-        animation: cornerPulse 3s ease-in-out infinite 1.5s;
-      }
-    }
-    
-    // 数据流效果
-    .data-streams {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-      
-      .stream-line {
-        position: absolute;
-        width: 1px;
-        height: 100%;
-        background: linear-gradient(180deg, 
-          transparent 0%,
-          rgba(0, 245, 255, 0.6) 30%,
-          rgba(0, 245, 255, 0.8) 50%,
-          rgba(0, 245, 255, 0.6) 70%,
-          transparent 100%);
-        animation: streamFlow 4s ease-in-out infinite;
-        
-        &:nth-child(1) {
-          left: 25%;
-          animation-delay: 0s;
-        }
-        
-        &:nth-child(2) {
-          left: 50%;
-          animation-delay: 1.3s;
-          background: linear-gradient(180deg, 
-            transparent 0%,
-            rgba(131, 56, 236, 0.6) 30%,
-            rgba(131, 56, 236, 0.8) 50%,
-            rgba(131, 56, 236, 0.6) 70%,
-            transparent 100%);
-        }
-        
-        &:nth-child(3) {
-          left: 75%;
-          animation-delay: 2.6s;
-          background: linear-gradient(180deg, 
-            transparent 0%,
-            rgba(255, 0, 110, 0.6) 30%,
-            rgba(255, 0, 110, 0.8) 50%,
-            rgba(255, 0, 110, 0.6) 70%,
-            transparent 100%);
-        }
-      }
-    }
-    
-    // 边框发光效果
-    &:hover {
-      border-color: rgba(0, 245, 255, 0.6);
-      box-shadow: 
-        0 0 50px rgba(0, 245, 255, 0.4),
-        inset 0 0 50px rgba(0, 245, 255, 0.1);
-      transform: translateY(-5px);
-      
-      &::before {
-        opacity: 0.5;
-      }
+
+    &:hover::before {
+      opacity: 0.2;
     }
 
     .card-header {
@@ -414,7 +224,6 @@ export default {
       margin-bottom: 20px;
       display: flex;
       justify-content: center;
-      z-index: 2;
 
       .author-avatar {
         width: 88px;
@@ -426,34 +235,13 @@ export default {
           height: 100%;
           border-radius: 50%;
           object-fit: cover;
-          border: 3px solid #00f5ff;
-          box-shadow: 
-            0 0 20px rgba(0, 245, 255, 0.4),
-            inset 0 0 20px rgba(0, 245, 255, 0.1);
-          transition: all 0.3s ease;
-          position: relative;
-          z-index: 2;
+          border: 3px solid #fff;
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+          transition: transform 0.3s ease;
 
           &:hover {
             transform: scale(1.05);
-            box-shadow: 
-              0 0 30px rgba(0, 245, 255, 0.6),
-              inset 0 0 30px rgba(0, 245, 255, 0.2);
           }
-        }
-        
-        // 头像光环效果
-        &::before {
-          content: '';
-          position: absolute;
-          top: -5px;
-          left: -5px;
-          right: -5px;
-          bottom: -5px;
-          border-radius: 50%;
-          background: conic-gradient(from 0deg, #00f5ff, #8338ec, #ff006e, #00f5ff);
-          animation: avatarGlow 3s linear infinite;
-          z-index: 1;
         }
       }
 
@@ -462,33 +250,25 @@ export default {
         bottom: 0;
         right: 50%;
         transform: translateX(32px);
-        background: linear-gradient(135deg, #00f5ff, #0080ff);
-        border: 2px solid rgba(0, 245, 255, 0.8);
-        border-radius: 15px;
-        padding: 6px 14px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 12px;
+        padding: 4px 12px;
         font-size: 0.75rem;
-        color: rgba(240, 240, 240, 0.95);
-        box-shadow: 
-          0 0 15px rgba(0, 245, 255, 0.4),
-          inset 0 0 15px rgba(255, 255, 255, 0.2);
-        text-shadow: 0 0 5px rgba(0, 245, 255, 0.8);
-        animation: badgePulse 2s ease-in-out infinite;
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 
         span {
           display: flex;
           align-items: center;
-          gap: 6px;
-          font-weight: 600;
+          gap: 4px;
 
           &::before {
             content: '';
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #fff;
-            box-shadow: 0 0 10px #fff;
-            animation: dotPulse 1s ease-in-out infinite;
           }
         }
       }
@@ -497,140 +277,94 @@ export default {
     .author-info {
       text-align: center;
       margin-bottom: 20px;
-      position: relative;
-      z-index: 2;
 
       h3 {
-        font-size: 1.4rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        background: linear-gradient(45deg, #00f5ff, #0080ff, #8338ec);
-        background-clip: text;
+        color: $primary;
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
         margin-bottom: 8px;
-        animation: textShimmer 3s ease-in-out infinite;
       }
 
       .bio {
-        font-size: 0.95rem;
-        color: rgba(150, 150, 150, 0.9);
+        font-size: 0.9rem;
+        color: var(--text-secondary);
         line-height: 1.6;
         margin-bottom: 16px;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       }
     }
 
     .social-links {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin-top: 20px;
-      position: relative;
-      z-index: 2;
 
       .social-btn {
-        width: 42px;
-        height: 42px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 12px;
-        background: rgba(0, 0, 0, 0.3);
-        border: 2px solid transparent;
-        font-size: 1.2rem;
+        background: rgba(99, 102, 241, 0.05);
+        font-size: 1.1rem;
         transition: all 0.3s ease;
         position: relative;
         text-decoration: none;
-        overflow: hidden;
-        backdrop-filter: blur(10px);
-        
-        &::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-          transform: translateX(-100%);
-          transition: transform 0.5s ease;
-        }
-        
-        &:hover::before {
-          transform: translateX(100%);
-        }
       }
 
       .qq {
         color: #60a5fa;
-        border-color: rgba(96, 165, 250, 0.3);
 
         &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          color: #000;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          background: #60a5fa;
+          color: white;
         }
       }
 
       .qqGroup {
         color: #e1c235;
-        border-color: rgba(225, 194, 53, 0.3);
 
         &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          color: #000;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          background: #e1c235;
+          color: white;
         }
       }
 
       .github {
-        color: #fff;
-        border-color: rgba(255, 255, 255, 0.3);
+        color: #000;
 
         &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          color: #000;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          background: #000;
+          color: white;
         }
       }
 
       .gitee {
         color: #ee3434;
-        border-color: rgba(238, 52, 52, 0.3);
 
         &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          color: #000;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          background: #da3535;
+          color: white;
         }
       }
 
       .email {
         color: #d872a7;
-        border-color: rgba(216, 114, 167, 0.3);
 
         &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          color: #000;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          background: #d872a7;
+          color: white;
         }
       }
 
       .wechat {
         color: #10b981;
-        border-color: rgba(16, 185, 129, 0.3);
 
         &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          color: #000;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          background: #10b981;
+          color: white;
         }
       }
     }
@@ -645,7 +379,6 @@ export default {
       overflow: hidden;
       opacity: 0;
       transition: opacity 0.3s ease;
-      z-index: 1;
     }
 
     &:hover .floating-cards {
@@ -654,475 +387,319 @@ export default {
 
     .card-particle {
       position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #00f5ff;
-      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 2px;
       opacity: 0;
-      animation: particleFall 4s ease-in-out infinite;
-      box-shadow: 0 0 6px currentColor;
+      animation: fall 3s ease-in-out infinite;
 
-      &:nth-child(1) { left: 10%; animation-delay: 0ms; background: #6366f1; }
-      &:nth-child(2) { left: 20%; animation-delay: 300ms; background: #8b5cf6; }
-      &:nth-child(3) { left: 30%; animation-delay: 600ms; background: #ec4899; }
-      &:nth-child(4) { left: 40%; animation-delay: 900ms; background: #10b981; }
-      &:nth-child(5) { left: 50%; animation-delay: 1200ms; background: #f59e0b; }
-      &:nth-child(6) { left: 60%; animation-delay: 1500ms; background: #ef4444; }
-      &:nth-child(7) { left: 70%; animation-delay: 1800ms; background: #00f5ff; }
-      &:nth-child(8) { left: 80%; animation-delay: 2100ms; background: #0080ff; }
-      &:nth-child(9) { left: 90%; animation-delay: 2400ms; background: #8338ec; }
-      &:nth-child(10) { left: 95%; animation-delay: 2700ms; background: #ff006e; }
-      &:nth-child(11) { left: 85%; animation-delay: 3000ms; background: #6366f1; }
-      &:nth-child(12) { left: 15%; animation-delay: 3300ms; background: #8b5cf6; }
+      @for $i from 1 through 12 {
+        &:nth-child(#{$i}) {
+          left: #{random(100)}#{"%"};
+          animation-delay: #{random(3000)}ms;
+          background: #{nth(
+ (#6366f1,
+            #8b5cf6,
+            #ec4899,
+            #10b981,
+            #f59e0b,
+            #ef4444),
+          random(6))
+        }
+
+        ;
+        transform: rotate(#{$i * 30}deg);
+      }
     }
   }
 }
 
 .section {
   margin-bottom: $spacing-lg;
-  position: relative;
-  background: linear-gradient(135deg, 
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 245, 255, 0.05) 50%,
-    rgba(0, 0, 0, 0.9) 100%);
-  border: 1px solid rgba(0, 245, 255, 0.2);
-  border-radius: 15px;
-  // padding: $spacing-lg;
-  backdrop-filter: blur(10px);
-  box-shadow: 
-    0 0 20px rgba(0, 245, 255, 0.1),
-    inset 0 0 20px rgba(0, 245, 255, 0.05);
-  transition: all 0.3s ease;
-  overflow: hidden;
-  
-  // 多重扫描线效果
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.8), transparent);
-    animation: sectionScan 3s ease-in-out infinite;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: -100%;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 110, 0.6), transparent);
-    animation: sectionScanReverse 4s ease-in-out infinite;
-  }
-  
-  &:hover {
-    border-color: rgba(0, 245, 255, 0.4);
-    box-shadow: 
-      0 0 30px rgba(0, 245, 255, 0.2),
-      inset 0 0 30px rgba(0, 245, 255, 0.1);
-    transform: translateY(-2px);
-  }
 
   h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    background: linear-gradient(45deg, #00f5ff, #0080ff, #8338ec);
-    background-size: 200% 200%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0, 245, 255, 0.2);
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: titleGradient 4s ease-in-out infinite;
+    color: #6366f1;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(99, 102, 241, 0.1);
 
-    i {
-      color: #00f5ff;
-      text-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
-      font-size: 1.1em;
-      animation: iconPulse 2s ease-in-out infinite;
-    }
-
-    // 科幻下划线效果
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 40px;
-      height: 2px;
-      background: linear-gradient(90deg, #00f5ff, #8338ec, transparent);
-      box-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
-      animation: underlineExpand 3s ease-in-out infinite;
-    }
-    
-    // 科幻边框装饰
     &::before {
       content: '';
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      width: 20px;
-      height: 20px;
-      border: 1px solid rgba(0, 245, 255, 0.3);
-      border-radius: 3px;
-      transform: rotate(45deg);
-      animation: rotateBorder 6s linear infinite;
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+      margin-right: 8px;
+      border-radius: 2px;
+      vertical-align: middle;
+      transform: translateY(-1px);
     }
   }
 
   .post-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
+    counter-reset: post-counter;
 
     .post-item {
       display: flex;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 10px;
-      background: rgba(0, 245, 255, 0.02);
-      border: 1px solid rgba(0, 245, 255, 0.1);
-      transition: all 0.3s ease;
+      gap: 16px;
       text-decoration: none;
-      color: inherit;
+      transition: all 0.3s ease;
       position: relative;
-      overflow: hidden;
-      
+      padding-left: 32px;
+
       &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, 
-          transparent, 
-          rgba(0, 245, 255, 0.2), 
-          rgba(131, 56, 236, 0.1),
-          transparent);
-        transition: left 0.5s ease;
-      }
-      
-      // 科幻边框指示器
-      &::after {
-        content: '';
+        content: counter(post-counter);
+        counter-increment: post-counter;
         position: absolute;
         left: 0;
-        top: 0;
-        width: 3px;
-        height: 100%;
-        background: linear-gradient(180deg, 
-          transparent, 
-          rgba(0, 245, 255, 0.8), 
-          transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        background: var(--number-bg, #f87171);
+        color: white;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
-      
+
+      &:nth-child(2)::before {
+        --number-bg: #fbbf24;
+      }
+
+      &:nth-child(3)::before {
+        --number-bg: #60a5fa;
+      }
+
+      &:nth-child(n+4)::before {
+        --number-bg: #9ca3af;
+      }
+
       &:hover {
-        border-color: rgba(0, 245, 255, 0.3);
-        background: rgba(0, 245, 255, 0.05);
-        box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
-        transform: translateX(5px);
-        
-        &::before {
-          left: 100%;
+        transform: translateX(4px);
+
+        h4 {
+          color: #6366f1;
         }
-        
-        &::after {
-          opacity: 1;
+
+        img {
+          transform: scale(1.03);
         }
       }
 
       img {
-        width: 60px;
-        height: 45px;
-        border-radius: 8px;
+        width: 100px;
+        height: 70px;
+        border-radius: 6px;
         object-fit: cover;
-        border: 1px solid rgba(0, 245, 255, 0.2);
-        transition: all 0.3s ease;
-        
-        &:hover {
-          border-color: rgba(0, 245, 255, 0.5);
-          box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
-        }
+        transition: transform 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
         &.fallback {
-          opacity: 0.6;
-          filter: grayscale(100%);
+          opacity: 0.7;
         }
       }
 
       .post-meta {
         flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
 
         h4 {
-          font-size: 0.9rem;
+          font-size: 0.95rem;
           font-weight: 500;
-          color: rgba(120, 120, 120, 0.9);
-          margin: 0 0 6px 0;
-          line-height: 1.4;
+          color: var(--text-primary);
+          margin-bottom: 6px;
+          overflow: hidden;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
-          overflow: hidden;
+          line-height: 1.4;
           transition: color 0.3s ease;
-          
-          &:hover {
-            color: #00f5ff;
-          }
         }
 
         time {
-          font-size: 0.75rem;
-          color: rgba(100, 100, 100, 0.8);
-          font-family: 'Courier New', monospace;
+          font-size: 0.8rem;
+          color: #8b8b8b;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          &::before {
+            content: '\f017';
+            font-family: 'Font Awesome 5 Free';
+            font-size: 0.75rem;
+            opacity: 0.8;
+          }
         }
       }
+    }
+  }
+}
+
+.announcement {
+  h3 {
+    i {
+      margin-right: 8px;
+      color: #f59e0b;
+      animation: shake 1.5s ease-in-out infinite;
     }
   }
 
   .announcement-content {
     .announcement-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
       padding: 12px 0;
-      border-bottom: 1px solid rgba(0, 245, 255, 0.1);
-      color: rgba(130, 130, 130, 0.9);
-      line-height: 1.6;
-      position: relative;
-      
+      border-bottom: 1px dashed rgba(99, 102, 241, 0.1);
+
       &:last-child {
         border-bottom: none;
+        padding-bottom: 0;
       }
-      
-      &::before {
-        content: '▶';
-        color: #00f5ff;
-        margin-right: 8px;
-        font-size: 0.8em;
-        animation: blink 2s ease-in-out infinite;
+
+      &:first-child {
+        padding-top: 0;
+      }
+
+      i {
+        font-size: 1rem;
+        color: #6366f1;
+        flex-shrink: 0;
+        margin-top: 3px;
+      }
+
+      span {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      &:hover {
+        i {
+          transform: scale(1.1);
+        }
+
+        span {
+          color: var(--text-primary);
+        }
+      }
+
+      i,
+      span {
+        transition: all 0.3s ease;
       }
     }
   }
 }
 
-// 动画定义
-@keyframes hexRotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes avatarGlow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes badgePulse {
-  0%, 100% {
-    transform: translateX(32px) scale(1);
-    box-shadow: 
-      0 0 15px rgba(0, 245, 255, 0.4),
-      inset 0 0 15px rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    transform: translateX(32px) scale(1.05);
-    box-shadow: 
-      0 0 25px rgba(0, 245, 255, 0.6),
-      inset 0 0 25px rgba(255, 255, 255, 0.3);
-  }
-}
-
-@keyframes dotPulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.8);
-  }
-}
-
-@keyframes textShimmer {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes particleFall {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  10%, 90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(100px);
-  }
-}
-
-@keyframes sectionScan {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes sectionScanReverse {
-  0% {
-    right: -100%;
-  }
-  100% {
-    right: 100%;
-  }
-}
-
-@keyframes sidebarGlow {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes cornerPulse {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-@keyframes streamFlow {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-}
-
-@keyframes blink {
-  0%, 50% {
-    opacity: 1;
-  }
-  51%, 100% {
-    opacity: 0.3;
-  }
-}
-
-@keyframes titleGradient {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes underlineExpand {
-  0%, 100% {
-    width: 40px;
-    opacity: 0.6;
-  }
-  50% {
-    width: 80px;
-    opacity: 1;
-  }
-}
-
-@keyframes rotateBorder {
-  from {
-    transform: rotate(45deg);
-  }
-  to {
-    transform: rotate(405deg);
-  }
-}
-
-// 响应式调整
-@media (max-width: 768px) {
+@media (prefers-color-scheme: dark) {
   .sidebar {
-    max-width: 100%;
-    
-    .author-card {
-      padding: $spacing-sm;
-      
-      .card-header .author-avatar {
-        width: 70px;
-        height: 70px;
-      }
-      
-      .author-info h3 {
-        font-size: 1.2rem;
-      }
-      
-      .social-links {
-        gap: 8px;
-        
-        .social-btn {
-          width: 36px;
-          height: 36px;
-          font-size: 1rem;
-        }
-      }
-    }
-    
     .section {
-      padding: $spacing-md;
-      
-      h3 {
-        font-size: 1.1rem;
-      }
-      
-      .post-list .post-item {
-        gap: 10px;
-        padding: 10px;
-        
-        img {
-          width: 50px;
-          height: 38px;
+      .post-item {
+        &::before {
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        
-        .post-meta h4 {
-          font-size: 0.85rem;
+
+        img {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-meta {
+          time {
+            color: #777;
+          }
+        }
+
+        &:hover h4 {
+          color: #818cf8;
         }
       }
     }
   }
+}
+}
+
+@include responsive(lg) {
+  .sidebar {
+    display: none;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.author-avatar img {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.8;
+  }
+
+  80% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(300px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(10deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.fa-star {
+  color: #ef5151;
+}
+
+.fa-tags {
+  color: #e329d3;
 }
 </style>

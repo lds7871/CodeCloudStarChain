@@ -5,6 +5,9 @@ public class Constants {
 
     public static final String DEFAULT_PASSWORD = "123456";
 
+
+    public static final String SUPERADMIN = "super_admin";
+
     public static final String ADMIN = "admin";
 
     public static final Integer AdminType = 1;

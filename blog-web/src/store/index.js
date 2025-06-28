@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { loginApi, logoutApi, getUserInfoApi, getwxUserInfoApi, giteeLoginApi, checkQrCodeStatus } from '@/api/auth'
-import { getWebConfigApi } from '@/api/site'
 import { getToken, setToken, removeToken, removeAuthorization } from '@/utils/cookie'
 
 Vue.use(Vuex)
@@ -18,15 +17,11 @@ export default new Vuex.Store({
     siteAccess: 0,
     isLoading: false,
     notice: null,
-    isUnread: false,
-    defaultImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest' // 默认图片
+    isUnread: false
   },
   mutations: {
     setSiteInfo(state, info) {
       state.webSiteInfo = info
-    },
-    setDefaultImage(state, image) {
-      state.defaultImage = image
     },
     SET_TOKEN(state, token) {
       state.token = token
@@ -64,24 +59,6 @@ export default new Vuex.Store({
     }
   },
   actions: {
-
-    /**
-     * 获取网站配置信息
-     */
-    async getWebSiteConfig({ commit }) {
-      try {
-        const res = await getWebConfigApi()
-        if (res.data) {
-          commit('setSiteInfo', res.data)
-          // 设置默认图片为游客头像
-          if (res.data.touristAvatar) {
-            commit('setDefaultImage', res.data.touristAvatar)
-          }
-        }
-      } catch (error) {
-        console.error('获取网站配置失败：', error)
-      }
-    },
 
     /**
      * 设置公告信息

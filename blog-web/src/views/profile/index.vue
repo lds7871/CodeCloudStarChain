@@ -619,7 +619,6 @@ export default {
       },
       // 个人资料表单
       profileForm: {
-        id: null,
         nickname: '',
         email: '',
         sex: 2,
@@ -727,49 +726,45 @@ export default {
     }
   },
   created() {
-    // 检查用户登录类型并获取相应的用户信息
-    const weChatInfo = localStorage.getItem('userInfo');
-    const openId = localStorage.getItem("openId");
-    const giteeInfo = localStorage.getItem("giteeInfo");
-    
-    if (weChatInfo && openId) {
-      // 微信用户：确保openId存在才调用API
-      getwxUserInfoApi(openId).then(res => {
+    if (localStorage.getItem('userInfo')) {
+      getwxUserInfoApi(localStorage.getItem("openId")).then(res => {
         console.log(res.data);
         this.userInfo = res.data
-        Object.assign(this.profileForm, {
-          id: res.data.id,
-          nickname: res.data.nickname,
-          email: res.data.email,
-          signature: res.data.signature || res.data.userInfo || '',
-          sex: res.data.sex == "男" ? 1 : (res.data.sex == "女" ? 0 : 2)
-        })
-      }).catch(err => {
-        console.error('获取微信用户信息失败:', err);
-        // 如果微信用户信息获取失败，尝试获取普通用户信息
-        this.loadNormalUserInfo();
+        Object.assign(this.profileForm, res.data)
+        if (res.data.sex == "男") {
+          this.profileForm.sex = 1
+        } else if (res.data.sex == "女") {
+          this.profileForm.sex = 0
+        } else {
+          this.profileForm.sex = 2
+        }
       })
-    } else if (giteeInfo) {
-      // Gitee用户
+    } else if (localStorage.getItem("giteeInfo")) {
       giteeLoginApi().then(res => {
         console.log(res.data);
         this.userInfo = res.data
-        Object.assign(this.profileForm, {
-          id: res.data.id,
-          nickname: res.data.name || res.data.nickname,
-          email: res.data.email,
-          signature: res.data.signature || res.data.userInfo || '',
-          sex: res.data.sex == "男" ? 1 : (res.data.sex == "女" ? 0 : 2)
-        })
-      }).catch(err => {
-        console.error('获取Gitee用户信息失败:', err);
-        // 如果Gitee用户信息获取失败，尝试获取普通用户信息
-        this.loadNormalUserInfo();
+        Object.assign(this.profileForm, res.data)
+        if (res.data.name) {
+          this.profileForm.nickname = res.data.name
+        }
+        if (res.data.sex == "男") {
+          this.profileForm.sex = 1
+        } else if (res.data.sex == "女") {
+          this.profileForm.sex = 0
+        } else {
+          this.profileForm.sex = 2
+        }
       })
     } else {
-      // 普通用户或者其他登录方式
-      this.loadNormalUserInfo();
+      getUserInfoApi().then(res => {
+        this.userInfo = res.data.sysUser
+        Object.assign(this.profileForm, res.data.sysUser)
+      })
     }
+    getUserInfoApi().then(res => {
+      this.userInfo = res.data.sysUser
+      Object.assign(this.profileForm, res.data.sysUser)
+    })
 
     this.getFeedbackDict()
     // 获取签到状态和统计
@@ -778,24 +773,6 @@ export default {
     this.fetchBalance()
   },
   methods: {
-    /**
-     * 加载普通用户信息
-     */
-    loadNormalUserInfo() {
-      getUserInfoApi().then(res => {
-        this.userInfo = res.data.sysUser
-        Object.assign(this.profileForm, {
-          id: res.data.sysUser.id,
-          nickname: res.data.sysUser.nickname,
-          email: res.data.sysUser.email,
-          signature: res.data.sysUser.signature || res.data.sysUser.userInfo || '',
-          sex: res.data.sysUser.sex || 2
-        })
-      }).catch(err => {
-        console.error('获取用户信息失败:', err);
-        this.$message.error('获取用户信息失败，请重新登录');
-      })
-    },
     /**
      * 获取反馈类型字典
      */
@@ -1023,35 +1000,18 @@ export default {
     submitProfile() {
       this.loading = true
       updateProfileApi(this.profileForm).then(res => {
-        // 更新所有用户信息
         this.userInfo.nickname = this.profileForm.nickname
-        this.userInfo.signature = this.profileForm.signature
-        this.userInfo.sex = this.profileForm.sex
-        this.userInfo.email = this.profileForm.email
-        
-        // 更新store中的用户信息
-        if (this.$store.state.userInfo) {
-          this.$store.state.userInfo.nickname = this.profileForm.nickname
-          this.$store.state.userInfo.signature = this.profileForm.signature
-        }
-        
+        this.$store.state.userInfo.nickname = this.profileForm.nickname
         this.$message.success('个人资料更新成功！')
       }).catch(err => {
-        this.$message.error(err.message || '更新失败')
+        this.$message.error(err.message)
       }).finally(() => {
         this.loading = false
       })
     },
     // 重置个人资料
     resetProfile() {
-      // 重新从userInfo加载数据
-      Object.assign(this.profileForm, {
-        id: this.userInfo.id,
-        nickname: this.userInfo.nickname,
-        email: this.userInfo.email,
-        sex: this.userInfo.sex || 2,
-        signature: this.userInfo.signature || this.userInfo.userInfo || ''
-      })
+      this.profileForm = {...{}}
     },
     /**
      * 获取我的回复

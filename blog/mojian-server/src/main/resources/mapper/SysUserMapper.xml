@@ -14,6 +14,8 @@
         <result property="mobile" column="mobile" />
         <result property="email" column="email" />
         <result property="sex" column="sex" />
+        <result property="type" column="type" />
+        <result property="userInfo" column="user_info" />
         <result property="loginType" column="login_type" />
         <result property="createTime" column="create_time" />
         <collection property="roleIds" ofType="int">
@@ -38,8 +40,7 @@
 
     <!-- 根据用户名查询用户信息 -->
     <select id="selectByUsername" resultType="com.mojian.entity.Users">
-        select
-        <include refid="Base_Column_List"/>
+        select *
         from users
         where username = #{username}
     </select>

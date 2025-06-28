@@ -106,7 +106,7 @@ public class WeChatServiceImpl implements WeChatService {
                 //刚注册的用户都为普通用户，因此这里直接给普通用户的值
                 List<String> roles = roleMapper.selectLists(Constants.UserType);
                 System.out.println("角色为：" + roles);
-                if (roles.contains(Constants.ADMIN)) {
+                if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {
                     permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                     System.out.println("权限为：" + permissions);
                 } else {
@@ -138,7 +138,7 @@ public class WeChatServiceImpl implements WeChatService {
                 Integer res = roleMapper.selectRoleId(login.getId());
                 List<String> roles = roleMapper.selectLists(res);
                 System.out.println("角色为：" + roles);
-                if (roles.contains(Constants.ADMIN)) {
+                if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {
                     permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                     System.out.println("权限为：" + permissions);
                 } else {
