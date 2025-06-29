@@ -51,7 +51,7 @@ public interface SysUserService extends IService<Users> {
      * 获取微信个人信息
      * @return
      */
-    WxUserInfo wxUser(String openId);
+    WxUserInfo wxUser(String userId);
     /**
      * 修改个人信息
      * @param user

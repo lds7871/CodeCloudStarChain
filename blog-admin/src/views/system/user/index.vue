@@ -43,9 +43,11 @@
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="头像" prop="avatar" align="center">
           <template #default="{ row }">
-            <el-image :src="row.avatar" style="width: 40px; height: 40px; border-radius: 5px;" />
+            <el-image :src="row.avatar" style="width: 40px; height: 40px; border-radius: 5px; cursor: pointer;"
+              :preview-src-list="[row.avatar]" :preview-teleported="true" :z-index="9999" fit="cover" />
           </template>
         </el-table-column>
+        <el-table-column label="账号" align="center" prop="username" show-overflow-tooltip width="140" />
         <el-table-column label="昵称" align="center" prop="nickname" show-overflow-tooltip width="120" />
         <el-table-column label="身份" align="center" prop="roleIds" width="100">
           <template #default="{ row }">
@@ -113,6 +115,28 @@
           <el-col :span="12">
             <el-form-item label="昵称" prop="nickname">
               <el-input v-model="userForm.nickname" placeholder="请输入昵称" clearable />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 头像上传行 -->
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="头像" prop="avatar">
+              <div class="avatar-upload-wrapper">
+                <el-upload class="avatar-uploader" :action="uploadUrl" :headers="uploadHeaders" :show-file-list="false"
+                  :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" accept="image/*">
+                  <el-image v-if="userForm.avatar" :src="userForm.avatar" class="avatar"
+                    style="width: 80px; height: 80px; border-radius: 5px;" fit="cover" />
+                  <el-icon v-else class="avatar-uploader-icon">
+                    <Plus />
+                  </el-icon>
+                </el-upload>
+                <div class="avatar-upload-text">
+                  <p>点击上传头像</p>
+                  <p class="upload-tip">支持 JPG、PNG 格式，大小不超过 2MB</p>
+                </div>
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -200,6 +224,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import {
   getUserListApi,
   createUserApi,
@@ -240,6 +265,12 @@ const dialog = reactive({
 // 角色选项
 const roleOptions = ref<any[]>([])
 
+// 头像上传相关
+const uploadUrl = ref(`${import.meta.env.VITE_APP_BASE_API}/file/upload?source=avatar`)
+const uploadHeaders = ref({
+  Authorization: localStorage.getItem('token') || ''
+})
+
 // 表单数据
 const userForm = reactive({
   id: undefined,
@@ -255,7 +286,8 @@ const userForm = reactive({
   lastLoginTime: undefined,
   createTime: undefined,
   roleIds: undefined as number | undefined,
-  loginType: undefined as number | undefined
+  loginType: undefined as number | undefined,
+  avatar: '' // 添加头像字段
 })
 
 // 表单校验规则
@@ -389,6 +421,7 @@ const handleAdd = () => {
   userForm.createTime = undefined
   userForm.roleIds = undefined
   userForm.loginType = undefined
+  userForm.avatar = '' // 重置头像字段
 }
 
 // 修改用户
@@ -404,6 +437,8 @@ const handleUpdate = (row: any) => {
     userForm.roleIds = row.roleIds
   }
   userForm.password = null
+  // 确保头像字段存在
+  userForm.avatar = row.avatar || ''
 }
 
 // 提交表单
@@ -570,6 +605,33 @@ const isCurrentUserSuperAdmin = () => {
   return false
 }
 
+// 头像上传前的验证
+const beforeAvatarUpload = (file: File) => {
+  const isJPG = file.type === 'image/jpeg'
+  const isPNG = file.type === 'image/png'
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isJPG && !isPNG) {
+    ElMessage.error('上传头像图片只能是 JPG/PNG 格式!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('上传头像图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+// 头像上传成功回调
+const handleAvatarSuccess = (response: any) => {
+  if (response.code === 200) {
+    userForm.avatar = response.data
+    ElMessage.success('头像上传成功')
+  } else {
+    ElMessage.error('头像上传失败')
+  }
+}
+
 // 初始化
 onMounted(async () => {
   // 先加载角色数据，再加载用户列表，确保角色名称能正确显示
@@ -577,3 +639,79 @@ onMounted(async () => {
   getList()
 })
 </script>
+
+<style lang="scss" scoped>
+.avatar-upload-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  .avatar-uploader {
+    :deep(.el-upload) {
+      border: 2px dashed var(--el-border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--el-transition-duration-fast);
+
+      &:hover {
+        border-color: var(--el-color-primary);
+      }
+    }
+
+    .avatar-uploader-icon {
+      font-size: 28px;
+      color: #8c939d;
+      width: 80px;
+      height: 80px;
+      text-align: center;
+      line-height: 80px;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      display: block;
+    }
+  }
+
+  .avatar-upload-text {
+    flex: 1;
+
+    p {
+      margin: 0 0 5px 0;
+      color: var(--el-text-color-regular);
+    }
+
+    .upload-tip {
+      font-size: 12px;
+      color: var(--el-text-color-placeholder);
+    }
+  }
+}
+
+/* 图片预览样式优化 */
+:deep(.el-image-viewer__wrapper) {
+  z-index: 10000 !important;
+}
+
+:deep(.el-image-viewer__mask) {
+  z-index: 10000 !important;
+}
+
+:deep(.el-image-viewer__btn) {
+  z-index: 10001 !important;
+}
+
+:deep(.el-image-viewer__close) {
+  z-index: 10002 !important;
+}
+
+/* 确保预览图片完整显示 */
+:deep(.el-image-viewer__img) {
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  object-fit: contain !important;
+}
+</style>

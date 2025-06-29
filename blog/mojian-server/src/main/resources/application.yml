@@ -56,4 +56,8 @@ springdoc:
       packages-to-scan: com.mojian.controller
 
 #文件路径
-filePath: /opt/blogimg
+#filePath: /opt/blogimg
+
+#filePath: C:/Users/徐文涛/Downloads/code-cloud-star-chain/images/
+
+

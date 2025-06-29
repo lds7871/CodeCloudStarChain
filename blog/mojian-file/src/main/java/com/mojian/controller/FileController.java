@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,9 +30,6 @@ import java.util.UUID;
 @Tag(name = "文件管理")
 @RequiredArgsConstructor
 public class FileController {
-
-    @Value("${filePath}")
-    private String filePath;
     private final FileDetailService fileDetailService;
     private final FileStorageService fileStorageService;
 
@@ -47,6 +45,34 @@ public class FileController {
     @Operation(summary = "获取存储平台配置")
     public Result<List<SysFileOss>> getOssConfig() {
         return Result.success(fileDetailService.getOssConfig());
+    }
+
+    @SaCheckLogin
+    @PostMapping("/initLocalStorage")
+    @Operation(summary = "初始化本地存储配置")
+    public Result<Void> initLocalStorage() {
+        // 检查是否已有本地存储配置
+        List<SysFileOss> ossConfigs = fileDetailService.getOssConfig();
+        boolean hasLocalConfig = ossConfigs.stream()
+                .anyMatch(config -> "local".equals(config.getPlatform()));
+        
+        if (!hasLocalConfig) {
+            // 创建本地存储配置
+            SysFileOss localConfig = new SysFileOss();
+            localConfig.setPlatform("local");
+            localConfig.setDomain("http://localhost"); // 默认域名，可以根据需要修改
+            localConfig.setBasePath(""); // 基础路径为空
+            localConfig.setIsEnable(1); // 启用
+            localConfig.setEnableAccess(1); // 启用访问
+            localConfig.setPathPatterns("/file/**"); // 访问路径模式
+            
+            fileDetailService.addOss(localConfig);
+            fileStorageService.getProperties().setDefaultPlatform("local");
+        } else {
+            System.out.println("本地存储配置已存在");
+        }
+        
+        return Result.success();
     }
 
     @SaCheckLogin
@@ -77,24 +103,39 @@ public class FileController {
     @PostMapping("/upload")
     @Operation(summary = "上传文件")
     public Result<String> upload(MultipartFile file, String source) {
-        String path = DateUtil.parseDateToStr(DateUtil.YYYYMMDD, DateUtil.getNowDate()) + "/";
-
-        //这个source可在前端上传文件时提供，可用来区分是头像还是文章图片等
-        if (StringUtils.isNotBlank(source)) {
-            path = path + source + "/";
+        try {
+            // 对于x-file-storage，setPath应该使用相对路径
+            String relativePath;
+            String datePath = DateUtil.parseDateToStr(DateUtil.YYYYMMDD, DateUtil.getNowDate()) + "/";
+            
+            //这个source可在前端上传文件时提供，可用来区分是头像还是文章图片等
+            if (StringUtils.isNotBlank(source)) {
+                relativePath = datePath + source + "/";
+            } else {
+                relativePath = datePath + "article/";
+            }
+            //获取文件名和后缀
+            String savedFilename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            System.out.println("保存的文件名：" + savedFilename);
+            // x-file-storage使用相对路径
+            FileInfo fileInfo = fileStorageService.of(file)
+                    .setPath(relativePath) // 使用相对路径
+                    .setSaveFilename(savedFilename)
+                    .putAttr("source",source)
+                    .upload();
+            
+            if (fileInfo == null) {
+                throw new ServiceException("上传文件失败，fileInfo为null");
+            }
+            
+            System.out.println("文件上传成功，URL：" + fileInfo.getUrl());
+            System.out.println("========================");
+            return Result.success(fileInfo.getUrl());
+        } catch (Exception e) {
+            System.err.println("文件上传异常：" + e.getMessage());
+            e.printStackTrace();
+            throw new ServiceException("文件上传失败：" + e.getMessage());
         }
-        System.out.println("路径为："+path);
-        //获取文件名和后缀
-        FileInfo fileInfo = fileStorageService.of(file)
-                .setPath(path)
-                .setSaveFilename(UUID.randomUUID() + "_" + file.getOriginalFilename()) //随机俩个数字，避免相同文件名时文件名冲突
-                .putAttr("source",source)
-                .upload();
-
-        if (fileInfo == null) {
-            throw new ServiceException("上传文件失败");
-        }
-        return Result.success(fileInfo.getUrl());
     }
 
     @GetMapping("/delete")

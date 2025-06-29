@@ -74,12 +74,12 @@ export function getUserProfileApi() {
 }
 
 
-export function getWxUserApi(openId: String) {
+export function getWxUserApi(userId: String) {
   return request({
     url: '/sys/user/wxUser',
     method: 'get',
     params: {
-      openId
+      userId
     }
   })
 }

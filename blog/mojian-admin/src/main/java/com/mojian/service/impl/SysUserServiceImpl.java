@@ -121,8 +121,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, Users> implem
     }
 
     @Override
-    public WxUserInfo wxUser(String openId) {
-        WeChatInfo login = weChatMapper.login(openId);
+    public WxUserInfo wxUser(String userId) {
+        WeChatInfo login = weChatMapper.login(userId);
         //获取角色
         List<String> roles = roleMapper.selectLists(login.getRoleId());
         return WxUserInfo.builder().weChatInfo(login).roles(roles).build();

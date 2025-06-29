@@ -8,11 +8,8 @@
             <div class="header-backdrop"></div>
             <div class="header-content">
               <div class="avatar-wrapper" @click="showCropper = true">
-                <el-avatar
-                  :size="100"
-                  :src="userInfo.weChatInfo?.headimgurl || userInfo.sysUser?.avatar"
-                  class="profile-avatar"
-                />
+                <el-avatar :size="100" :src="userInfo.weChatInfo?.headimgurl || userInfo.sysUser?.avatar"
+                  class="profile-avatar" />
               </div>
               <h2 class="profile-name">{{ userInfo.weChatInfo?.nickname || userInfo.sysUser?.nickname }}</h2>
             </div>
@@ -135,7 +132,7 @@
 </template>
 
 <script lang="ts" setup>
-import {ElMessage} from 'element-plus'
+import { ElMessage } from 'element-plus'
 import {
   getUserProfileApi,
   getWxUserApi,
@@ -157,6 +154,7 @@ const userInfo = ref<any>({
 
 // 表单数据
 const userForm = reactive({
+  id: '',
   nickname: '',
   mobile: '',
   email: '',
@@ -212,8 +210,8 @@ const showCropper = ref(false)
 // 获取用户信息
 const getUser = async () => {
   try {
-    if (localStorage.getItem('userInfo')) {
-      const { data } = await getWxUserApi(localStorage.getItem('openId'))
+    if (localStorage.getItem('userInfo') == "weixin") {
+      const { data } = await getWxUserApi(localStorage.getItem('userId'))
       console.log(data);
       Object.assign(userInfo.value, data)
       console.log(userInfo.value);
@@ -247,8 +245,8 @@ const submitUserForm = async () => {
   try {
     submitLoading.value = true
     await userFormRef.value.validate()
-    if (localStorage.getItem('userInfo')) {
-      userForm.openid = localStorage.getItem('openId');
+    if (localStorage.getItem('userInfo') == "weixin") {
+      userForm.id = localStorage.getItem('userId');
       await updateWXUserProfileApi(userForm)
       ElMessage.success('修改成功')
       getUser()
@@ -284,7 +282,7 @@ const submitPwdForm = async () => {
 }
 
 const isWxUser = computed(() => {
-  return !!localStorage.getItem('userInfo')
+  return localStorage.getItem('userInfo') == "weixin"
 })
 
 async function onAvatarSuccess(url: string) {
@@ -292,7 +290,7 @@ async function onAvatarSuccess(url: string) {
   userInfo.value.sysUser.avatar = url
   // 2. 后端保存
   await updateUserProfileApi({ id: userInfo.value.sysUser.id, avatar: url })
-  ElMessage.success('头像已更新')
+  // ElMessage.success('头像已更新')
   // 3. 可选：重新拉取用户信息，确保数据一致
   // await getUser()
 }
@@ -341,6 +339,7 @@ onMounted(() => {
       cursor: pointer;
       display: inline-block;
       position: relative;
+
       &:hover .profile-avatar {
         box-shadow: 0 0 0 2px #36cfc9;
       }

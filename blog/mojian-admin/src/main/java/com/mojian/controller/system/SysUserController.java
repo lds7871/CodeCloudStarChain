@@ -62,7 +62,6 @@ public class SysUserController {
         sysUserService.delete(ids);
         return Result.success();
     }
-
     @PutMapping("/updatePwd")
     @Operation(summary = "修改密码")
     @SaCheckPermission("sys:user:update")
@@ -73,8 +72,8 @@ public class SysUserController {
 
     @GetMapping("/wxUser")
     @Operation(summary = "获取个人信息")
-    public Result<WxUserInfo> wxUser(@RequestParam("openId")String openId) {
-        return Result.success(sysUserService.wxUser(openId));
+    public Result<WxUserInfo> wxUser(@RequestParam("userId")String userId) {
+        return Result.success(sysUserService.wxUser(userId));
     }
 
     @GetMapping("/profile")
