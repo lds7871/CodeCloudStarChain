@@ -267,25 +267,25 @@
           </div>
 
           <!-- 导航部分 -->
-          <nav class="article-nav" v-if="prevArticle || nextArticle">
+          <nav class="article-nav" v-if="computedPrevArticle || computedNextArticle">
             <div class="nav-header">
               <i class="fas fa-exchange-alt"></i>
               <span>相关文章</span>
             </div>
             <div class="nav-container">
-              <div v-if="prevArticle" class="nav-item prev" @click="goToArticle(prevArticle.id)">
+              <div v-if="computedPrevArticle" class="nav-item prev" @click="goToArticle(computedPrevArticle.id)">
                 <div class="nav-direction">
                   <i class="fas fa-arrow-left"></i>
                   <span>上一篇</span>
                 </div>
-                <div class="nav-title">{{ prevArticle.title }}</div>
+<!--                <div class="nav-title">{{ computedPrevArticle.title }}</div>-->
               </div>
-              <div v-if="nextArticle" class="nav-item next" @click="goToArticle(nextArticle.id)">
+              <div v-if="computedNextArticle" class="nav-item next" @click="goToArticle(computedNextArticle.id)">
                 <div class="nav-direction">
                   <span>下一篇</span>
                   <i class="fas fa-arrow-right"></i>
                 </div>
-                <div class="nav-title">{{ nextArticle.title }}</div>
+<!--                <div class="nav-title">{{ computedNextArticle.title }}</div>-->
               </div>
             </div>
           </nav>
@@ -413,14 +413,8 @@ export default {
         readType: 1,
         price: 0,
       },
-      prevArticle: {
-        id: 1,
-        title: '默认文章',
-      },
-      nextArticle: {
-        id: 1,
-        title: '默认文章',
-      },
+      prevArticle: null,
+      nextArticle: null,
       tocItems: [],
       readProgress: 0,
       showShareMenu: false,
@@ -456,6 +450,25 @@ export default {
     showContent() {
       // 如果文章不需要付费或已经支付，则显示完整内容
       return !this.article.needPay || this.isPaid;
+    },
+    // 动态计算上一篇文章
+    computedPrevArticle() {
+      const currentId = parseInt(this.$route.params.id)
+      if (currentId > 1) {
+        return {
+          id: currentId - 1,
+          title: '上一篇文章'
+        }
+      }
+      return null
+    },
+    // 动态计算下一篇文章
+    computedNextArticle() {
+      const currentId = parseInt(this.$route.params.id)
+      return {
+        id: currentId + 1,
+        title: '下一篇文章'
+      }
     }
   },
   methods: {
@@ -659,7 +672,7 @@ export default {
      * 跳转到文章
      */
     goToArticle(id) {
-      this.$router.push(`/article/${id}`)
+      this.$router.push(`/post/${id}`)
     },
     /**
      * 更新阅读进度
