@@ -40,6 +40,14 @@
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
+
+        <!-- 阿里云百炼AI SDK -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dashscope-sdk-java</artifactId>
+            <version>2.18.2</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

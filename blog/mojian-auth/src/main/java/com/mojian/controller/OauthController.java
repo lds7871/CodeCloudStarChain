@@ -42,7 +42,7 @@ public class OauthController {
         String result = oauthService.getOauthToken(code);
         ThirdlyResult thirdlyResult = (ThirdlyResult) JSON.parseObject(result, ThirdlyResult.class);
         Users userInfo = oauthService.getUserInfo(thirdlyResult.getAccessToken());
-        response.sendRedirect("http://127.0.0.1:3000/blogclient/#/?token="+StpUtil.getTokenValue());
+        response.sendRedirect("http://113.45.240.54:3000/blogclient/#/?token="+StpUtil.getTokenValue());
     }
 
     @GetMapping("/getGiteeUserInfo")

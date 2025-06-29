@@ -1,7 +1,7 @@
 <template>
   <div class="article-page" v-loading="loading">
     <!-- 阅读进度条 -->
-    <div class="reading-progress-bar" :style="{width: readProgress + '%'}"></div>
+    <div class="reading-progress-bar" :style="{ width: readProgress + '%' }"></div>
 
     <!-- 添加固定操作栏 -->
     <div class="floating-action-bar" :style="{ left: actionBarLeft }">
@@ -31,22 +31,96 @@
         </div>
       </el-tooltip>
       <div class="action-item reward-item">
-        <div class="action-button">
-          <i class="fas fa-yen-sign"></i>
+        <div class="action-button" @click="toggleRewardPopup">
+          <i class="fas fa-heart"></i>
         </div>
-        <div class="reward-popup">
-          <div class="reward-title">感谢您的支持</div>
-          <div class="reward-content">
-            <div class="reward-qr-container">
-              <img v-lazy="$store.state.webSiteInfo.weixinPay" alt="微信支付" class="reward-qr">
-              <div class="reward-label">微信支付</div>
+        <div class="reward-popup" :class="{ 'show': showRewardPopup }" @click.stop>
+          <!-- 美化的头部 -->
+          <div class="reward-header">
+            <button class="close-btn" @click="hideRewardPopup">
+              <i class="fas fa-times"></i>
+            </button>
+            <div class="reward-icon">
+              <i class="fas fa-coffee"></i>
             </div>
-            <div class="reward-qr-container">
-              <img v-lazy="$store.state.webSiteInfo.aliPay" alt="支付宝" class="reward-qr">
-              <div class="reward-label">支付宝</div>
+            <h3 class="reward-title">请我喝杯咖啡</h3>
+            <p class="reward-subtitle">感谢您的支持与鼓励</p>
+          </div>
+
+          <!-- 支付宝卡片 -->
+          <div class="payment-card">
+            <div class="card-header">
+              <div class="alipay-logo">
+                <svg viewBox="0 0 1024 1024" width="24" height="24">
+                  <path fill="#1677FF"
+                    d="M256 85.333h512c94.208 0 170.667 76.459 170.667 170.667v512c0 94.208-76.459 170.667-170.667 170.667H256c-94.208 0-170.667-76.459-170.667-170.667V256c0-94.208 76.459-170.667 170.667-170.667z" />
+                  <path fill="#FFF" d="M320 320h384v64H320zM320 448h256v64H320zM320 576h384v64H320z" />
+                </svg>
+              </div>
+              <span class="payment-title">支付宝</span>
+              <div class="secure-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>安全</span>
+              </div>
+            </div>
+
+            <div class="reward-amount-section">
+              <!-- 金额输入 -->
+              <div class="amount-input-group">
+                <label class="amount-label">打赏金额</label>
+                <div class="amount-input-wrapper">
+                  <span class="currency-symbol">￥</span>
+                  <input type="number" v-model="rewardAmount" placeholder="1.0" min="1" step="0.1" class="amount-input"
+                    @input="validateAmount">
+                </div>
+                <div class="amount-error" v-if="amountError">{{ amountError }}</div>
+              </div>
+
+              <!-- 快捷金额选择 -->
+              <div class="quick-amounts">
+                <div class="quick-amount-title">快捷选择</div>
+                <div class="quick-amount-buttons">
+                  <button v-for="amount in quickAmounts" :key="amount" class="quick-amount-btn"
+                    :class="{ active: rewardAmount == amount }" @click="selectQuickAmount(amount)">
+                    ￥{{ amount }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- 支付按钮 -->
+              <div class="pay-button-section">
+                <button class="alipay-pay-button" @click="openAlipayPayment"
+                  :disabled="!isAmountValid || rewardLoading">
+                  <div class="alipay-large-icon" v-if="!rewardLoading">
+                    <svg viewBox="0 0 1024 1024" width="32" height="32">
+                      <path fill="#1677FF"
+                        d="M256 85.333h512c94.208 0 170.667 76.459 170.667 170.667v512c0 94.208-76.459 170.667-170.667 170.667H256c-94.208 0-170.667-76.459-170.667-170.667V256c0-94.208 76.459-170.667 170.667-170.667z" />
+                      <path fill="#FFF" d="M320 320h384v64H320zM320 448h256v64H320zM320 576h384v64H320z" />
+                    </svg>
+                  </div>
+                  <div class="loading-icon" v-if="rewardLoading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </div>
+                  <span class="pay-text">
+                    {{ rewardLoading ? '正在跳转支付宝...' : (isAmountValid ? `支付宝打赏 ￥${rewardAmount || '1.0'}` : '请输入有效金额') }}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="reward-text">扫一扫，请我喝杯咖啡</div>
+
+          <!-- 感谢语 -->
+          <div class="thank-message">
+            <i class="fas fa-heart text-pink"></i>
+            <span>您的每一份支持都是创作的动力</span>
+          </div>
+
+          <!-- 装饰元素 -->
+          <div class="reward-decoration">
+            <div class="decoration-item">☕</div>
+            <div class="decoration-item">💰</div>
+            <div class="decoration-item">❤️</div>
+          </div>
         </div>
       </div>
       <el-tooltip class="item" effect="dark" content="评论" placement="top-start">
@@ -72,7 +146,7 @@
         <!-- 文章头部 -->
         <header class="article-header">
           <div class="article-title">{{ article.title }}</div>
-          
+
           <div class="article-cover-image" v-if="article.cover">
             <img v-lazy="article.cover" alt="文章封面">
           </div>
@@ -267,25 +341,25 @@
           </div>
 
           <!-- 导航部分 -->
-          <nav class="article-nav" v-if="computedPrevArticle || computedNextArticle">
+          <nav class="article-nav" v-if="prevArticle || nextArticle">
             <div class="nav-header">
               <i class="fas fa-exchange-alt"></i>
               <span>相关文章</span>
             </div>
             <div class="nav-container">
-              <div v-if="computedPrevArticle" class="nav-item prev" @click="goToArticle(computedPrevArticle.id)">
+              <div v-if="prevArticle" class="nav-item prev" @click="goToArticle(prevArticle.id)">
                 <div class="nav-direction">
                   <i class="fas fa-arrow-left"></i>
                   <span>上一篇</span>
                 </div>
-<!--                <div class="nav-title">{{ computedPrevArticle.title }}</div>-->
+                <div class="nav-title">{{ prevArticle.title }}</div>
               </div>
-              <div v-if="computedNextArticle" class="nav-item next" @click="goToArticle(computedNextArticle.id)">
+              <div v-if="nextArticle" class="nav-item next" @click="goToArticle(nextArticle.id)">
                 <div class="nav-direction">
                   <span>下一篇</span>
                   <i class="fas fa-arrow-right"></i>
                 </div>
-<!--                <div class="nav-title">{{ computedNextArticle.title }}</div>-->
+                <div class="nav-title">{{ nextArticle.title }}</div>
               </div>
             </div>
           </nav>
@@ -413,8 +487,14 @@ export default {
         readType: 1,
         price: 0,
       },
-      prevArticle: null,
-      nextArticle: null,
+      prevArticle: {
+        id: 1,
+        title: '默认文章',
+      },
+      nextArticle: {
+        id: 1,
+        title: '默认文章',
+      },
       tocItems: [],
       readProgress: 0,
       showShareMenu: false,
@@ -433,6 +513,11 @@ export default {
       isPaid: false,
       showBackToTop: false,
       recommendArticles: [],
+      showRewardPopup: false,
+      rewardAmount: 5.0, // 默认打赏金额
+      amountError: '', // 金额错误提示
+      quickAmounts: [1.0, 5.0, 10.0, 20.0, 50.0, 100.0], // 快捷金额选项
+      rewardLoading: false, // 打赏支付加载状态
       // 语音阅读相关
       speechSynthesis: {
         speaking: false,
@@ -450,6 +535,13 @@ export default {
     showContent() {
       // 如果文章不需要付费或已经支付，则显示完整内容
       return !this.article.needPay || this.isPaid;
+    },
+    /**
+     * 验证金额是否有效
+     */
+    isAmountValid() {
+      const amount = parseFloat(this.rewardAmount)
+      return !isNaN(amount) && amount >= 1.0
     },
     // 动态计算上一篇文章
     computedPrevArticle() {
@@ -546,7 +638,7 @@ export default {
     generateToc() {
 
       //测试locaStorage
-      console.log("用户喜欢的标签："+localStorage.getItem('user_like_tags'))
+      console.log("用户喜欢的标签：" + localStorage.getItem('user_like_tags'))
 
 
       const headings = document.querySelectorAll('.article-content h1,.article-content h2,.article-content h3,.article-content h4,.article-content h5,.article-content h6')
@@ -672,7 +764,7 @@ export default {
      * 跳转到文章
      */
     goToArticle(id) {
-      this.$router.push(`/post/${id}`)
+      this.$router.push(`/article/${id}`)
     },
     /**
      * 更新阅读进度
@@ -1245,6 +1337,309 @@ export default {
       this.speechSynthesis.currentUtterance = null
       this.currentParagraphIndex = 0
     },
+
+    /**
+     * 切换打赏弹窗显示
+     */
+    toggleRewardPopup() {
+      this.showRewardPopup = !this.showRewardPopup
+    },
+
+    /**
+     * 隐藏打赏弹窗
+     */
+    hideRewardPopup() {
+      this.showRewardPopup = false
+    },
+
+    /**
+ * 验证打赏金额
+ */
+    validateAmount() {
+      this.amountError = ''
+      const amount = parseFloat(this.rewardAmount)
+
+      if (isNaN(amount)) {
+        this.amountError = '请输入有效的数字'
+        return
+      }
+
+      if (amount < 1.0) {
+        this.amountError = '打赏金额最低为 ￥1.0'
+        return
+      }
+
+      if (amount > 9999) {
+        this.amountError = '打赏金额不能超过 ￥9999'
+        return
+      }
+    },
+
+    /**
+     * 选择快捷金额
+     */
+    selectQuickAmount(amount) {
+      this.rewardAmount = amount
+      this.validateAmount()
+    },
+
+    /**
+ * 打开支付宝打赏支付
+ */
+    async openAlipayPayment() {
+      if (!this.$store.state.userInfo) {
+        this.$message.warning('请先登录后再进行打赏')
+        return
+      }
+
+      // 验证金额
+      this.validateAmount()
+      if (!this.isAmountValid || this.amountError) {
+        this.$message.warning(this.amountError || '请输入有效的打赏金额')
+        return
+      }
+
+      // 设置加载状态
+      this.rewardLoading = true
+
+      try {
+        const timestamp = Date.now()
+        const rewardAmount = parseFloat(this.rewardAmount).toFixed(2)
+
+        // 构建支付宝打赏链接（直接在当前窗口跳转）
+        const url = `${import.meta.env.VITE_APP_API_URL}/alipay/pay?` +
+          `subject=${encodeURIComponent("文章打赏")}&` +
+          `traceNo=${encodeURIComponent(timestamp)}&` +
+          `totalAmount=${encodeURIComponent(rewardAmount)}&` +
+          `id=${encodeURIComponent(this.$route.params.id)}&` +
+          `type=reward`
+
+        // 在当前窗口跳转到支付页面
+        window.location.href = url
+
+      } catch (error) {
+        console.error('打赏支付错误:', error)
+        this.$message.error('打赏功能暂时不可用，请稍后重试')
+        this.rewardLoading = false
+      }
+    },
+
+    /**
+     * 处理支付回调
+     */
+    handlePaymentReturn() {
+      if (this.$route.query.out_trade_no) {
+        console.log("进入打赏支付回调...")
+        const query = {
+          art_id: this.$route.params.id,
+          userId: JSON.parse(localStorage.getItem("user"))?.id,
+          out_trade_no: this.$route.query.out_trade_no,
+          total_amount: parseFloat(this.$route.query.total_amount),
+          trade_status: this.$route.query.trade_status,
+          gmt_payment: this.$route.query.gmt_payment
+        }
+        this.isPaid = true;
+        this.$message.success('打赏成功，感谢您的支持！')
+
+        // 显示打赏成功页面/动画
+        this.showRewardSuccessAnimation()
+
+        // 清除URL中的查询参数
+        this.clearUrlParams()
+      }
+    },
+
+    /**
+     * 显示打赏成功动画
+     */
+    showRewardSuccessAnimation() {
+      // 创建成功提示覆盖层
+      const overlay = document.createElement('div')
+      overlay.className = 'reward-success-overlay'
+      overlay.innerHTML = `
+          <div class="reward-success-content">
+            <div class="success-icon">
+              <i class="fas fa-heart"></i>
+            </div>
+            <h3>打赏成功！</h3>
+            <p>感谢您的支持与鼓励</p>
+            <div class="floating-hearts">
+              <span>❤️</span>
+              <span>💖</span>
+              <span>💝</span>
+              <span>🌟</span>
+              <span>✨</span>
+            </div>
+          </div>
+        `
+
+      // 添加样式
+      const style = document.createElement('style')
+      style.textContent = `
+          .reward-success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+          }
+
+          .reward-success-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: heartBeat 1s ease infinite;
+          }
+
+          .success-icon i {
+            color: white;
+            font-size: 40px;
+          }
+
+          .reward-success-content h3 {
+            color: #333;
+            font-size: 24px;
+            margin: 0 0 10px;
+            font-weight: 600;
+          }
+
+          .reward-success-content p {
+            color: #666;
+            font-size: 16px;
+            margin: 0 0 30px;
+          }
+
+          .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+          }
+
+          .floating-hearts span {
+            position: absolute;
+            font-size: 20px;
+            animation: floatUp 3s ease-out infinite;
+            opacity: 0;
+          }
+
+          .floating-hearts span:nth-child(1) { left: 10%; animation-delay: 0s; }
+          .floating-hearts span:nth-child(2) { left: 20%; animation-delay: 0.5s; }
+          .floating-hearts span:nth-child(3) { left: 80%; animation-delay: 1s; }
+          .floating-hearts span:nth-child(4) { left: 90%; animation-delay: 1.5s; }
+          .floating-hearts span:nth-child(5) { left: 50%; animation-delay: 2s; }
+
+                     @keyframes fadeIn {
+             from { opacity: 0; }
+             to { opacity: 1; }
+           }
+
+           @keyframes fadeOut {
+             from { opacity: 1; }
+             to { opacity: 0; }
+           }
+
+          @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+
+          @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+          }
+
+          @keyframes floatUp {
+            0% {
+              transform: translateY(100px);
+              opacity: 0;
+            }
+            10% {
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(-100px);
+              opacity: 0;
+            }
+          }
+        `
+
+      document.head.appendChild(style)
+      document.body.appendChild(overlay)
+
+      // 3秒后自动移除
+      setTimeout(() => {
+        overlay.style.animation = 'fadeOut 0.3s ease'
+        setTimeout(() => {
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay)
+          }
+          if (style.parentNode) {
+            style.parentNode.removeChild(style)
+          }
+        }, 300)
+      }, 3000)
+
+      // 点击覆盖层关闭
+      overlay.addEventListener('click', () => {
+        overlay.style.animation = 'fadeOut 0.3s ease'
+        setTimeout(() => {
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay)
+          }
+          if (style.parentNode) {
+            style.parentNode.removeChild(style)
+          }
+        }, 300)
+      })
+    },
+
+    /**
+     * 清除URL中的查询参数
+     */
+    clearUrlParams() {
+      // 获取当前URL，去除查询参数
+      const url = window.location.protocol + '//' + window.location.host + window.location.pathname
+
+      // 使用 history.replaceState 更新URL，不会触发页面刷新
+      window.history.replaceState({}, document.title, url)
+
+      console.log('已清除URL查询参数')
+    },
+
+    /**
+     * 处理点击页面其他地方关闭弹窗
+     */
+    handleDocumentClick(event) {
+      // 如果点击的不是打赏相关元素，则关闭弹窗
+      if (!event.target.closest('.reward-item')) {
+        this.hideRewardPopup()
+      }
+    },
   },
   async created() {
     await this.getArticle()
@@ -1253,9 +1648,15 @@ export default {
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
+    // 添加点击页面其他地方关闭打赏弹窗的功能
+    document.addEventListener('click', this.handleDocumentClick)
     this.$nextTick(() => {
       this.initImagePreview()
     })
+
+    // 处理支付回调
+    this.handlePaymentReturn()
+
     if (this.$route.query.out_trade_no) {
       this.isPaid = true;
     }
@@ -1263,6 +1664,7 @@ export default {
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll)
     window.removeEventListener('resize', this.updateActionBarPosition)
+    document.removeEventListener('click', this.handleDocumentClick)
     // 清理图片点击事件监听器
     const images = document.querySelectorAll('.article-content img')
     images.forEach(img => {
@@ -1515,7 +1917,7 @@ export default {
       border-radius: $border-radius-sm;
     }
   }
-  
+
   :deep(h4) {
     font-size: 1.3em;
     margin: $spacing-md 0;
@@ -1554,7 +1956,7 @@ export default {
     color: var(--text-secondary);
     font-style: italic;
     position: relative;
-    
+
     &::before {
       content: '"';
       position: absolute;
@@ -1801,7 +2203,8 @@ export default {
     overflow: hidden;
     box-shadow: 0 0 0 1px var(--border-color);
 
-    th, td {
+    th,
+    td {
       padding: $spacing-md;
       border: 1px solid var(--border-color);
       transition: background-color 0.2s ease;
@@ -1813,7 +2216,7 @@ export default {
       font-weight: 600;
       text-align: left;
       position: relative;
-      
+
       &::after {
         content: '';
         position: absolute;
@@ -1949,7 +2352,7 @@ export default {
     background: var(--hover-bg);
     border-radius: $border-radius-lg;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     .notice-header {
       padding: $spacing-md $spacing-lg;
@@ -2149,7 +2552,7 @@ export default {
     &:hover {
       box-shadow: $shadow-lg;
       border-color: rgba($primary, 0.2);
-      
+
       &::before {
         opacity: 1;
       }
@@ -2231,7 +2634,7 @@ export default {
         &.completed {
           background: rgba(green, 0.1);
           color: green;
-          
+
           i {
             color: green;
           }
@@ -2266,12 +2669,12 @@ export default {
       &::-webkit-scrollbar {
         width: 6px;
       }
-      
+
       &::-webkit-scrollbar-thumb {
         background: rgba($primary, 0.2);
         border-radius: 3px;
       }
-      
+
       &::-webkit-scrollbar-track {
         background: transparent;
       }
@@ -2461,8 +2864,15 @@ export default {
 }
 
 @keyframes tocIconPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 @keyframes tocDotPulse {
@@ -2514,7 +2924,7 @@ export default {
       border-radius: 50%;
       background: var(--card-bg);
       transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       border: 2px solid transparent;
 
       i {
@@ -2558,89 +2968,467 @@ export default {
       left: calc(100% + 16px);
       top: 50%;
       transform: translateY(-50%);
-      background: var(--card-bg);
-      border-radius: $border-radius-lg;
-      padding: $spacing-lg;
-      box-shadow: $shadow-lg;
+      background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+      border-radius: 20px;
+      padding: 0;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
       opacity: 0;
       visibility: hidden;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
-      width: 510px;
-      border: 1px solid var(--border-color);
+      width: 360px;
+      border: 1px solid rgba(102, 126, 234, 0.15);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
 
       &::before {
         content: '';
         position: absolute;
-        left: -6px;
+        left: -8px;
         top: 50%;
         transform: translateY(-50%) rotate(45deg);
-        width: 12px;
-        height: 12px;
-        background: var(--card-bg);
-        border-radius: 2px;
-        border-left: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
+        width: 16px;
+        height: 16px;
+        background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+        border-radius: 3px;
+        border-left: 1px solid rgba(102, 126, 234, 0.15);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+        z-index: -1;
       }
 
-      .reward-title {
-        font-size: 1.4em;
-        font-weight: 500;
-        margin-bottom: $spacing-md;
-      }
+      .reward-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 24px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
 
-      .reward-content {
-        display: flex;
-        gap: $spacing-md;
-        margin-bottom: $spacing-md;
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="reward-grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23reward-grain)"/></svg>');
+          opacity: 0.3;
+        }
 
-        .reward-qr-container {
-          width: 250px;
-          height: 250px;
-          border-radius: $border-radius-sm;
-          overflow: hidden;
-          border: 1px solid rgba($primary, 0.1);
-          transition: transform 0.3s ease;
-          
-          &:hover {
-            transform: scale(1.02);
+        .close-btn {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          width: 28px;
+          height: 28px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+          z-index: 10;
+
+          i {
+            color: white;
+            font-size: 12px;
           }
 
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
           }
         }
 
-        .reward-label {
+        .reward-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 12px;
+          backdrop-filter: blur(10px);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          animation: rewardIconFloat 3s ease-in-out infinite;
+
+          i {
+            font-size: 20px;
+            color: white;
+          }
+        }
+
+        .reward-title {
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 6px;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .reward-subtitle {
+          font-size: 14px;
+          opacity: 0.9;
+          margin: 0;
+          font-weight: 400;
+        }
+      }
+
+      .payment-card {
+        padding: 20px;
+
+        .card-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px dashed rgba(102, 126, 234, 0.2);
+
+          .alipay-logo {
+            width: 32px;
+            height: 32px;
+            background: #1677FF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+
+            svg {
+              filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+            }
+          }
+
+          .payment-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+          }
+
+          .secure-badge {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+
+            i {
+              font-size: 10px;
+            }
+          }
+        }
+
+        .reward-amount-section {
+          padding: 0;
+
+          .amount-input-group {
+            margin-bottom: 20px;
+
+            .amount-label {
+              display: block;
+              color: var(--text-primary);
+              font-weight: 600;
+              font-size: 14px;
+              margin-bottom: 8px;
+            }
+
+            .amount-input-wrapper {
+              position: relative;
+              display: flex;
+              align-items: center;
+              background: #f8f9fa;
+              border: 2px solid #e9ecef;
+              border-radius: 12px;
+              transition: all 0.3s ease;
+
+              &:focus-within {
+                border-color: #1677FF;
+                box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1);
+              }
+
+              .currency-symbol {
+                padding: 12px 16px;
+                color: var(--text-secondary);
+                font-weight: 600;
+                font-size: 16px;
+                background: rgba(22, 119, 255, 0.05);
+                border-radius: 10px 0 0 10px;
+                border-right: 1px solid #e9ecef;
+              }
+
+              .amount-input {
+                flex: 1;
+                padding: 12px 16px;
+                border: none;
+                background: transparent;
+                font-size: 16px;
+                font-weight: 500;
+                color: var(--text-primary);
+                border-radius: 0 10px 10px 0;
+                outline: none;
+
+                &::placeholder {
+                  color: var(--text-secondary);
+                  opacity: 0.7;
+                }
+
+                &::-webkit-outer-span-button,
+                &::-webkit-inner-spin-button {
+                  -webkit-appearance: none;
+                  margin: 0;
+                }
+
+                &[type=number] {
+                  -moz-appearance: textfield;
+                }
+              }
+            }
+
+            .amount-error {
+              margin-top: 6px;
+              color: #dc3545;
+              font-size: 12px;
+              font-weight: 500;
+            }
+          }
+
+          .quick-amounts {
+            margin-bottom: 20px;
+
+            .quick-amount-title {
+              color: var(--text-secondary);
+              font-size: 13px;
+              font-weight: 500;
+              margin-bottom: 10px;
+            }
+
+            .quick-amount-buttons {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 8px;
+
+              .quick-amount-btn {
+                padding: 8px 12px;
+                border: 1px solid #e9ecef;
+                background: #f8f9fa;
+                color: var(--text-secondary);
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                  border-color: #1677FF;
+                  color: #1677FF;
+                  background: rgba(22, 119, 255, 0.05);
+                }
+
+                &.active {
+                  border-color: #1677FF;
+                  background: #1677FF;
+                  color: white;
+                  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
+                }
+              }
+            }
+          }
+
+          .pay-button-section {
+            .alipay-pay-button {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 12px;
+              width: 100%;
+              padding: 14px 20px;
+              background: linear-gradient(135deg, #1677FF 0%, #4A90E2 100%);
+              color: white;
+              border: none;
+              border-radius: 12px;
+              font-size: 15px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+
+              &:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(22, 119, 255, 0.4);
+                background: linear-gradient(135deg, #0056CC 0%, #3A7BD5 100%);
+              }
+
+              &:disabled {
+                background: #ccc;
+                color: #666;
+                cursor: not-allowed;
+                box-shadow: none;
+                transform: none;
+              }
+
+              .alipay-large-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+                }
+              }
+
+              .loading-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+
+                i {
+                  font-size: 20px;
+                  color: white;
+                }
+              }
+
+              .pay-text {
+                font-size: 15px;
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
+
+      .thank-message {
+        background: linear-gradient(135deg, rgba(255, 182, 193, 0.1) 0%, rgba(255, 105, 180, 0.1) 100%);
+        margin: 0 20px 20px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid rgba(255, 182, 193, 0.2);
+
+        .text-pink {
+          color: #FF69B4;
+          animation: heartBeat 2s ease-in-out infinite;
+        }
+
+        span {
+          font-size: 13px;
           color: var(--text-secondary);
-          font-size: 0.9em;
-          padding: $spacing-sm;
-          background: rgba($primary, 0.05);
-          border-radius: $border-radius-sm;
           font-weight: 500;
         }
       }
 
-      .reward-text {
-        text-align: center;
-        color: var(--text-secondary);
-        font-size: 0.95em;
-        padding: $spacing-sm;
-        background: rgba($primary, 0.05);
-        border-radius: $border-radius-sm;
-        font-weight: 500;
+      .reward-decoration {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        padding: 0 20px 20px;
+
+        .decoration-item {
+          font-size: 20px;
+          animation: decorationFloat 3s ease-in-out infinite;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+
+          &:nth-child(1) {
+            animation-delay: 0s;
+          }
+
+          &:nth-child(2) {
+            animation-delay: 1s;
+          }
+
+          &:nth-child(3) {
+            animation-delay: 2s;
+          }
+        }
       }
     }
 
     &:hover {
-      .reward-popup {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-        transform: translateY(-50%) translateX(8px);
+      .action-button {
+        background: rgba(255, 105, 180, 0.1);
+        transform: translateY(-2px);
+        border-color: rgba(255, 105, 180, 0.3);
+        box-shadow: 0 5px 15px rgba(255, 105, 180, 0.2);
+
+        i {
+          color: #FF69B4;
+          transform: scale(1.1);
+          animation: heartBeat 1s ease-in-out infinite;
+        }
       }
+    }
+
+    .reward-popup.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(-50%) translateX(12px) scale(1.02);
+    }
+  }
+
+  // 动画定义
+  @keyframes rewardIconFloat {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes rewardGlow {
+
+    0%,
+    100% {
+      background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+    }
+
+    33% {
+      background: linear-gradient(45deg, #764ba2, #FF69B4, #667eea);
+    }
+
+    66% {
+      background: linear-gradient(45deg, #FF69B4, #667eea, #764ba2);
+    }
+  }
+
+  @keyframes heartBeat {
+
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes decorationFloat {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-3px);
     }
   }
 }
@@ -2716,17 +3504,17 @@ export default {
 /* 语音阅读控制样式（融合到目录中） */
 .voice-reading-section {
   margin-top: $spacing-md;
-  
+
   .voice-divider {
     height: 1px;
-    background: linear-gradient(90deg, 
-      transparent, 
-      rgba($primary, 0.2) 20%, 
-      rgba($primary, 0.2) 80%, 
-      transparent);
+    background: linear-gradient(90deg,
+        transparent,
+        rgba($primary, 0.2) 20%,
+        rgba($primary, 0.2) 80%,
+        transparent);
     margin-bottom: $spacing-md;
     position: relative;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -2740,7 +3528,7 @@ export default {
       opacity: 0.6;
     }
   }
-  
+
   .voice-btn {
     display: flex;
     align-items: center;
@@ -2766,9 +3554,9 @@ export default {
       top: 0;
       width: 0;
       height: 100%;
-      background: linear-gradient(90deg, 
-        rgba($primary, 0.1), 
-        rgba($primary, 0.05));
+      background: linear-gradient(90deg,
+          rgba($primary, 0.1),
+          rgba($primary, 0.05));
       transition: width 0.3s ease;
       z-index: 0;
     }
@@ -2776,7 +3564,7 @@ export default {
     &:hover {
       color: $primary;
       border-color: rgba($primary, 0.3);
-      
+
       &::before {
         width: 100%;
       }
@@ -2786,7 +3574,7 @@ export default {
       color: $primary;
       border-color: $primary;
       background: rgba($primary, 0.05);
-      
+
       &:hover {
         background: rgba($primary, 0.1);
       }
@@ -2845,6 +3633,7 @@ export default {
     transform: scale(1.1);
     opacity: 1;
   }
+
   100% {
     transform: scale(1);
     opacity: 0.8;
@@ -2852,10 +3641,14 @@ export default {
 }
 
 @keyframes voiceBlink {
-  0%, 50% {
+
+  0%,
+  50% {
     opacity: 1;
   }
-  25%, 75% {
+
+  25%,
+  75% {
     opacity: 0.3;
   }
 }

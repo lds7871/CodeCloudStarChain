@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "参数配置表管理")
 public class SysConfigController {
-
+//
     private final SysConfigService sysConfigService;
 
     @GetMapping("/list")

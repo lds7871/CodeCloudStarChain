@@ -1,19 +1,19 @@
 server:
-  port: 80
+  port: 9092
 spring:
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
   datasource:
-#    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
-    url: jdbc:mysql://127.0.0.1:3306/mxxl?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+#    url: jdbc:mysql://127.0.0.1:3306/mxxl?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
 
 #    password: Xwt@0629Cw
-    password: "0629"
-#    password: Xwt@0629Cw
+#    password: "0629"
+    password: Xwt@0629Cw
     hikari:
       # 连接最大存活时间，建议设置比数据库的 wait_timeout 小几分钟
       max-lifetime: 300000  # 5分钟
@@ -30,12 +30,12 @@ spring:
 
   data:
     redis:
-#      host: 113.45.240.54
-      host: 127.0.0.1
+      host: 113.45.240.54
+#      host: 127.0.0.1
       port: 6379
       database: 1
       timeout: 30000
-#      password: "123456"
+      password: "123456"
 
 #==============================邮箱配置=======================================
   mail:
@@ -102,8 +102,8 @@ gitee:
 #  # 授权类型
 #  authorizationGrantType: authorization_code
   # 回调地址
-  redirectUri: http://127.0.0.1:80/oauth/callback
-#  redirectUri: http://113.45.240.54:9092/oauth/callback
+#  redirectUri: http://127.0.0.1:80/oauth/callback
+  redirectUri: http://113.45.240.54:9092/oauth/callback
   # 授权范围
 #  scope:
 #    - user_info

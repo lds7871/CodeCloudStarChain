@@ -81,7 +81,10 @@
                     <span></span>
                     <span></span>
                   </div>
-                  <div v-else v-html="formatMessage(message.text)"></div>
+                  <div v-else>
+                    <div v-html="formatMessage(message.text)"></div>
+                    <span v-if="message.isStreaming" class="streaming-cursor">|</span>
+                  </div>
                 </div>
                 <div class="message-time">{{ formatTime(message.timestamp) }}</div>
               </div>
@@ -128,7 +131,7 @@
 </template>
 
 <script>
-// import { chatWithAI } from '../api/index.js'
+import { chatWithAI, chatWithAIStream } from '@/api/chat.js'
 export default {
   name: 'AIChatPage',
   data() {
@@ -593,21 +596,8 @@ export default {
       this.scrollToBottom()
 
       try {
-        // 调用真实AI API
-        // const response = await this.callRealAI(userMessage)
-
-        // 模拟AI回复
-        const response = this.generateMockResponse(userMessage)
-
-        // 更新加载消息为实际回复
-        if (currentChat.messages[loadingMessageIndex]) {
-          currentChat.messages[loadingMessageIndex] = {
-            text: response || '响应内容为空',
-            isUser: false,
-            timestamp: new Date(),
-            isLoading: false
-          }
-        }
+        // 调用流式AI API
+        await this.callStreamAI(userMessage, currentChat, loadingMessageIndex)
       } catch (error) {
         console.error('发送消息失败:', error)
         if (currentChat.messages[loadingMessageIndex]) {
@@ -652,34 +642,104 @@ export default {
       return responses[Math.floor(Math.random() * responses.length)]
     },
 
-    // 调用真实AI API
+    // 调用流式AI API
+    async callStreamAI(question, currentChat, loadingMessageIndex) {
+      const requestData = {
+        message: question,
+        sessionId: this.currentChatId,
+        newSession: false
+      }
+
+      console.log('发送流式请求:', requestData)
+
+      let fullResponse = ''
+
+      await chatWithAIStream(
+        requestData,
+        // onMessage - 处理每个流式数据块
+        (data) => {
+          if (data && data.reply) {
+            fullResponse += data.reply
+
+            // 实时更新消息内容
+            if (currentChat.messages[loadingMessageIndex]) {
+              currentChat.messages[loadingMessageIndex] = {
+                text: fullResponse,
+                isUser: false,
+                timestamp: new Date(),
+                isLoading: false,
+                isStreaming: true
+              }
+              this.scrollToBottom()
+            }
+          }
+        },
+        // onComplete - 流式完成
+        () => {
+          console.log('流式输出完成，最终内容:', fullResponse)
+          if (currentChat.messages[loadingMessageIndex]) {
+            currentChat.messages[loadingMessageIndex].isStreaming = false
+          }
+        },
+        // onError - 错误处理
+        (error) => {
+          console.error('流式AI调用失败:', error)
+          if (currentChat.messages[loadingMessageIndex]) {
+            currentChat.messages[loadingMessageIndex] = {
+              text: fullResponse || '抱歉，AI服务出现错误，请稍后再试。',
+              isUser: false,
+              timestamp: new Date(),
+              isLoading: false,
+              isError: true
+            }
+          }
+        }
+      )
+    },
+
+    // 调用真实AI API (保留作为备用)
     async callRealAI(question) {
       try {
         console.log('发送给AI的问题:', question)
-        const response = await chatWithAI(question)
-        console.log('API返回的原始响应:', response)
-        console.log('响应类型:', typeof response)
-        console.log('响应长度:', response?.length || 0)
 
-        // 如果响应有内容，直接返回
-        if (response && response.length > 0) {
-          return String(response)
+        // 构造请求数据，匹配后端接口格式
+        const requestData = {
+          message: question,
+          sessionId: this.currentChatId, // 使用当前聊天ID作为会话ID
+          newSession: false // 默认不开始新会话
+        }
+
+        console.log('发送的请求数据:', requestData)
+
+        const response = await chatWithAI(requestData)
+        console.log('API返回的原始响应:', response)
+
+        // 检查响应格式
+        if (response && response.code === 200 && response.data) {
+          const aiReply = response.data.reply
+          console.log('AI回复内容:', aiReply)
+
+          if (aiReply && aiReply.trim().length > 0) {
+            return aiReply
+          } else {
+            console.warn('AI回复内容为空')
+            return '抱歉，我暂时没有回复内容。'
+          }
         } else {
-          console.warn('响应为空或无效')
-          return '收到了空响应'
+          console.warn('响应格式异常:', response)
+          return '抱歉，服务器返回了异常响应。'
         }
       } catch (error) {
         console.error('AI API调用失败:', error)
         console.error('错误详情:', error.response?.data || error.message)
         console.error('完整的错误对象:', error)
 
-        // 即使有错误，也尝试从错误响应中获取数据
-        if (error.response?.data) {
-          console.log('尝试从错误响应中获取数据:', error.response.data)
-          return String(error.response.data)
+        // 尝试从错误响应中获取具体错误信息
+        if (error.response?.data?.message) {
+          return `抱歉，AI服务出现错误：${error.response.data.message}`
         }
 
-        return '抱歉，AI服务暂时不可用。请检查服务器是否正常运行，或稍后再试。'
+        return '抱歉，AI服务暂时不可用。请检查网络连接或稍后再试。'
       }
     },
 
@@ -1390,6 +1450,27 @@ body #footer {
   100% {
     transform: rotate(360deg);
   }
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.streaming-cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  color: #667eea;
+  font-weight: bold;
+  margin-left: 2px;
 }
 
 /* 确保用户消息不超出边界 */

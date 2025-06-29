@@ -53,7 +53,7 @@ public class AliPayController {
         bizContent.set("product_code", "FAST_INSTANT_TRADE_PAY");  // 固定配置
         request.setBizContent(bizContent.toString());
         System.out.println("付费文章"+aliPay.getSubject());
-       if("付费文章".equals(aliPay.getSubject())){
+       if("文章打赏".equals(aliPay.getSubject())){
             request.setReturnUrl(aliPayConfig.getReturnUrlTwo()+"/"+id);
         }
         // 执行请求，拿到响应的结果，返回给浏览器

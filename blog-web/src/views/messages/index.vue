@@ -168,7 +168,7 @@
 </template>
 
 <script>
-import {addMessageApi, getMessagesApi} from "@/api/message";
+import { getMessagesApi, addMessageApi } from "@/api/message";
 import VueDanmaku from 'vue-danmaku';
 
 export default {
@@ -391,8 +391,8 @@ export default {
     },
 
     /**
- * 初始化速度变量
- */
+     * 初始化速度变量
+     */
     initSpeedVariables() {
       try {
         const speedRatio = this.danmakuSpeed / 50;
@@ -433,11 +433,49 @@ export default {
 
           console.log('🚀 性能优化设置已启用');
 
+          // 启动性能监控
+          this.startPerformanceMonitoring();
         });
       } catch (error) {
         console.warn('性能优化设置失败:', error);
       }
     },
+
+    /**
+     * 启动性能监控
+     */
+    startPerformanceMonitoring() {
+      try {
+        let frameCount = 0;
+        let lastTime = performance.now();
+
+        const monitorFrame = (currentTime) => {
+          frameCount++;
+
+          // 每60帧检查一次性能
+          if (frameCount % 60 === 0) {
+            const deltaTime = currentTime - lastTime;
+            const fps = Math.round(60000 / deltaTime);
+
+            // 如果FPS过低，给出提示
+            if (fps < 30) {
+              console.warn(`⚠️ 弹幕渲染性能较低：${fps}FPS`);
+            } else if (fps >= 50) {
+              console.log(`✅ 弹幕渲染性能良好：${fps}FPS`);
+            }
+
+            lastTime = currentTime;
+          }
+
+          requestAnimationFrame(monitorFrame);
+        };
+
+        requestAnimationFrame(monitorFrame);
+      } catch (error) {
+        console.warn('性能监控启动失败:', error);
+      }
+    },
+
     /**
      * 立即更新CSS动画速度（平滑过渡）
      */
