@@ -9,7 +9,7 @@
         <image class="avatar" :src="userInfo.avatar" mode="aspectFill"></image>
         <view class="info-content">
           <text class="nickname">{{ userInfo.nickname }}</text>
-          <text class="signature">{{ userInfo.signature }}</text>
+          <text class="signature">{{ userInfo.userInfo }}</text>
         </view>
         <view class="edit-btn" @click="handleEdit">
           <u-icon name="edit-pen" size="28"></u-icon>
@@ -153,7 +153,7 @@ export default {
               id: res.data.id,
               avatar: res.data.avatar,
               nickname: res.data.nickname,
-              signature: res.data.signature,
+              userInfo: res.data.userInfo,
             };
             uni.setStorageSync("userInfo", this.userInfo);
             this.isLogin = true;

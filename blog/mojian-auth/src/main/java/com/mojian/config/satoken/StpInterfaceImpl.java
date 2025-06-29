@@ -28,8 +28,8 @@ public class StpInterfaceImpl implements StpInterface {
         Object weChatInfoObj = redisTemplate.opsForValue().get("userInfo");
         if (weChatInfoObj instanceof WeChatInfo) {
             WeChatInfo weChatInfo = (WeChatInfo) weChatInfoObj;
-            Integer roleId = weChatInfo.getRoleId();
-            return roleId != null && roleId.equals(1);
+            Long roleId = weChatInfo.getRoleId();
+            return roleId != null && roleId.equals(1L);
         }
         return false;
     }
@@ -39,8 +39,8 @@ public class StpInterfaceImpl implements StpInterface {
         Object giteeInfoObj = redisTemplate.opsForValue().get("giteeInfo");
         if (giteeInfoObj instanceof GiteeInfo) {
             GiteeInfo giteeInfo = (GiteeInfo) giteeInfoObj;
-            Integer roleId = giteeInfo.getRoleId();
-            return roleId != null && roleId.equals(1);
+            Long roleId = giteeInfo.getRoleId();
+            return roleId != null && roleId.equals(1L);
         }
         return false;
     }

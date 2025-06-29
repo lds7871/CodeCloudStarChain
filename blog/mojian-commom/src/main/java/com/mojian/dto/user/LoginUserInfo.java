@@ -11,7 +11,7 @@ import java.util.List;
 public class LoginUserInfo implements Serializable {
 
     @Schema(description = "用户ID")
-    private Integer id;
+    private Long id;
 
     @Schema(description = "用户名")
     private String username;
@@ -25,8 +25,11 @@ public class LoginUserInfo implements Serializable {
     @Schema(description = "性别")
     private Integer sex;
 
-    @Schema(description = "个性签名")
-    private String signature;
+    @Schema(description = "个人简介")
+    private String userInfo;
+
+    @Schema(description = "用户类型(1:管理员，2：普通用户，3：超级管理员)")
+    private Integer type;
 
     @Schema(description = "token")
     private String token;

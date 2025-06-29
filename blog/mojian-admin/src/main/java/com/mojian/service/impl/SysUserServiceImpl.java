@@ -83,7 +83,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, Users> implem
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void delete(List<Integer> ids) {
+    public void delete(List<Long> ids) {
         removeBatchByIds(ids);
         roleMapper.deleteRoleByUserId(ids);
     }
@@ -92,7 +92,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, Users> implem
     @Override
     public void updatePwd(UpdatePwdDTO updatePwdDTO) {
 
-        Users user = this.getById(StpUtil.getLoginIdAsInt());
+        Users user = this.getById(StpUtil.getLoginIdAsLong());
         if (user == null) {
             throw new ServiceException("用户不存在");
         }
@@ -112,7 +112,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, Users> implem
     @Override
     public SysUserProfileVo profile() {
 
-        Users sysUser = baseMapper.selectById(StpUtil.getLoginIdAsInt());
+        Users sysUser = baseMapper.selectById(StpUtil.getLoginIdAsLong());
         sysUser.setPassword(null);
         //获取角色
         List<String> roles = roleMapper.selectRolesByUserId(sysUser.getId());
@@ -140,7 +140,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, Users> implem
 
     @Override
     public Boolean verifyPassword(String password) {
-        Users user = baseMapper.selectById(StpUtil.getLoginIdAsInt());
+        Users user = baseMapper.selectById(StpUtil.getLoginIdAsLong());
         return BCrypt.checkpw(password, user.getPassword());
     }
 

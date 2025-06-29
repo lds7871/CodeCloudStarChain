@@ -7,7 +7,16 @@ import { getToken, setToken, removeToken, removeAuthorization } from '@/utils/co
 Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
-    userInfo: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
+    userInfo: (() => {
+      try {
+        const userStr = localStorage.getItem("user")
+        return userStr && userStr !== "undefined" ? JSON.parse(userStr) : null
+      } catch (error) {
+        console.error('解析用户信息失败:', error)
+        localStorage.removeItem("user") // 清除错误数据
+        return null
+      }
+    })(),
     webSiteInfo: {
       showList: []
     },
@@ -36,7 +45,7 @@ export default new Vuex.Store({
       state.userInfo = userInfo
       localStorage.setItem("user", JSON.stringify(userInfo))
       console.log(userInfo);
-      if (userInfo != null) {
+      if (userInfo != null && userInfo.id) {
         localStorage.setItem("userId", userInfo.id)
       }
     },
@@ -105,17 +114,46 @@ export default new Vuex.Store({
         const userInfo = localStorage.getItem("user")
         const loginType = localStorage.getItem("userInfo") // 获取登录类型
 
-        // 如果已有用户信息，直接使用本地存储的信息
-        if (userInfo) {
-          commit('SET_USER_INFO', JSON.parse(userInfo))
-          return
-        }
-
-        // 只有在没有用户信息的情况下才去请求
+        // 始终从API获取最新的用户信息，确保数据最新
         if (getToken()) {
           const res = await getUserInfoApi()
-          commit('SET_USER_INFO', res.data)
-          localStorage.setItem("userId", res.data.id);
+          console.log('API响应完整数据:', res);
+
+          // 尝试多种可能的数据结构
+          let userData = null;
+          if (res.data?.sysUser) {
+            userData = res.data.sysUser;
+            console.log('使用 sysUser 数据结构:', userData);
+          } else if (res.data && typeof res.data === 'object') {
+            userData = res.data;
+            console.log('使用 data 数据结构:', userData);
+          } else if (res.sysUser) {
+            userData = res.sysUser;
+            console.log('使用根级 sysUser 数据结构:', userData);
+          }
+
+          if (userData && (userData.id || userData.userId)) {
+            commit('SET_USER_INFO', userData)
+            localStorage.setItem("userId", userData.id || userData.userId);
+            console.log('用户信息获取成功:', userData);
+          } else {
+            console.error('用户数据格式不正确:', {
+              fullResponse: res,
+              dataProperty: res.data,
+              sysUserProperty: res.data?.sysUser
+            });
+            // 如果API响应格式不对，清除token
+            removeToken();
+            localStorage.clear();
+          }
+        } else if (userInfo && userInfo !== "undefined") {
+          try {
+            // 只有在没有token时才使用本地存储
+            commit('SET_USER_INFO', JSON.parse(userInfo))
+          } catch (error) {
+            console.error('解析本地用户信息失败:', error)
+            localStorage.removeItem("user") // 清除错误数据
+          }
         }
       } catch (error) {
         console.error('获取用户信息失败：', error)
@@ -140,7 +178,9 @@ export default new Vuex.Store({
         console.log('最终data:', data);
         console.log('data.token:', data.token);
 
-        localStorage.setItem("userId", data.id);
+        if (data && data.id) {
+          localStorage.setItem("userId", data.id);
+        }
 
         if (data && data.token) {
           commit('SET_TOKEN', data.token)
@@ -159,9 +199,48 @@ export default new Vuex.Store({
     async loginAction({ commit }, loginData) {
       try {
         const res = await loginApi(loginData)
+        console.log('登录API响应:', res);
         if (res.data) {
           commit('SET_TOKEN', res.data.token)
-          commit('SET_USER_INFO', res.data)
+          // 登录后重新获取完整的用户信息
+          if (res.data.token) {
+            try {
+              const userInfoRes = await getUserInfoApi()
+              console.log('登录后获取用户信息完整响应:', userInfoRes);
+
+              // 尝试多种可能的数据结构
+              let userData = null;
+              if (userInfoRes.data?.sysUser) {
+                userData = userInfoRes.data.sysUser;
+                console.log('使用 sysUser 数据结构');
+              } else if (userInfoRes.data && typeof userInfoRes.data === 'object') {
+                userData = userInfoRes.data;
+                console.log('使用 data 数据结构');
+              } else if (userInfoRes.sysUser) {
+                userData = userInfoRes.sysUser;
+                console.log('使用根级 sysUser 数据结构');
+              }
+
+              if (userData && (userData.id || userData.userId)) {
+                commit('SET_USER_INFO', userData)
+                console.log('用户信息设置成功:', userData);
+              } else {
+                console.error('登录后获取用户信息失败，数据结构不正确:', {
+                  fullResponse: userInfoRes,
+                  dataProperty: userInfoRes.data,
+                  sysUserProperty: userInfoRes.data?.sysUser
+                });
+                // 如果获取用户信息失败，至少设置基本的登录信息
+                commit('SET_USER_INFO', res.data)
+              }
+            } catch (userInfoError) {
+              console.error('获取用户信息API调用失败:', userInfoError);
+              // 如果API调用失败，使用登录返回的基本信息
+              commit('SET_USER_INFO', res.data)
+            }
+          } else {
+            commit('SET_USER_INFO', res.data)
+          }
           return Promise.resolve(res)
         }
         return Promise.reject(res)
@@ -178,10 +257,16 @@ export default new Vuex.Store({
         if (res.data) {
           commit('SET_USER_INFO', res.data);
           localStorage.setItem("userInfo", "gitee");
-          localStorage.setItem("giteeId", res.data.id);
-          localStorage.setItem("avatar", res.data.avatar);
-          localStorage.setItem("nickname", res.data.nickname);
-          localStorage.setItem("userId", res.data.id);
+          if (res.data.id) {
+            localStorage.setItem("giteeId", res.data.id);
+            localStorage.setItem("userId", res.data.id);
+          }
+          if (res.data.avatar) {
+            localStorage.setItem("avatar", res.data.avatar);
+          }
+          if (res.data.nickname) {
+            localStorage.setItem("nickname", res.data.nickname);
+          }
           // 移除硬编码重定向，让页面组件处理路由跳转
           return Promise.resolve(res.data);
         }

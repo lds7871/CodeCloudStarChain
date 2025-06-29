@@ -53,27 +53,26 @@
         </button>
 
         <div class="user-info">
-          <!-- <div v-if="$store.state.userInfo" class="user-section" @mouseleave="showDropdown = false"> -->
-          <div v-if="$store.state.userInfo" class="user-section" @mouseleave="showDropdown = false">
-            <div class="avatar" @mouseenter="showDropdown = true">
+          <div v-if="$store.state.userInfo" class="user-section" @mouseleave="handleMouseLeaveUser">
+            <div class="avatar" 
+                 @mouseenter="handleMouseEnterUser" 
+                 @click="handleUserAvatarClick">
               <el-avatar
                 :src="$store.state.userInfo.avatar || $store.state.userInfo.headimgurl || $store.state.userInfo.avatarUrl" />
             </div>
             <!-- 用户下拉菜单 -->
-            <div class="user-dropdown" v-show="showDropdown">
+            <div class="user-dropdown" v-show="showDropdown" @mouseenter="handleDropdownEnter" @mouseleave="handleDropdownLeave">
               <div class="dropdown-header">
                 <img
                   :src="$store.state.userInfo.avatar || $store.state.userInfo.headimgurl || $store.state.userInfo.avatarUrl"
                   :alt="$store.state.userInfo.nickname">
                 <div class="user-details">
                   <span class="username">{{ $store.state.userInfo.nickname || $store.state.userInfo.name }}</span>
-                  <span class="role">{{
-                    $store.state.userInfo.roleId === 1 ? '管理员' : '普通用户' || $store.state.userInfo.roleId === 15 ? '普通用户'
-                      : '管理员' }}</span>
+                  <span class="role">{{ getUserTypeText($store.state.userInfo.type) }}</span>
                 </div>
               </div>
               <div class="dropdown-divider"></div>
-              <router-link to="/user/profile" class="dropdown-item">
+              <router-link to="/user/profile" class="dropdown-item" @click="showDropdown = false">
                 <i class="fas fa-user"></i>
                 个人中心
               </router-link>
@@ -161,6 +160,12 @@ export default {
           colorClass: 'message-link'
         },
         {
+          name: '音乐',
+          path: '/music',
+          icon: 'fas fa-music',
+          colorClass: 'music-link'
+        },
+        {
           name: '友情链接',
           path: '/friends',
           icon: 'fas fa-users',
@@ -183,6 +188,7 @@ export default {
       ],
       activeDropdown: null,
       showDropdown: false,
+      isHoveringDropdown: false,
       showSearch: false,
       unreadCount: 0,
     }
@@ -249,10 +255,58 @@ export default {
       this.$message.success('已退出登录')
       this.showDropdown = false
     },
+    // 用户头像相关事件处理
+    handleMouseEnterUser() {
+      this.showDropdown = true
+    },
+    handleMouseLeaveUser() {
+      // 延时关闭，防止鼠标移到下拉菜单时关闭
+      setTimeout(() => {
+        if (!this.isHoveringDropdown) {
+          this.showDropdown = false
+        }
+      }, 100)
+    },
+    handleUserAvatarClick() {
+      this.showDropdown = !this.showDropdown
+    },
+    handleDropdownEnter() {
+      this.isHoveringDropdown = true
+    },
+    handleDropdownLeave() {
+      this.isHoveringDropdown = false
+      this.showDropdown = false
+    },
     showBage() {
       console.log(this.$store.state.isUnread)
       return this.$store.state.isUnread
     },
+         /**
+      * 根据用户类型返回对应的文本
+      * @param {number|string} type - 用户类型
+      * @returns {string} 用户类型文本
+      */
+     getUserTypeText(type) {
+       // 处理空值情况
+       if (type === null || type === undefined || type === '') {
+         return '普通用户';
+       }
+       
+       // 将类型转换为数字进行比较
+       const numericType = parseInt(type);
+       
+       // 根据用户类型返回对应文本
+       switch (numericType) {
+         case 1:
+           return '管理员'
+         case 2:
+           return '普通用户'
+         case 3:
+           return '超级管理员'
+         default:
+           return '普通用户'
+       }
+     },
     handleScroll() {
       const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop
 
@@ -486,6 +540,10 @@ export default {
       color: #009688;
     }
 
+    &.music-link i {
+      color: #E91E63;
+    }
+
     &.friend-link i {
       color: #3F51B5;
     }
@@ -642,6 +700,7 @@ export default {
   .user-info {
     .user-section {
       position: relative;
+      z-index: 999;
 
       &::after {
         content: '';
@@ -683,12 +742,14 @@ export default {
       top: calc(100% + 8px);
       right: 0;
       width: 240px;
-      background: var(--surface);
+      background: var(--surface, #ffffff);
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       overflow: hidden;
-      z-index: 1000;
+      z-index: 9999 !important;
       animation: slideDown 0.2s ease;
+      border: 1px solid var(--border-color, #e5e5e5);
+      display: block;
 
       .dropdown-header {
         padding: 20px;
@@ -832,10 +893,6 @@ export default {
         display: block;
       }
     }
-  }
-
-  .nav-right .user-info {
-    display: none;
   }
 
   .nav-right .message-btn {
@@ -1002,6 +1059,10 @@ export default {
 
     &.message-link i {
       color: #4DB6AC;
+    }
+
+    &.music-link i {
+      color: #F06292;
     }
 
     &.friend-link i {

@@ -126,6 +126,16 @@ const routes = [
         }
       },
       {
+        path: '/music',
+        name: 'Music',
+        component: () => import('@/views/music/index.vue'),
+        meta: {
+          transition: 'fade',
+          title: '音乐 - 码云星链',
+          icon: 'fas fa-music'
+        }
+      },
+      {
         path: '/friends',
         name: 'Friends',
         component: () => import(/* webpackPrefetch: true */ '@/views/friends/index.vue'),
@@ -217,7 +227,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  base: '/',
+  base: '/blogclient/',
   routes,
   scrollBehavior(to, from, savedPosition) {
     return { x: 0, y: 0 }
