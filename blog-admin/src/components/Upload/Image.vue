@@ -96,13 +96,33 @@ const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
 
 // 处理图片删除
 const handleRemove: UploadProps['onRemove'] = async (uploadFile: any) => {
-  if (props.multiple) {
+  try {
     await deleteFileApi(uploadFile.url)
-    const urls = (props.modelValue as string[]).filter(url => url !== uploadFile.url)
-    emit('update:modelValue', urls)
-  } else {
-    await deleteFileApi(uploadFile.url)
-    emit('update:modelValue', '')
+    
+    if (props.multiple) {
+      // 多图模式
+      if (Array.isArray(props.modelValue)) {
+        const urls = (props.modelValue as string[]).filter(url => url !== uploadFile.url)
+        emit('update:modelValue', urls)
+      } else if (typeof props.modelValue === 'string') {
+        // 如果值是字符串形式
+        if (props.modelValue === uploadFile.url) {
+          // 如果是唯一图片，清空
+          emit('update:modelValue', [])
+        } else if (props.modelValue.includes(',')) {
+          // 如果是逗号分隔的URL
+          const urls = props.modelValue.split(',').filter(url => url !== uploadFile.url)
+          emit('update:modelValue', urls)
+        }
+      }
+    } else {
+      // 单图模式，直接清空
+      emit('update:modelValue', '')
+    }
+    
+  } catch (error: any) {
+    console.error('删除文件错误:', error)
+    ElMessage.error('删除失败: ' + (error.message || '未知错误'))
   }
 }
 

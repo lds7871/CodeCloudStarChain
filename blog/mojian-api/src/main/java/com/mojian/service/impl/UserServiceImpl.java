@@ -83,9 +83,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Integer selectMyBalance(Integer userId) {
-        // 简化逻辑：直接从sys_user表查询用户余额
-        // 所有用户类型的余额信息都应该同步到sys_user表中
+    public Double selectMyBalance(Long userId) {
+        // 简化逻辑：直接从users表查询用户余额
+        // 所有用户类型的余额信息都应该同步到users表中
         return sysUserMapper.selectBalcanceByUser(userId);
     }
 }

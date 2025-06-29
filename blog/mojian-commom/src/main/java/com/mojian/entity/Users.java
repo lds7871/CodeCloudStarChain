@@ -2,6 +2,7 @@ package com.mojian.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mojian.utils.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.List;
 public class Users implements Serializable {
 
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     @Schema(description = "用户名")
     private String username;
@@ -46,6 +47,10 @@ public class Users implements Serializable {
     @JsonFormat(pattern = DateUtil.YYYY_MM_DD_HH_MM_SS, timezone = "GMT+8")
     private LocalDateTime lastLoginTime;
 
+    @Schema(description = "浏览器")
+    @TableField(exist = false)
+    private String browser;
+
     @Schema(description = "昵称")
     private String nickname;
 
@@ -59,6 +64,8 @@ public class Users implements Serializable {
     private String email;
 
     @Schema(description = "个性签名")
+    @TableField("user_info")
+    @JsonProperty("user_info")
     private String userInfo;
 
     @Schema(description = "性别")
@@ -69,6 +76,9 @@ public class Users implements Serializable {
 
     @Schema(description = "用户类型")
     private Integer type;
+
+    @Schema(description = "账户余额")
+    private Double balance;
 
     @Schema(description = "创建时间")
     @TableField(fill = FieldFill.INSERT)

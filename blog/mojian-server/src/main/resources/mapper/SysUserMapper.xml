@@ -14,8 +14,6 @@
         <result property="mobile" column="mobile" />
         <result property="email" column="email" />
         <result property="sex" column="sex" />
-        <result property="type" column="type" />
-        <result property="userInfo" column="user_info" />
         <result property="loginType" column="login_type" />
         <result property="createTime" column="create_time" />
         <collection property="roleIds" ofType="int">
@@ -27,7 +25,7 @@
     <sql id="Base_Column_List">
         id, username, password, create_time, update_time, status,
         ip, ip_location, os, last_login_time,
-        nickname, avatar, mobile
+        nickname, avatar, mobile, email, user_info, sex, login_type, type, balance
     </sql>
     <update id="updateUserInfo">
         UPDATE users
@@ -40,7 +38,8 @@
 
     <!-- 根据用户名查询用户信息 -->
     <select id="selectByUsername" resultType="com.mojian.entity.Users">
-        select *
+        select
+        <include refid="Base_Column_List"/>
         from users
         where username = #{username}
     </select>
@@ -75,16 +74,16 @@
             </if>
         </where>
     </select>
-    <select id="selectBalcanceByUser" resultType="java.lang.Integer">
+    <select id="selectBalcanceByUser" resultType="java.lang.Double">
         select balance from users where id = #{userId}
     </select>
     <select id="selectByUniqueId" resultType="com.mojian.entity.Users">
-        select id,username,status,nickname,avatar,mobile,email,user_info,sex,login_type,type from users where username = #{uniqueId}
+        select id,username,status,nickname,avatar,mobile,email,user_info,sex,login_type,type,balance from users where username = #{uniqueId}
     </select>
-    <select id="getUserInfo" resultType="com.mojian.entity.SysUser">
+    <select id="getUserInfo" resultType="com.mojian.entity.Users">
         select * from users where id = #{userId}
     </select>
-    <select id="selectByEmail" resultType="com.mojian.entity.SysUser">
+    <select id="selectByEmail" resultType="com.mojian.entity.Users">
         select * from users where email = #{email}
     </select>
     <select id="login" resultType="com.mojian.entity.Users">

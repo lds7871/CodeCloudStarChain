@@ -1,4 +1,5 @@
 package com.mojian.dto.user;
+
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class WeChatInfo implements Serializable {
 
-    private Integer id;
+    private Long id;
 
     private String openid;
 
@@ -26,13 +27,15 @@ public class WeChatInfo implements Serializable {
 
     private Integer sex;
 
+    private Integer type;
+
     private String token;
 
     private List<String> permissions;
 
     private List<String> roles;
 
-    private Integer roleId;
+    private Long roleId;
 
     private String createTime;
 

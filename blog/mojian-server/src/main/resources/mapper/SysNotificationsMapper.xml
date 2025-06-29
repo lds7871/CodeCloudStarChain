@@ -19,8 +19,8 @@
             u1.nickname as from_nickname,
             a.title as article_title
         from sys_notifications n
-        left join sys_user u on n.user_id = u.id
-        left join sys_user u1 on n.from_user_id = u1.id
+        left join users u on n.user_id = u.id
+        left join users u1 on n.from_user_id = u1.id
         left join sys_article a on n.article_id = a.id
         where n.user_id = #{notifications.userId}
         <if test="notifications.type != null and notifications.type != ''">

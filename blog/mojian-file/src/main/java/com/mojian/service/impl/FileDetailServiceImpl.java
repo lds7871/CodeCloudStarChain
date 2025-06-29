@@ -95,7 +95,8 @@ public class FileDetailServiceImpl extends ServiceImpl<FileDetailMapper, FileDet
     @SneakyThrows
     @Override
     public FileInfo getByUrl(String url) {
-        return toFileInfo(getOne(new LambdaQueryWrapper<FileDetail>().eq(FileDetail::getUrl, url)));
+        FileDetail fileDetail = getOne(new LambdaQueryWrapper<FileDetail>().eq(FileDetail::getUrl, url));
+        return toFileInfo(fileDetail);
     }
 
     /**
@@ -196,6 +197,11 @@ public class FileDetailServiceImpl extends ServiceImpl<FileDetailMapper, FileDet
      * 将 FileDetail 转为 FileInfo
      */
     public FileInfo toFileInfo(FileDetail detail) throws JsonProcessingException {
+        // 添加空值检查，避免NullPointerException
+        if (detail == null) {
+            return null;
+        }
+        
         FileInfo info = BeanUtil.copyProperties(
                 detail, FileInfo.class, "metadata", "userMetadata", "thMetadata", "thUserMetadata", "attr", "hashInfo");
 

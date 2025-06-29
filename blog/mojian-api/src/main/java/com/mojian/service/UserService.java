@@ -55,5 +55,10 @@ public interface UserService {
      */
     IPage<ArticleListVo> selectMyArticle(SysArticle article);
 
-    Integer selectMyBalance(Integer userId);
+    /**
+     * 查询用户余额
+     * @param userId
+     * @return
+     */
+    Double selectMyBalance(Long userId);
 }

@@ -78,7 +78,7 @@ public class WeChatServiceImpl implements WeChatService {
                     .type(2)
                     .status(Constants.YES)
                     .build();
-            Integer register = userMapper.insert(sysUser);
+            Long register = (long) userMapper.insert(sysUser);
 //            Integer register = weChatMapper.register(user,now);
             if (register > 0) {
                 Users users = userMapper.login(user.getOpenid());
@@ -89,6 +89,7 @@ public class WeChatServiceImpl implements WeChatService {
                 weChatInfo.setToken(tokenValue);
                 weChatInfo.setOpenid(users.getUsername());
                 weChatInfo.setSex(users.getSex());
+                weChatInfo.setType(users.getType());
                 weChatInfo.setEmail(users.getEmail());
                 weChatInfo.setMobile(users.getMobile());
                 weChatInfo.setUserInfo(users.getUserInfo());
@@ -104,7 +105,7 @@ public class WeChatServiceImpl implements WeChatService {
 
                 List<String> permissions;
                 //刚注册的用户都为普通用户，因此这里直接给普通用户的值
-                List<String> roles = roleMapper.selectLists(Constants.UserType);
+                List<String> roles = roleMapper.selectLists(Constants.UserType.longValue());
                 System.out.println("角色为：" + roles);
                 if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {
                     permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
@@ -129,13 +130,14 @@ public class WeChatServiceImpl implements WeChatService {
                 weChatInfo.setToken(tokenValue);
                 weChatInfo.setOpenid(login.getUsername());
                 weChatInfo.setSex(login.getSex());
+                weChatInfo.setType(login.getType());
                 weChatInfo.setEmail(login.getEmail());
                 weChatInfo.setMobile(login.getMobile());
                 weChatInfo.setUserInfo(login.getUserInfo());
                 weChatInfo.setHeadimgurl(login.getAvatar());
                 weChatInfo.setId(login.getId());
                 List<String> permissions;
-                Integer res = roleMapper.selectRoleId(login.getId());
+                Long res = roleMapper.selectRoleId(login.getId());
                 List<String> roles = roleMapper.selectLists(res);
                 System.out.println("角色为：" + roles);
                 if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {

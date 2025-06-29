@@ -10,7 +10,6 @@ import com.mojian.config.properties.GiteeConfigProperties;
 import com.mojian.config.properties.ThirdlyLoginTypeConstant;
 import com.mojian.dto.user.GiteeInfo;
 import com.mojian.dto.user.WeChatInfo;
-import com.mojian.entity.SysUser;
 import com.mojian.entity.SysUserRole;
 import com.mojian.entity.Users;
 import com.mojian.enums.MenuTypeEnum;
@@ -81,7 +80,7 @@ public class OauthServiceImpl implements OauthService {
     }
 
     @Override
-    public SysUser getUserInfo( String accessToken) {
+    public Users getUserInfo( String accessToken) {
         String userInfo = "";
         String userInfoUrl = "https://gitee.com/api/v5/user?access_token=" + accessToken;
         userInfo = HttpUtil.createGet(userInfoUrl).execute().body();
@@ -118,14 +117,10 @@ public class OauthServiceImpl implements OauthService {
                 Users user = sysUserMapper.selectByUniqueId(id);
                 StpUtil.login(user.getId());
                 String tokenValue = StpUtil.getTokenValue();
-//                Users users2 = new Users();
-                SysUser sysUser = new SysUser();
-                BeanUtils.copyProperties(user,sysUser);
-                sysUser.setToken(tokenValue);
-                StpUtil.getSession().set(Constants.CURRENT_USER, sysUser);
-                redisTemplate.opsForValue().set("giteeInfo",sysUser);
+                StpUtil.getSession().set(Constants.CURRENT_USER, user);
+                redisTemplate.opsForValue().set("giteeInfo",user);
                 SysUserRole sysUserRole = new SysUserRole();
-                sysUserRole.setUserId(sysUser.getId());
+                sysUserRole.setUserId(user.getId());
                 //默认刚注册的用户都为普通用户
                 sysUserRole.setRoleId(2);
                 System.out.println(sysUserRole);
@@ -133,39 +128,32 @@ public class OauthServiceImpl implements OauthService {
 //                获取菜单权限列表
                 List<String> permissions;
                 //刚注册的用户都为普通用户，因此这里直接给普通用户的值
-                List<String> roles = roleMapper.selectLists(Constants.UserType);
+                List<String> roles = roleMapper.selectLists(Constants.UserType.longValue());
                 System.out.println("角色为："+roles);
 //                roles.add(Constants.ADMIN);
                 if (roles.contains(Constants.ADMIN) || roles.contains(Constants.SUPERADMIN)) {
                     permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
                     System.out.println("权限为："+permissions);
                 } else {
-                    permissions = menuMapper.getPermissionListByUserId(giteeInfo.getRoleId(), MenuTypeEnum.BUTTON.getCode());
+                    permissions = menuMapper.getPermissionListByUserId(user.getId(), MenuTypeEnum.BUTTON.getCode());
                 }
-                sysUser.setRoles(roles);
-                sysUser.setPermissions(permissions);
 //                StpUtil.login(giteeInfo.getId());
 //                String tokenValue = StpUtil.getTokenValue();
 //                giteeInfo.setToken(tokenValue);
 //                StpUtil.getSession().set(Constants.CURRENT_USER, giteeInfo);
 //                redisTemplate.opsForValue().set("giteeInfo",giteeInfo);
 //                return giteeInfo;
-                return sysUser;
+                return user;
             }else{
                 return null;
             }
         }else{
 
-//            Users users2 = new Users();
-//            BeanUtils.copyProperties(users,users2);
-            SysUser sysUser = new SysUser();
-            BeanUtils.copyProperties(users,sysUser);
             StpUtil.login(users.getId());
             String tokenValue = StpUtil.getTokenValue();
-            sysUser.setToken(tokenValue);
 //        获取菜单权限列表
             List<String> permissions;
-            Integer userId = roleMapper.selectRoleId(users.getId());
+            Long userId = roleMapper.selectRoleId(users.getId());
             //根据用户的id
             List<String> roles = roleMapper.selectLists(userId);
             System.out.println("角色为："+roles);
@@ -175,12 +163,10 @@ public class OauthServiceImpl implements OauthService {
             } else {
                 permissions = menuMapper.getPermissionListByUserId(userId, MenuTypeEnum.BUTTON.getCode());
             }
-            sysUser.setRoles(roles);
-            sysUser.setPermissions(permissions);
-            StpUtil.getSession().set(Constants.CURRENT_USER, sysUser);
-            redisTemplate.opsForValue().set("giteeInfo",sysUser);
+            StpUtil.getSession().set(Constants.CURRENT_USER, users);
+            redisTemplate.opsForValue().set("giteeInfo",users);
 
-            return sysUser;
+            return users;
         }
     }
 }

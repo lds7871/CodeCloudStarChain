@@ -63,7 +63,7 @@
     <select id="selectLists" resultType="java.lang.String">
         select name from sys_role where id = #{id}
     </select>
-    <select id="selectRoleId" resultType="java.lang.Integer">
+    <select id="selectRoleId" resultType="java.lang.Long">
         select role_id from sys_user_role where user_id  = #{userId}
     </select>
     <select id="getUserRoleId" resultType="java.lang.Integer">
