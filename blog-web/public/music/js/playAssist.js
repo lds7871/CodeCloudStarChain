@@ -3,16 +3,6 @@ var isScrolling = false; // 添加全局变量 isScrolling，默认为 false
 var scrollTimer = null; // 添加定时器变量
 var animationFrameId = null; // 添加变量用于跟踪动画帧ID
 
-if (typeof userId === 'undefined') {
-  var userId = "8152976493"; // 替换为实际的默认值
-}
-if (typeof userServer === 'undefined') {
-  var userServer = "netease"; // 替换为实际的默认值
-}
-if (typeof userType === 'undefined') {
-  var userType = "playlist"; // 替换为实际的默认值
-}
-
 if (typeof remoteMusic !== 'undefined' && remoteMusic) {
   fetch(remoteMusic)
     .then(response => response.json())
@@ -20,36 +10,13 @@ if (typeof remoteMusic !== 'undefined' && remoteMusic) {
       if (Array.isArray(data)) {
         localMusic = data;
       }
-      // loadMusicScript(); // 注释掉，由Vue组件控制
     })
     .catch(error => {
       console.error('Error fetching remoteMusic:', error);
-      // loadMusicScript(); // 注释掉，由Vue组件控制
     });
-} else {
-  // loadMusicScript(); // 注释掉，由Vue组件控制
-}
-
-function loadMusicScript() {
-  if (typeof localMusic === 'undefined' || !Array.isArray(localMusic) || localMusic.length === 0) {
-    // 如果 localMusic 为空数组或未定义，加载 Meting2.min.js
-    var script = document.createElement('script');
-    script.src = '/blogclient/music/js/Meting.js';
-    document.body.appendChild(script);
-  } else {
-    // 否则加载 localEngine.js
-    var script = document.createElement('script');
-    script.src = '/blogclient/music/js/localEngine.js';
-    document.body.appendChild(script);
-    local = true;
-  }
 }
 
 var volume = 0.8;
-
-// 获取地址栏参数
-// 创建URLSearchParams对象并传入URL中的查询字符串
-const params = new URLSearchParams(window.location.search);
 
 var pyj = {
   // 处理滚动和触摸事件的通用方法
@@ -145,16 +112,27 @@ var pyj = {
 
   getCustomPlayList: function () {
     const pyjMusicPage = document.getElementById("Music-page");
-    const playlistType = params.get("type") || "playlist";
-
-    if (params.get("id") && params.get("server")) {
-      console.log("获取到自定义内容")
-      var id = params.get("id")
-      var server = params.get("server")
+    
+    if (!pyjMusicPage) {
+      console.error("Music-page元素不存在！");
+      return;
+    }
+    
+    // 使用全局变量而不是URL参数
+    const playlistType = window.playlistType || "playlist";
+    const userId = window.userId || "8668419170";
+    const userServer = window.userServer || "tencent";
+    
+    console.log("使用配置:", { userId, userServer, playlistType });
+    
+    // 检查是否有本地音乐配置
+    if (window.localMusic && Array.isArray(window.localMusic) && window.localMusic.length > 0) {
+      console.log("使用本地音乐配置");
+      // 本地音乐会在localEngine.js中处理
       pyjMusicPage.innerHTML = `<meting-js id="${id}" server="${server}" type="${playlistType}" mutex="true" preload="auto" order="random"></meting-js>`;
     } else {
-      console.log("无自定义内容")
-      pyjMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${userType}" mutex="true" preload="auto" order="random"></meting-js>`;
+      console.log("使用在线音乐配置");
+      pyjMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${playlistType}" mutex="true" preload="auto" order="random"></meting-js>`;
     }
   },
 
@@ -221,7 +199,21 @@ var pyj = {
   setMediaMetadata: function (aplayerObj, isSongPlaying) {
     const audio = aplayerObj.list.audios[aplayerObj.list.index]
     const coverUrl = audio.cover || 'http://test.yudao.iocoder.cn/f5660f0f8998e8d89f2d742fedee7cbb7e85ecc505bd33b3cc0f75b6a0395931.png';
-    const currentLrcContent = document.getElementById("Music-page").querySelector(".aplayer-lrc-current").textContent;
+
+    // 安全地获取歌词内容
+    let currentLrcContent = '';
+    try {
+      const musicPage = document.getElementById("Music-page");
+      if (musicPage) {
+        const lrcCurrent = musicPage.querySelector(".aplayer-lrc-current");
+        if (lrcCurrent) {
+          currentLrcContent = lrcCurrent.textContent;
+        }
+      }
+    } catch (error) {
+      console.log('获取歌词内容失败:', error);
+    }
+
     let songName, songArtist;
 
     if ('mediaSession' in navigator) {
@@ -309,45 +301,7 @@ var pyj = {
       });
     }
   },
-  updateThemeColorWithImage(img) {
-    if (local) {
-      const updateThemeColor = (colorThief) => {
-        const dominantColor = colorThief.getColor(img);
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (metaThemeColor) {
-          // 叠加rgba(0,0,0,0.4)的效果
-          const r = Math.round(dominantColor[0] * 0.6); // 原色 * 0.6 实现叠加黑色透明度0.4的效果
-          const g = Math.round(dominantColor[1] * 0.6);
-          const b = Math.round(dominantColor[2] * 0.6);
-          metaThemeColor.setAttribute('content', `rgb(${r},${g},${b})`);
-        }
-      };
-
-      if (typeof ColorThief === 'undefined') {
-        const script = document.createElement('script');
-        script.src = '/blogclient/music/js/color-thief.min.js';
-        script.onload = () => updateThemeColor(new ColorThief());
-        document.body.appendChild(script);
-      } else {
-        updateThemeColor(new ColorThief());
-      }
-    }
-
-  },
-  
-  // 新增方法：将歌词滚动到顶部
-  scrollLyricToTop: function() {
-    const lrcContent = document.querySelector('.aplayer-lrc');
-    if (lrcContent) {
-      // 使用平滑滚动效果，但不过于缓慢
-      lrcContent.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
-  },
-  
-  // 初始化所有事件
+// 初始化所有事件
   init: function() {
     this.getCustomPlayList();
     this.initScrollEvents();

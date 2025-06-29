@@ -61,20 +61,6 @@
 
                   <div v-html="notification.message"></div>
                 </span>
-
-                <span v-if="notification.type === 'like'">
-                  {{ notification.toNickname }} 点赞了你的 
-                  <span class="article-title" @click="handleArticleClick(notification.articleId)">{{ notification.articleTitle }}</span>
-                  文章
-                </span>
-
-                <span v-if="notification.type === 'follow'">
-                  {{ notification.fromNickname }} 关注了你
-                </span>
-
-                <span v-if="notification.type === 'system'">
-                  {{ notification.message }}
-                </span>
               </div>
           
               <div class="notification-time">{{ formatTime(notification.createTime) }}</div>
@@ -107,9 +93,15 @@
 </template>
 
 <script>
-import { getNotificationsApi, markNotificationAsReadApi, markAllNotificationsAsReadApi,
-   getUnreadNotificationsCountApi, deleteNotificationApi } from '@/api/message'
-import { formatTime } from '@/utils/time'
+import {
+  deleteNotificationApi,
+  getNotificationsApi,
+  getUnreadNotificationsCountApi,
+  markAllNotificationsAsReadApi,
+  markNotificationAsReadApi
+} from '@/api/message'
+import {formatTime} from '@/utils/time'
+
 export default {
   name: 'Notifications',
   data() {
@@ -122,30 +114,12 @@ export default {
           icon: 'fas fa-bell',
           unread: 0
         },
-        { 
-          type: 'system',
-          name: '系统消息',
-          icon: 'fas fa-cog',
-          unread: 0
-        },
-        { 
+        {
           type: 'comment',
           name: '评论消息',
           icon: 'fas fa-comment',
           unread: 0
         },
-        { 
-          type: 'like',
-          name: '点赞消息',
-          icon: 'fas fa-heart',
-          unread: 0
-        },
-        { 
-          type: 'follow',
-          name: '关注消息',
-          icon: 'fas fa-user-plus',
-          unread: 0
-        }
       ],
       notifications: [],
       params:{

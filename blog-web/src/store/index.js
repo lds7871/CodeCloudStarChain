@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { loginApi, logoutApi, getUserInfoApi, getwxUserInfoApi, giteeLoginApi, checkQrCodeStatus } from '@/api/auth'
-import { getWebConfigApi } from '@/api/site'
-import { getToken, setToken, removeToken, removeAuthorization } from '@/utils/cookie'
+import {checkQrCodeStatus, getUserInfoApi, getwxUserInfoApi, giteeLoginApi, loginApi, logoutApi} from '@/api/auth'
+import {getWebConfigApi} from '@/api/site'
+import {getToken, removeAuthorization, removeToken, setToken} from '@/utils/cookie'
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -44,7 +44,6 @@ export default new Vuex.Store({
     SET_USER_INFO(state, userInfo) {
       state.userInfo = userInfo
       localStorage.setItem("user", JSON.stringify(userInfo))
-      console.log(userInfo);
       if (userInfo != null && userInfo.id) {
         localStorage.setItem("userId", userInfo.id)
       }

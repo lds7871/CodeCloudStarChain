@@ -7,7 +7,7 @@
       <Music
         :userId="musicConfig.userId"
         :userServer="musicConfig.userServer"
-        :userType="musicConfig.userType"
+        :playlistType="musicConfig.playlistType"
         :localMusic="localMusic"
         :remoteMusic="remoteMusic"
       />
@@ -28,7 +28,7 @@ export default {
       musicConfig: {
         userId: "8152976493",
         userServer: "netease",
-        userType: "playlist",
+        playlistType: "playlist",
       },
       localMusic: [],
       remoteMusic: "",

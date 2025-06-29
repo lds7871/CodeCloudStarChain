@@ -15,7 +15,7 @@ export default {
       type: String,
       default: "tencent",
     },
-    userType: {
+    playlistType: {
       type: String,
       default: "playlist",
     },
@@ -29,7 +29,6 @@ export default {
     },
   },
   mounted() {
-    this.loadStyles();
     this.initPyjMusic();
   },
   beforeDestroy() {
@@ -40,30 +39,11 @@ export default {
     }
   },
   methods: {
-    loadStyles() {
-      // 动态加载CSS文件
-      const loadCSS = (href) => {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = href;
-        document.head.appendChild(link);
-      };
-
-      // 检查是否已经加载过
-      if (!document.querySelector('link[href*="APlayer.css"]')) {
-        loadCSS("/blogclient/music/css/APlayer.css");
-      }
-      if (!document.querySelector('link[href*="main.css"]')) {
-        loadCSS("/blogclient/music/css/main.css");
-      }
-    },
-
     initPyjMusic() {
       // 设置全局配置变量
       window.userId = this.userId;
       window.userServer = this.userServer;
-      window.userType = this.userType;
+      window.playlistType = this.playlistType;
       window.localMusic = this.localMusic;
       window.remoteMusic = this.remoteMusic;
 
@@ -87,46 +67,10 @@ export default {
     },
 
     loadMusicScript() {
-      // 首先确保APlayer已加载
-      if (typeof APlayer === "undefined") {
-        this.loadScript("/blogclient/music/js/APlayer.min.js", () => {
-          this.loadPyjMain();
-        });
-      } else {
-        this.loadPyjMain();
-      }
-    },
-
-    loadPyjMain() {
-      // 先加载main.js
-      this.loadScript("/blogclient/music/js/main.js", () => {
-        this.loadMusicEngine();
-      });
-    },
-
-    loadMusicEngine() {
-      if (
-        !window.localMusic ||
-        !Array.isArray(window.localMusic) ||
-        window.localMusic.length === 0
-      ) {
-        // 加载在线音乐脚本
-        this.loadScript("/blogclient/music/js/Meting.js", () => {
-          this.initPlayer();
-        });
-      } else {
-        // 加载本地音乐脚本
-        this.loadScript("/blogclient/music/js/localEngine.js", () => {
-          this.initPlayer();
-        });
-      }
-    },
-
-    loadScript(src, callback) {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = callback;
-      document.body.appendChild(script);
+      // 脚本已经在index.html中加载，直接初始化播放器
+      setTimeout(() => {
+        this.initPlayer();
+      }, 100);
     },
 
     initPlayer() {

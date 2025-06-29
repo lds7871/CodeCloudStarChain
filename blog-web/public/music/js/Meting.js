@@ -37,6 +37,9 @@ class MetingJSElement extends HTMLElement {
     }
     this.config = config
 
+    console.log('Meting.js: 解析的配置:', config);
+    console.log('Meting.js: 解析的meta:', this.meta);
+
     this.api = this.meta.api || window.meting_api || 'https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r'
     if (this.meta.auto) this._parse_link()
   }
@@ -99,6 +102,8 @@ class MetingJSElement extends HTMLElement {
       .replace(':auth', this.meta.auth)
       .replace(':r', Math.random())
 
+    console.log('Meting.js: 调用API:', url);
+
     fetch(url)
       .then(res => res.json())
       .then(result => this._loadPlayer(result))
@@ -114,7 +119,10 @@ class MetingJSElement extends HTMLElement {
       listFolded: window.innerWidth < 768 ? true : false
     }
 
-    if (!data.length) return
+    if (!data.length) {
+      console.error('Meting.js: 没有音频数据');
+      return;
+    }
 
     let options = {
       ...defaultOption,
@@ -126,14 +134,23 @@ class MetingJSElement extends HTMLElement {
       }
     }
 
+    console.log('Meting.js: 播放器配置:', options);
+
     let div = document.createElement('div')
     options.container = div
     this.appendChild(div)
 
     this.aplayer = new APlayer(options)
     window.ap = this.aplayer;
+    console.log('Meting.js: APlayer实例创建完成:', this.aplayer);
 
-    pyj.setupMediaSessionHandlers(this.aplayer);
+      pyj.setupMediaSessionHandlers(this.aplayer);
+
+    // 触发全局事件，通知其他组件播放器已就绪
+    console.log('Meting.js: 触发music-player-ready事件...');
+    window.dispatchEvent(new CustomEvent('music-player-ready', {
+      detail: { player: this.aplayer }
+    }));
   }
 
 }
