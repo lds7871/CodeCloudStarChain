@@ -48,7 +48,7 @@
                 <div class="day"
                      :class="[getActivityClass(day.count), {'has-data': day.date}]"
                      :data-empty="!day.date"
-                     :title="day.date ? `${formatDate(day.date)} · ${day.count} 次贡献` : ''">
+               :title="day.date ? `${formatDate(day.date)} · ${day.count} 次贡献` : ''">
                   <span class="day-count" v-if="day.count > 0">{{ day.count }}</span>
                 </div>
                 <div class="day-tooltip" v-if="day.date && day.count > 0">
@@ -488,7 +488,7 @@ watch(() => props.data, () => {
   pointer-events: none;
   z-index: 100;
   opacity: 0;
-  visibility: hidden;
+    visibility: hidden;
   transition: all 0.2s ease;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   text-align: center;
