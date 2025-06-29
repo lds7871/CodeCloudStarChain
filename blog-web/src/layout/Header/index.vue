@@ -160,6 +160,12 @@ export default {
           colorClass: 'message-link'
         },
         {
+          name: '音乐',
+          path: '/music',
+          icon: 'fas fa-music',
+          colorClass: 'music-link'
+        },
+        {
           name: '友情链接',
           path: '/friends',
           icon: 'fas fa-users',
@@ -532,6 +538,10 @@ export default {
 
     &.message-link i {
       color: #009688;
+    }
+
+    &.music-link i {
+      color: #E91E63;
     }
 
     &.friend-link i {
@@ -1049,6 +1059,10 @@ export default {
 
     &.message-link i {
       color: #4DB6AC;
+    }
+
+    &.music-link i {
+      color: #F06292;
     }
 
     &.friend-link i {
