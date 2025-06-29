@@ -77,11 +77,11 @@ import {
   updateSysMomentApi,
   deleteSysMomentApi
 } from '@/api/article/moment'
-import UploadImage from '@/components/Upload/Image.vue'
+import UploadImage from "@/components/Upload/Image.vue";
+import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
+import "@/assets/wangeditor/style.css";
+import { shallowRef, reactive, ref, onMounted } from 'vue'
 
-
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import '@wangeditor/editor/dist/css/style.css'
 const editorRef = shallowRef()
 const mode = 'default'
 const toolbarConfig = {}
@@ -225,9 +225,26 @@ const submitForm = async () => {
     if (valid) {
       submitLoading.value = true
       try {
-        if (momentForm.images && momentForm.images.length > 0) { 
-          momentForm.images = momentForm.images.join(',')
+        // 确保 images 是字符串格式，处理各种可能的情形
+        if (momentForm.images) { 
+          // 如果 images 是数组，则转换为逗号分隔的字符串
+          if (Array.isArray(momentForm.images)) {
+            momentForm.images = momentForm.images.join(',')
+          } 
+          // 如果 images 已经是字符串但包含逗号，确保格式正确
+          else if (typeof momentForm.images === 'string' && momentForm.images.includes('[')) {
+            try {
+              const imagesArray = JSON.parse(momentForm.images)
+              if (Array.isArray(imagesArray)) {
+                momentForm.images = imagesArray.join(',')
+              }
+            } catch (e) {
+              // 解析失败，保持原样
+            }
+          }
+          // 如果只是普通字符串，则保持原样
         }
+
         if (dialog.type === 'add') {
           await addSysMomentApi(momentForm)
           ElMessage.success('新增成功')
@@ -237,7 +254,9 @@ const submitForm = async () => {
         }
         getList()
         dialog.visible = false
-      } catch (error) {
+      } catch (error: any) {
+        console.error('提交表单错误:', error)
+        ElMessage.error('操作失败: ' + (error.message || '未知错误'))
       } finally {
         submitLoading.value = false
       }
