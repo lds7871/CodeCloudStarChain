@@ -110,9 +110,9 @@ public class FileController {
             
             //这个source可在前端上传文件时提供，可用来区分是头像还是文章图片等
             if (StringUtils.isNotBlank(source)) {
-                relativePath = datePath + source + "/";
+                relativePath =  source + "/";
             } else {
-                relativePath = datePath + "article/";
+                relativePath = "article/";
             }
             //获取文件名和后缀
             String savedFilename = UUID.randomUUID() + "_" + file.getOriginalFilename();

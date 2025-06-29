@@ -892,6 +892,28 @@ export default {
   overflow: hidden;
 }
 
+/* 确保Element UI对话框在AI聊天页面之上 */
+::v-deep .el-message-box {
+  z-index: 99999 !important;
+}
+
+::v-deep .el-overlay {
+  z-index: 99998 !important;
+}
+
+/* 通用Element UI对话框和遮罩层样式 */
+::v-deep .el-dialog__wrapper {
+  z-index: 99999 !important;
+}
+
+::v-deep .el-loading-mask {
+  z-index: 99999 !important;
+}
+
+::v-deep .el-drawer__wrapper {
+  z-index: 99999 !important;
+}
+
 .chat-layout {
   display: flex;
   width: 100%;
@@ -1566,6 +1588,15 @@ body #footer {
 ::v-deep .delete-chat-confirm {
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 99999 !important;
+}
+
+::v-deep .el-message-box__wrapper {
+  z-index: 99999 !important;
+}
+
+::v-deep .v-modal {
+  z-index: 99998 !important;
 }
 
 ::v-deep .delete-chat-confirm .el-message-box__header {
