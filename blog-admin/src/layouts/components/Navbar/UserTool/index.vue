@@ -95,7 +95,9 @@ import settings from '@/config/settings'
 import { logoutApi } from '@/api/system/auth'
 import Cookies from 'js-cookie'
 import { clearAllCookies } from "@/utils/auth";
-
+import { onMounted } from 'vue'
+import { getWxUserApi } from '@/api/system/user'
+import { getUserProfileApi } from '@/api/system/user'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -121,6 +123,19 @@ const currentUser = computed(() => {
     }
   } else {
     return userStore.user
+  }
+})
+
+onMounted(async () => {
+  if (localStorage.getItem('userInfo') == "weixin") {
+    const { data } = await getWxUserApi(localStorage.getItem('userId'))
+    console.log(data);
+    headimgurl.value = data.avatar
+  } else {
+    const { data } = await getUserProfileApi()
+    console.log(data);
+    headimgurl.value = data.sysUser.avatar
+    nickname.value = data.sysUser.nickname
   }
 })
 // 切换下拉菜单

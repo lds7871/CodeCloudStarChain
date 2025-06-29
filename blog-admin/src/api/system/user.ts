@@ -69,7 +69,7 @@ export function resetPasswordApi(data: any) {
 export function getUserProfileApi() {
   return request({
     url: '/sys/user/profile',
-    method: 'get'
+    method: 'get',
   })
 }
 

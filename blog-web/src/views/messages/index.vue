@@ -34,16 +34,12 @@
           <div class="brand-icon">
             <div class="icon-inner"></div>
           </div>
-          <span class="brand-text">数字树洞</span>
+          <span class="brand-text">码云树洞</span>
         </div>
         <div class="nav-stats">
           <div class="stat-item">
-            <span class="stat-number">{{ barrageList.length }}</span>
+            <span class="stat-number">{{ barrageList ? barrageList.length : 0 }}</span>
             <span class="stat-label">消息</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ Math.floor(Math.random() * 500) + 200 }}</span>
-            <span class="stat-label">在线</span>
           </div>
         </div>
       </div>
@@ -118,15 +114,15 @@
       <!-- 消息流区域 -->
       <div class="message-stream-section">
         <div class="stream-header">
-          <h3 class="stream-title">实时消息流</h3>
+          <h3 class="stream-title">码云消息流</h3>
           <div class="stream-controls">
             <div class="control-item">
               <span class="control-label">速度</span>
-              <div class="speed-slider-container">
-                <el-slider v-model="danmakuSpeed" :min="10" :max="100" :step="5" @change="updateDanmakuSpeed"
-                  :show-tooltip="true" :format-tooltip="formatSpeedTooltip" class="speed-slider"></el-slider>
-                <span class="speed-value">{{ danmakuSpeed }}</span>
+              <div class="speed-slider" @click="handleSliderClick" ref="speedSlider">
+                <div class="slider-track" :style="{ width: danmakuSpeed + '%' }"></div>
+                <div class="slider-thumb" :style="{ left: danmakuSpeed + '%' }" @mousedown="startDrag"></div>
               </div>
+              <span class="speed-value">{{ danmakuSpeed }}%</span>
             </div>
           </div>
         </div>
@@ -186,11 +182,11 @@ export default {
       content: "",
       count: null,
       timer: null,
-      speedUpdateTimer: null,
       sending: false,
       barrageList: [],
       user: this.$store.state.userInfo,
-      danmakuSpeed: 30,
+      danmakuSpeed: 50, // 弹幕速度，范围 10-100
+      speedUpdateTimeout: null, // 速度更新防抖定时器
       testData: [
         {
           avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1&backgroundColor=b6e3f4',
@@ -225,9 +221,29 @@ export default {
     }
   },
 
+  watch: {
+    // 监听速度变化，实时更新弹幕速度
+    danmakuSpeed: {
+      handler(newSpeed) {
+        // 清除之前的定时器
+        if (this.speedUpdateTimeout) {
+          clearTimeout(this.speedUpdateTimeout);
+        }
+
+        // 使用更平滑的方式更新速度
+        this.updateDanmakuSpeedSmooth();
+      },
+      immediate: false
+    }
+  },
+
   mounted() {
+    // 首先设置初始速度变量
+    this.initSpeedVariables();
+
     this.listMessage();
     this.initAnimations();
+    this.optimizePerformance();
 
     // 调试：检查弹幕组件
     this.$nextTick(() => {
@@ -235,6 +251,18 @@ export default {
       console.log('测试数据:', this.testData);
       console.log('弹幕列表:', this.barrageList);
     });
+  },
+
+  beforeDestroy() {
+    // 清理定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+    if (this.speedUpdateTimeout) {
+      clearTimeout(this.speedUpdateTimeout);
+      this.speedUpdateTimeout = null;
+    }
   },
 
   methods: {
@@ -295,10 +323,13 @@ export default {
     listMessage() {
       getMessagesApi().then(res => {
         console.log('获取到的留言数据:', res.data);
-        this.barrageList = res.data;
+        this.barrageList = res.data || [];
         console.log('设置后的barrageList:', this.barrageList);
+        console.log('消息统计数量:', this.barrageList.length);
       }).catch(err => {
         console.error('获取留言失败:', err);
+        // 如果获取失败，确保barrageList是空数组而不是undefined
+        this.barrageList = [];
       });
     },
 
@@ -328,36 +359,154 @@ export default {
     },
 
     /**
- * 更新弹幕速度
- */
-    updateDanmakuSpeed(value) {
-      // 使用防抖来避免频繁更新
-      if (this.speedUpdateTimer) {
-        clearTimeout(this.speedUpdateTimer);
-      }
-
-      this.speedUpdateTimer = setTimeout(() => {
-        this.danmakuSpeed = value;
-        // vue-danmaku组件会自动响应speeds属性的变化
-        // 不需要手动调用任何方法，组件内部会处理速度更新
-      }, 50); // 减少到50ms，让响应更快
+     * 处理滑块点击
+     */
+    handleSliderClick(event) {
+      const slider = this.$refs.speedSlider;
+      const rect = slider.getBoundingClientRect();
+      const percentage = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
+      this.danmakuSpeed = Math.round(percentage);
     },
 
     /**
-     * 格式化速度提示
+     * 开始拖拽
      */
-    formatSpeedTooltip(value) {
-      if (value <= 20) return '慢速';
-      if (value <= 50) return '中速';
-      if (value <= 80) return '快速';
-      return '极速';
+    startDrag(event) {
+      event.preventDefault();
+      const slider = this.$refs.speedSlider;
+      const rect = slider.getBoundingClientRect();
+
+      const onMouseMove = (e) => {
+        const percentage = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+        this.danmakuSpeed = Math.round(percentage);
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    },
+
+    /**
+ * 初始化速度变量
+ */
+    initSpeedVariables() {
+      try {
+        const speedRatio = this.danmakuSpeed / 50;
+
+        // 设置全局速度变量
+        document.documentElement.style.setProperty('--danmaku-speed-ratio', speedRatio);
+        document.documentElement.style.setProperty('--current-speed', speedRatio);
+
+        console.log(`🎯 速度变量初始化完成：${this.danmakuSpeed}% (比例: ${speedRatio})`);
+      } catch (error) {
+        console.warn('速度变量初始化失败:', error);
+      }
+    },
+
+    /**
+     * 性能优化设置
+     */
+    optimizePerformance() {
+      try {
+        // 优化浏览器渲染性能
+        requestAnimationFrame(() => {
+          // 设置CSS自定义属性来优化动画
+          document.documentElement.style.setProperty('--gpu-acceleration', 'true');
+
+          // 强制启用硬件加速
+          const container = document.querySelector('.modern-container');
+          if (container) {
+            container.style.transform = 'translate3d(0, 0, 0)';
+            container.style.willChange = 'transform';
+          }
+
+          // 优化弹幕容器
+          const danmakuContainer = document.querySelector('.beautiful-danmaku');
+          if (danmakuContainer) {
+            danmakuContainer.style.willChange = 'scroll-position, contents';
+            danmakuContainer.style.contain = 'layout style paint';
+          }
+
+          console.log('🚀 性能优化设置已启用');
+
+          // 启动性能监控
+          this.startPerformanceMonitoring();
+        });
+      } catch (error) {
+        console.warn('性能优化设置失败:', error);
+      }
+    },
+
+    /**
+     * 启动性能监控
+     */
+    startPerformanceMonitoring() {
+      try {
+        let frameCount = 0;
+        let lastTime = performance.now();
+
+        const monitorFrame = (currentTime) => {
+          frameCount++;
+
+          // 每60帧检查一次性能
+          if (frameCount % 60 === 0) {
+            const deltaTime = currentTime - lastTime;
+            const fps = Math.round(60000 / deltaTime);
+
+            // 如果FPS过低，给出提示
+            if (fps < 30) {
+              console.warn(`⚠️ 弹幕渲染性能较低：${fps}FPS`);
+            } else if (fps >= 50) {
+              console.log(`✅ 弹幕渲染性能良好：${fps}FPS`);
+            }
+
+            lastTime = currentTime;
+          }
+
+          requestAnimationFrame(monitorFrame);
+        };
+
+        requestAnimationFrame(monitorFrame);
+      } catch (error) {
+        console.warn('性能监控启动失败:', error);
+      }
+    },
+
+    /**
+     * 立即更新CSS动画速度（平滑过渡）
+     */
+    updateDanmakuSpeedSmooth() {
+      try {
+        // 计算速度比例
+        const speedRatio = this.danmakuSpeed / 50; // 基准是50%
+
+        // 直接更新CSS变量，让浏览器自动处理动画速度变化
+        document.documentElement.style.setProperty('--danmaku-speed-ratio', speedRatio);
+        document.documentElement.style.setProperty('--current-speed', speedRatio);
+
+        console.log(`✅ 弹幕速度平滑调整：${this.danmakuSpeed}% (比例: ${speedRatio.toFixed(2)}) - 使用CSS变量无卡顿控制`);
+
+      } catch (error) {
+        console.warn('❌ 平滑更新弹幕速度失败:', error);
+      }
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-// 主容器
+// 全局CSS变量定义（用于控制弹幕速度）
+:root {
+  --danmaku-speed-ratio: 1;
+  --current-speed: 1;
+  --base-duration: 15s;
+}
+
+// 主容器（性能优化版）
 .modern-container {
   position: fixed;
   top: 0;
@@ -367,6 +516,55 @@ export default {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // 性能优化设置
+  contain: layout style paint;
+  will-change: scroll-position;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  // 优化渲染性能
+  * {
+    box-sizing: border-box;
+  }
+
+  // 针对弹幕优化字体渲染
+  .danmaku-item * {
+    text-rendering: optimizeSpeed !important;
+    font-smooth: never !important;
+    -webkit-font-smoothing: none !important;
+    -moz-osx-font-smoothing: unset !important;
+  }
+
+  // 全局动画性能优化
+  * {
+    // 优化动画性能
+    animation-fill-mode: both;
+    backface-visibility: hidden;
+  }
+
+  // 专门针对弹幕的性能优化
+  .danmaku-item,
+  .beautiful-message {
+    // 强制GPU加速
+    transform: translate3d(0, 0, 0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    perspective: 1000px !important;
+
+    // 优化动画性能
+    animation-fill-mode: both !important;
+    animation-timing-function: linear !important;
+
+    // 减少重绘
+    contain: layout style paint !important;
+    pointer-events: none !important;
+
+    // 字体渲染优化
+    text-rendering: optimizeSpeed !important;
+    -webkit-font-smoothing: none !important;
+    font-smooth: never !important;
+  }
 }
 
 // 动态背景
@@ -898,53 +1096,72 @@ export default {
       .control-item {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 10px;
 
         .control-label {
           font-size: 14px;
           color: rgba(255, 255, 255, 0.9);
-          white-space: nowrap;
         }
 
-        .speed-slider-container {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+        .speed-slider {
+          width: 100px;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 2px;
+          position: relative;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          // 性能优化
+          will-change: background-color;
+          contain: layout style;
 
-          .speed-slider {
-            width: 120px;
-
-            :deep(.el-slider__runway) {
-              background: rgba(255, 255, 255, 0.3);
-              height: 6px;
-              border-radius: 3px;
-            }
-
-            :deep(.el-slider__bar) {
-              background: linear-gradient(90deg, #ff9a9e, #fecfef);
-              border-radius: 3px;
-            }
-
-            :deep(.el-slider__button) {
-              background: white;
-              border: 2px solid #ff9a9e;
-              width: 16px;
-              height: 16px;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            :deep(.el-slider__button:hover) {
-              transform: scale(1.1);
-              border-color: #fecfef;
-            }
+          &:hover {
+            background: rgba(255, 255, 255, 0.4);
           }
 
-          .speed-value {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            min-width: 25px;
-            text-align: center;
+          .slider-track {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e, #fecfef);
+            border-radius: 2px;
+            transition: width 0.2s ease;
+            // 性能优化
+            will-change: width;
+            contain: layout;
           }
+
+          .slider-thumb {
+            position: absolute;
+            top: -4px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+            cursor: grab;
+            transition: all 0.2s ease;
+            transform: translateX(-50%);
+            // 性能优化
+            will-change: transform;
+            backface-visibility: hidden;
+            contain: layout style;
+
+            &:hover {
+              transform: translateX(-50%) scale(1.1);
+              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+
+            &:active {
+              cursor: grabbing;
+              transform: translateX(-50%) scale(1.05);
+            }
+          }
+        }
+
+        .speed-value {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.9);
+          margin-left: 8px;
+          min-width: 30px;
         }
       }
     }
@@ -956,65 +1173,101 @@ export default {
     .beautiful-danmaku {
       height: 100%;
       width: 100%;
+      // 性能优化：隔离重排重绘
+      contain: layout style paint;
 
       :deep(.danmaku-container) {
         height: 100% !important;
         width: 100% !important;
         position: relative !important;
         overflow: hidden !important;
+        // 性能优化
+        contain: layout style paint !important;
+        transform: translateZ(0) !important;
       }
 
       :deep(.danmaku-item) {
         display: inline-block !important;
         white-space: nowrap !important;
+        // GPU加速优化
         will-change: transform !important;
-        transform: translateZ(0) !important;
-        animation-duration: 15s !important; // 增加动画持续时间
+        transform: translate3d(0, 0, 0) !important;
+        backface-visibility: hidden !important;
+        perspective: 1000px !important;
+        // 动画设置 - 使用CSS变量控制速度
+        animation-duration: calc(var(--base-duration) / var(--current-speed)) !important;
         animation-timing-function: linear !important;
+        animation-fill-mode: both !important;
+        // 性能优化：隔离重排重绘
+        contain: layout style paint !important;
+        // 优化渲染
+        image-rendering: optimizeSpeed !important;
+        pointer-events: none !important; // 弹幕不参与交互，提升性能
+        // 移除过渡效果，避免干扰动画
+        // transition: animation-duration 0.3s ease !important;
       }
 
       :deep(.danmaku-channel) {
         height: auto !important;
         min-height: 60px !important;
         margin-bottom: 10px !important;
+        // 性能优化
+        contain: layout !important;
       }
     }
   }
 }
 
-// 美丽的消息
+// 美丽的消息（性能优化版）
 .beautiful-message {
   display: inline-block !important;
+  // 性能优化
+  contain: layout style paint !important;
 
   .message-bubble {
     display: inline-flex !important;
     align-items: flex-start !important;
+    // 背景优化：移除耗费性能的backdrop-filter
     background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px) !important;
+    // backdrop-filter: blur(10px) !important; // 注释掉，性能杀手
     border-radius: 20px !important;
     padding: 12px 16px !important;
     margin: 5px 0 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    // 阴影优化：使用更轻量的阴影
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     max-width: 350px !important;
     min-width: 200px !important;
     position: relative !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
     white-space: nowrap !important;
+    // GPU加速优化
     will-change: transform !important;
-    transform: translateZ(0) !important;
-    animation: none !important; // 移除可能干扰的动画
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    // 性能优化
+    contain: layout style paint !important;
+    pointer-events: none !important; // 不参与交互，提升性能
+    animation: none !important;
 
     .message-avatar {
       position: relative;
       margin-right: 12px;
       flex-shrink: 0;
+      // 性能优化
+      contain: layout !important;
 
       .avatar-img {
         width: 40px;
         height: 40px;
         border-radius: 50%;
         border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        // 阴影优化：使用更轻量的阴影
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        // GPU加速
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        // 图片渲染优化
+        image-rendering: optimizeSpeed;
       }
 
       .avatar-status {
@@ -1026,6 +1279,9 @@ export default {
         background: #4ade80;
         border: 2px solid white;
         border-radius: 50%;
+        // GPU加速
+        transform: translateZ(0);
+        backface-visibility: hidden;
       }
     }
 
@@ -1033,12 +1289,16 @@ export default {
       flex: 1;
       min-width: 0;
       white-space: nowrap !important;
+      // 性能优化
+      contain: layout style !important;
 
       .message-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 4px;
+        // 性能优化
+        contain: layout !important;
 
         .message-author {
           font-size: 12px;
@@ -1289,12 +1549,35 @@ export default {
     flex-direction: column;
     gap: 15px;
     text-align: center;
+
+    .nav-stats {
+      justify-content: center;
+      gap: 30px;
+
+      .stat-item {
+        .stat-number {
+          font-size: 18px;
+        }
+
+        .stat-label {
+          font-size: 11px;
+        }
+      }
+    }
   }
 
   .stream-header {
     flex-direction: column;
     gap: 15px;
     text-align: center;
+
+    .stream-controls .control-item {
+      justify-content: center;
+
+      .speed-slider {
+        width: 80px;
+      }
+    }
   }
 
   .beautiful-message .message-bubble {

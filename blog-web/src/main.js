@@ -86,8 +86,11 @@ Vue.component('svg-icon', SvgIcon)
  * 挂载路由和状态管理
  * 渲染根组件
  */
-new Vue({
+const app = new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app')
+
+// 初始化网站配置（包括默认图片等）
+store.dispatch('getWebSiteConfig')

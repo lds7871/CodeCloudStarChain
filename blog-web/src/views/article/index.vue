@@ -1,12 +1,14 @@
 <template>
   <div class="article-page" v-loading="loading">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress-bar" :style="{width: readProgress + '%'}"></div>
 
     <!-- 添加固定操作栏 -->
     <div class="floating-action-bar" :style="{ left: actionBarLeft }">
       <el-tooltip class="item" effect="dark" content="点赞" placement="top-start">
         <div class="action-item" @click="toggleLike">
           <el-badge :value="article.likeNum || 0" class="item">
-            <div class="action-button">
+            <div class="action-button" :class="{ 'is-active': article.isLike }">
               <i class="fas fa-thumbs-up" :class="{ active: article.isLike }"></i>
             </div>
           </el-badge>
@@ -15,13 +17,13 @@
       <el-tooltip class="item" effect="dark" content="收藏" placement="top-start">
         <div class="action-item" @click="toggleFavorite">
           <el-badge :value="article.favoriteNum || 0" class="item">
-            <div class="action-button">
+            <div class="action-button" :class="{ 'is-active': article.isFavorite }">
               <i class="fas fa-star" :class="{ active: article.isFavorite }"></i>
             </div>
           </el-badge>
         </div>
       </el-tooltip>
-      <el-tooltip class="item" effect="dark" content="沉浸式浏览" placement="top-start">
+      <el-tooltip class="item" effect="dark" content="沉浸式阅读" placement="top-start">
         <div class="action-item" @click="toggleSidebar">
           <div class="action-button">
             <i class="fas fa-expand"></i>
@@ -33,9 +35,16 @@
           <i class="fas fa-yen-sign"></i>
         </div>
         <div class="reward-popup">
+          <div class="reward-title">感谢您的支持</div>
           <div class="reward-content">
-            <img v-lazy="$store.state.webSiteInfo.weixinPay" alt="余额打赏" class="reward-qr">
-            <img v-lazy="$store.state.webSiteInfo.aliPay" alt="支付宝打赏" class="reward-qr">
+            <div class="reward-qr-container">
+              <img v-lazy="$store.state.webSiteInfo.weixinPay" alt="微信支付" class="reward-qr">
+              <div class="reward-label">微信支付</div>
+            </div>
+            <div class="reward-qr-container">
+              <img v-lazy="$store.state.webSiteInfo.aliPay" alt="支付宝" class="reward-qr">
+              <div class="reward-label">支付宝</div>
+            </div>
           </div>
           <div class="reward-text">扫一扫，请我喝杯咖啡</div>
         </div>
@@ -49,6 +58,13 @@
           </el-badge>
         </div>
       </el-tooltip>
+      <el-tooltip class="item" effect="dark" content="回到顶部" placement="top-start">
+        <div class="action-item" @click="scrollToTop" v-show="showBackToTop">
+          <div class="action-button">
+            <i class="fas fa-arrow-up"></i>
+          </div>
+        </div>
+      </el-tooltip>
     </div>
 
     <div class="content-layout" id="articleBox" :class="{ center: !showSidebar }">
@@ -56,6 +72,10 @@
         <!-- 文章头部 -->
         <header class="article-header">
           <div class="article-title">{{ article.title }}</div>
+          
+          <div class="article-cover-image" v-if="article.cover">
+            <img v-lazy="article.cover" alt="文章封面">
+          </div>
 
           <!-- 作者信息和元数据 -->
           <div class="article-info">
@@ -97,7 +117,9 @@
         <!-- AI简短介绍 -->
         <div v-if="article.aiDescribe" class="ai-description">
           <div class="ai-header" @click="isAiDescriptionExpanded = !isAiDescriptionExpanded">
-            <i class="fas fa-robot"></i>
+            <div class="ai-icon-wrapper">
+              <i class="fas fa-robot"></i>
+            </div>
             <span>AI 摘要</span>
             <i class="fas" :class="isAiDescriptionExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"
               style="margin-left:auto;"></i>
@@ -106,14 +128,14 @@
             <div class="ai-content" v-show="isAiDescriptionExpanded">
               <span class="typing-text" ref="typingText"></span>
               <div class="ai-description-text">
-                摘要由平台通过智能技术生成
+                <i class="fas fa-magic"></i> 摘要由平台通过智能技术生成
               </div>
             </div>
           </transition>
         </div>
 
         <!-- 文章内容 -->
-        <article class="article-content">
+        <article class="article-content" ref="articleContent">
           <!-- 免费内容 -->
           <div v-if="article.readType === 1 || isPaid" v-html="article.content"></div>
 
@@ -126,18 +148,20 @@
               </div>
               <h3>会员专享内容</h3>
               <p>成为会员即可阅读全文</p>
-              <el-button type="primary" @click="handleUpgrade">立即开通会员</el-button>
+              <el-button type="primary" @click="handleUpgrade" class="premium-button">立即开通会员</el-button>
             </div>
           </div>
 
           <!-- 付费内容 -->
-          <div v-else class="payment-notice">
+          <div v-else class="locked-content paid">
             <div class="preview-content" v-html="getPreviewContent(article.content)"></div>
-            <div class="payment-mask">
-              <i class="el-icon-lock"></i>
+            <div class="content-locker">
+              <div class="locker-icon">
+                <i class="fas fa-lock"></i>
+              </div>
               <h3>付费内容</h3>
               <p>支付后可查看完整内容</p>
-              <el-button type="primary" @click="handlePurchase">
+              <el-button type="primary" @click="handlePurchase" class="premium-button">
                 立即购买 ￥{{ article.price }}
               </el-button>
             </div>
@@ -155,7 +179,7 @@
             <div class="notice-content">
               <div v-if="article.isOriginal" class="notice-item">
                 <i class="fas fa-check-circle"></i>
-                <span>本文由 {{ article.nickname }} 原创发布</span>
+                <span>本文由 <strong>{{ article.nickname }}</strong> 原创发布</span>
               </div>
               <div v-else class="notice-item">
                 <i class="fas fa-share-alt"></i>
@@ -183,81 +207,91 @@
             </div>
           </div>
 
-          <!-- 标签部分保持不变 -->
+          <!-- 点赞区域 -->
+          <div class="article-appreciation">
+            <button class="appreciation-btn" :class="{ 'is-active': article.isLike }" @click="toggleLike">
+              <div class="btn-inner">
+                <div class="btn-icon">
+                  <i class="fas fa-heart"></i>
+                </div>
+                <div class="btn-text">
+                  <span>{{ article.isLike ? '已点赞' : '点赞' }}</span>
+                  <span class="count">{{ article.likeNum || 0 }}</span>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <!-- 标签部分 -->
           <div class="tags-section">
-            <i class="fas fa-tags"></i>
+            <div class="section-header">
+              <i class="fas fa-tags"></i>
+              <span>文章标签</span>
+            </div>
             <div class="tags-list">
               <router-link v-for="tag in article.tags" :key="tag.id" :to="`/tags?tagId=${tag.id}&tagName=${tag.name}`"
                 class="tag-item">
-                {{ tag.name }}
+                <span class="tag-name">{{ tag.name }}</span>
               </router-link>
             </div>
           </div>
 
-          <!-- 修改操作按钮部分 -->
-          <div class="article-actions">
-            <button class="action-btn like" :class="{ active: article.isLike }" @click="toggleLike">
-              <i class="fas fa-heart"></i>
-              <span>{{ article.likeNum }}</span>
-            </button>
-            <div class="share-dropdown" v-click-outside="closeShareMenu">
-              <button class="action-btn share" @click="toggleShareMenu">
-                <i class="fas fa-share-alt"></i>
-                分享
+          <!-- 分享部分 -->
+          <div class="share-section">
+            <div class="section-header">
+              <i class="fas fa-share-alt"></i>
+              <span>分享文章</span>
+            </div>
+            <div class="share-buttons">
+              <button class="share-btn qq" @click="shareToQQ">
+                <i class="fab fa-qq"></i>
+                <span>QQ好友</span>
               </button>
-              <div class="share-menu" v-show="showShareMenu">
-                <button class="share-item" @click="shareToQQ">
-                  <i class="fab fa-qq"></i>
-                  QQ好友
-                </button>
-                <button class="share-item" @click="shareToQzone">
-                  <i class="fas fa-star"></i>
-                  QQ空间
-                </button>
-                <button class="share-item" @click="shareToWeibo">
-                  <i class="fab fa-weibo"></i>
-                  微博
-                </button>
-                <button class="share-item" @click="shareToWechat">
-                  <i class="fab fa-weixin"></i>
-                  微信
-                </button>
-                <button class="share-item" @click="copyLink">
-                  <i class="fas fa-link"></i>
-                  复制链接
-                </button>
-              </div>
+              <button class="share-btn qzone" @click="shareToQzone">
+                <i class="fas fa-star"></i>
+                <span>QQ空间</span>
+              </button>
+              <button class="share-btn weibo" @click="shareToWeibo">
+                <i class="fab fa-weibo"></i>
+                <span>微博</span>
+              </button>
+              <button class="share-btn wechat" @click="shareToWechat">
+                <i class="fab fa-weixin"></i>
+                <span>微信</span>
+              </button>
+              <button class="share-btn link" @click="copyLink">
+                <i class="fas fa-link"></i>
+                <span>复制链接</span>
+              </button>
             </div>
           </div>
 
-          <!-- 导航部分保持不变 -->
-          <!-- <nav class="article-nav">
-            <div 
-              v-if="prevArticle" 
-              class="nav-item prev"
-              @click="goToArticle(prevArticle.id)"
-            >
-              <i class="fas fa-arrow-left"></i>
-              <div class="nav-content">
-                <span class="label">上一篇</span>
-                <span class="title">{{ prevArticle.title }}</span>
+          <!-- 导航部分 -->
+          <nav class="article-nav" v-if="prevArticle || nextArticle">
+            <div class="nav-header">
+              <i class="fas fa-exchange-alt"></i>
+              <span>相关文章</span>
+            </div>
+            <div class="nav-container">
+              <div v-if="prevArticle" class="nav-item prev" @click="goToArticle(prevArticle.id)">
+                <div class="nav-direction">
+                  <i class="fas fa-arrow-left"></i>
+                  <span>上一篇</span>
+                </div>
+                <div class="nav-title">{{ prevArticle.title }}</div>
+              </div>
+              <div v-if="nextArticle" class="nav-item next" @click="goToArticle(nextArticle.id)">
+                <div class="nav-direction">
+                  <span>下一篇</span>
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="nav-title">{{ nextArticle.title }}</div>
               </div>
             </div>
-            <div 
-              v-if="nextArticle" 
-              class="nav-item next"
-              @click="goToArticle(nextArticle.id)"
-            >
-              <div class="nav-content">
-                <span class="label">下一篇</span>
-                <span class="title">{{ nextArticle.title }}</span>
-              </div>
-              <i class="fas fa-arrow-right"></i>
-            </div>
-          </nav> -->
+          </nav>
         </footer>
 
-        <!-- 添加评论组件 -->
+        <!-- 评论组件 -->
         <Comment :article-id="$route.params.id" :comment-count="article.commentNum || 0"
           :article-author-id="article.userId || ''" @comment-added="handleCommentAdded"
           @comment-deleted="handleCommentDeleted" />
@@ -276,7 +310,7 @@
               <span class="progress-text">{{ readProgress }}</span>
             </div>
           </div>
-          <div class="toc-content">
+          <div class="toc-content" v-if="tocItems.length > 0">
             <div v-for="(item, index) in tocItems" :key="index" class="toc-item" :class="{
               'active': activeHeading === item.id,
               [`level-${item.level}`]: true
@@ -284,13 +318,71 @@
               {{ item.text }}
             </div>
           </div>
+          <div class="toc-empty" v-else>
+            <i class="fas fa-info-circle"></i>
+            <span>此文章没有目录</span>
+          </div>
+        </div>
+
+        <div class="author-card">
+          <div class="author-header">
+            <img v-lazy="article.avatar" alt="作者头像" class="author-large-avatar">
+            <h3 class="author-large-name">{{ article.nickname }}</h3>
+            <p class="author-description" v-if="article.userIntro">{{ article.userIntro }}</p>
+            <p class="author-description" v-else>这个人很懒，还没有填写个人介绍</p>
+          </div>
+          <div class="author-stats">
+            <div class="stat-block">
+              <div class="stat-value">{{ article.articlesCount || 0 }}</div>
+              <div class="stat-label">文章</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value">{{ article.viewsCount || 0 }}</div>
+              <div class="stat-label">阅读</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value">{{ article.likesCount || 0 }}</div>
+              <div class="stat-label">获赞</div>
+            </div>
+          </div>
+          <div class="author-action">
+            <el-button type="primary" class="follow-button" @click="followAuthor" :disabled="isCurrentUser">
+              <i class="fas" :class="isFollowing ? 'fa-check' : 'fa-plus'"></i>
+              {{ isFollowing ? '已关注' : '关注' }}
+            </el-button>
+          </div>
+        </div>
+
+        <div class="related-articles" v-if="recommendArticles && recommendArticles.length > 0">
+          <div class="related-header">
+            <i class="fas fa-book"></i>
+            <span>推荐阅读</span>
+          </div>
+          <div class="related-list">
+            <div v-for="(item, index) in recommendArticles" :key="index" class="related-item"
+              @click="goToArticle(item.id)">
+              <div class="related-cover" v-if="item.cover">
+                <img v-lazy="item.cover" alt="文章封面">
+              </div>
+              <div class="related-info">
+                <div class="related-title">{{ item.title }}</div>
+                <div class="related-meta">
+                  <span><i class="far fa-eye"></i> {{ item.quantity }}</span>
+                  <span><i class="far fa-heart"></i> {{ item.likeNum }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </aside>
     </div>
+    <!-- 图片预览组件 -->
     <mj-image-preview ref="imagePreview" />
-    <payment-dialog :visible.sync="showPaymentDialog" :title="article.title" :price="1" :article-id="$route.params.id"
-      @payment-success="handlePaymentSuccess" />
-    <membership-dialog :visible.sync="showMembershipDialog" @payment-success="handleMembershipSuccess" />
+    <!-- 支付对话框 -->
+    <payment-dialog :visible.sync="showPaymentDialog" :title="article.title" :price="article.price"
+      :article-id="$route.params.id" @payment-success="handlePaymentSuccess" />
+    <!-- 会员对话框 -->
+    <membership-dialog :visible.sync="showMembershipDialog" @membership-success="handleMembershipSuccess" />
   </div>
 </template>
 
@@ -346,7 +438,11 @@ export default {
       showPaymentDialog: false,
       showMembershipDialog: false,
       isAiDescriptionExpanded: true,
-      isPaid: false, // 添加支付状态控制
+      isPaid: false,
+      showBackToTop: false,
+      isFollowing: false,
+      isCurrentUser: false,
+      recommendArticles: [],
     }
   },
   computed: {
@@ -431,6 +527,11 @@ export default {
      * 生成目录
      */
     generateToc() {
+
+      //测试locaStorage
+      console.log("用户喜欢的标签："+localStorage.getItem('user_like_tags'))
+
+
       const headings = document.querySelectorAll('.article-content h1,.article-content h2,.article-content h3,.article-content h4,.article-content h5,.article-content h6')
       this.tocItems = Array.from(headings).map(heading => {
         const id = heading.textContent.trim().toLowerCase().replace(/\s+/g, '-')
@@ -446,6 +547,16 @@ export default {
      * 点赞
      */
     toggleLike() {
+      //文章详细页面点赞可在console.log中打印出文章的tags
+      const names = this.article.tags.map(tag => tag.name)
+      const userId = JSON.parse(localStorage.getItem("user"))["id"]
+      console.log(names)
+      console.log(userId)
+      // 将标签名称数组存储到localStorage
+      localStorage.setItem('user_like_tags', JSON.stringify(names))
+      // 将用户ID存储到localStorage
+      // localStorage.setItem('current_user_id', userId)
+
       //防止频繁点击 设置一个5秒的防抖
       if (this.likeDebounce) {
         this.$message.warning('请于 5 秒后再试')
@@ -555,6 +666,12 @@ export default {
       const docHeight = docEl.scrollHeight - winHeight
       const scrollTop = window.scrollY || docEl.scrollTop
       this.readProgress = Math.round((scrollTop / docHeight) * 100)
+      
+      // 显示回到顶部按钮
+      this.showBackToTop = scrollTop > 300
+      
+      // 更新激活的标题
+      this.updateActiveHeading()
     },
     /**
      * 滚动到标题
@@ -809,7 +926,8 @@ export default {
           pre.insertBefore(lineNumbers, code)
         }
       })
-    }, checkPaymentStatus() {
+    },
+    checkPaymentStatus() {
       // 检查本地存储的支付状态
       const isPaid = localStorage.getItem(`article_paid_${this.$route.params.id}`);
       if (isPaid) {
@@ -895,7 +1013,26 @@ export default {
       // 触发回流
       element.offsetHeight
       element.style.height = '0px'
-    }
+    },
+    /**
+     * 滚动到顶部
+     */
+    scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
+    },
+
+    /**
+     * 关注作者
+     */
+    followAuthor() {
+      // 这里需要实现关注作者的逻辑
+      // toggleFollow(this.article.userId).then(...)
+      this.$message.success(this.isFollowing ? '已取消关注' : '关注成功')
+      this.isFollowing = !this.isFollowing
+    },
   },
   async created() {
     await this.getArticle()
@@ -903,7 +1040,7 @@ export default {
     window.addEventListener('resize', this.updateActionBarPosition)
   },
   mounted() {
-    window.addEventListener('scroll', this.updateActiveHeading)
+    window.addEventListener('scroll', this.handleScroll)
     this.$nextTick(() => {
       this.initImagePreview()
     })
@@ -912,7 +1049,7 @@ export default {
     }
   },
   beforeDestroy() {
-    window.removeEventListener('scroll', this.updateActiveHeading)
+    window.removeEventListener('scroll', this.handleScroll)
     window.removeEventListener('resize', this.updateActionBarPosition)
     // 清理图片点击事件监听器
     const images = document.querySelectorAll('.article-content img')
@@ -937,6 +1074,7 @@ export default {
   max-width: 1300px;
   margin: 0 auto;
   padding: $spacing-lg;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   @include responsive(lg) {
     padding: $spacing-sm;
@@ -951,7 +1089,7 @@ export default {
 
   &.center {
     grid-template-columns: 1fr;
-    max-width: 1100px;
+    max-width: 900px;
     margin: 0 auto;
   }
 
@@ -967,20 +1105,28 @@ export default {
   border-radius: $border-radius-lg;
   box-shadow: $shadow-md;
   overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: $shadow-lg;
+  }
 }
 
 .article-header {
-  padding: $spacing-lg $spacing-xl;
+  padding: $spacing-xl $spacing-xl;
   position: relative;
   border-bottom: 1px solid var(--border-color);
   background: var(--card-bg);
+  background-image: linear-gradient(to right, rgba($primary, 0.02), rgba($primary, 0.05), rgba($primary, 0.02));
 
   .article-title {
     color: var(--text-primary);
-    font-size: 1.8em;
+    font-size: 2em;
     line-height: 1.4;
     margin-bottom: $spacing-lg;
     text-align: left;
+    font-weight: 700;
+    letter-spacing: -0.5px;
   }
 
   .article-info {
@@ -996,14 +1142,15 @@ export default {
       gap: $spacing-md;
 
       .author-avatar {
-        width: 42px;
-        height: 42px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid rgba($primary, 0.2);
         padding: 2px;
         background: var(--card-bg);
-        transition: all 0.3s ease;
+        transition: all 0.5s ease;
+        box-shadow: 0 0 10px rgba($primary, 0.1);
 
         &:hover {
           transform: rotate(360deg);
@@ -1041,6 +1188,12 @@ export default {
 
           .category {
             color: $primary;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            
+            &:hover {
+              color: darken($primary, 10%);
+            }
           }
         }
       }
@@ -1050,6 +1203,9 @@ export default {
       display: flex;
       align-items: center;
       gap: $spacing-lg;
+      background: rgba($primary, 0.05);
+      padding: 8px 16px;
+      border-radius: 20px;
 
       .stat-item {
         display: flex;
@@ -1065,13 +1221,38 @@ export default {
       }
     }
   }
+  
+  @include responsive(sm) {
+    padding: $spacing-lg $spacing-md;
+    
+    .article-title {
+      font-size: 1.6em;
+    }
+    
+    .article-info {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      .article-stats {
+        width: 100%;
+        justify-content: space-around;
+        margin-top: $spacing-md;
+      }
+    }
+  }
 }
 
 .article-content {
-  padding: 0 $spacing-md * 2;
+  padding: $spacing-xl $spacing-xl;
   line-height: 1.8;
   color: var(--text-primary);
-  font-size: 1.1em;
+  font-size: 1.05em;
+  letter-spacing: 0.3px;
+
+  @include responsive(sm) {
+    padding: $spacing-md;
+    font-size: 1em;
+  }
 
   :deep(h2) {
     font-size: 1.8em;
@@ -1080,6 +1261,7 @@ export default {
     border-bottom: 2px solid rgba($primary, 0.1);
     position: relative;
     color: var(--text-primary);
+    font-weight: 600;
 
     &::after {
       content: '';
@@ -1089,15 +1271,21 @@ export default {
       width: 50px;
       height: 2px;
       background: $primary;
+      transition: width 0.3s ease;
+    }
+    
+    &:hover::after {
+      width: 100px;
     }
   }
 
   :deep(h3) {
-    font-size: 1.4em;
+    font-size: 1.5em;
     margin: $spacing-lg 0;
     color: var(--text-primary);
     position: relative;
     padding-left: $spacing-lg;
+    font-weight: 600;
 
     &::before {
       content: '';
@@ -1106,16 +1294,25 @@ export default {
       top: 50%;
       transform: translateY(-50%);
       width: 4px;
-      height: 20px;
+      height: 24px;
       background: $primary;
       border-radius: $border-radius-sm;
     }
+  }
+  
+  :deep(h4) {
+    font-size: 1.3em;
+    margin: $spacing-md 0;
+    color: var(--text-primary);
+    font-weight: 600;
   }
 
   :deep(p) {
     margin: $spacing-md 0;
     color: var(--text-secondary);
-    line-height: 1.8;
+    line-height: 1.9;
+    letter-spacing: 0.3px;
+    text-align: justify;
   }
 
   :deep(a) {
@@ -1123,39 +1320,59 @@ export default {
     text-decoration: none;
     border-bottom: 1px dashed $primary;
     transition: all 0.3s ease;
+    padding: 0 2px;
 
     &:hover {
       color: var(--primary-dark);
       border-bottom-style: solid;
+      background: rgba($primary, 0.05);
     }
   }
 
   :deep(blockquote) {
     margin: $spacing-lg 0;
     padding: $spacing-md $spacing-lg;
-    background: var(--hover-bg);
+    background: linear-gradient(to right, rgba($primary, 0.05), rgba($primary, 0.02));
     border-left: 4px solid $primary;
     border-radius: $border-radius-sm;
     color: var(--text-secondary);
     font-style: italic;
+    position: relative;
+    
+    &::before {
+      content: '"';
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      color: rgba($primary, 0.2);
+      font-size: 3em;
+      font-family: serif;
+      line-height: 1;
+    }
 
     p {
       margin: 0;
+      padding-left: 20px;
     }
   }
 
   :deep(ul),
   :deep(ol) {
-    margin: $spacing-md 0;
+    margin: $spacing-md 0 $spacing-md $spacing-md;
     padding-left: $spacing-xl;
     color: var(--text-secondary);
 
     li {
       margin-bottom: $spacing-sm;
       position: relative;
+      line-height: 1.7;
 
       &::marker {
         color: $primary;
+      }
+      
+      &:hover {
+        color: var(--text-primary);
       }
     }
   }
@@ -1167,19 +1384,21 @@ export default {
     color: rgb(239, 89, 84);
     background: rgb(243, 244, 244);
     border-radius: 6px;
-    padding: $spacing-xs;
+    padding: 2px 6px;
     margin: 0 $spacing-xs;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   }
 
   :deep(pre) {
-    margin: 1em 0;
+    margin: 1.5em 0;
     position: relative;
     background: #282c34;
-    border-radius: 6px;
+    border-radius: 8px;
     padding-top: 2.5em;
     overflow: hidden;
     max-height: 2000px;
     transition: max-height 0.4s ease-in-out;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 
     &.collapsed {
       max-height: 300px;
@@ -1190,7 +1409,7 @@ export default {
         bottom: 0;
         left: 0;
         right: 0;
-        height: 60px;
+        height: 80px;
         background: linear-gradient(transparent, #282c34);
         pointer-events: none;
         z-index: 2;
@@ -1206,10 +1425,10 @@ export default {
       bottom: 15px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 6px 16px;
+      padding: 8px 18px;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
+      border-radius: 20px;
       color: #abb2bf;
       cursor: pointer;
       z-index: 3;
@@ -1223,6 +1442,7 @@ export default {
         background: rgba(255, 255, 255, 0.2);
         color: #fff;
         transform: translateX(-50%) translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       }
 
       i {
@@ -1239,11 +1459,12 @@ export default {
       font-size: 14px;
       padding: 1em 0;
       text-align: right;
-      color: #666;
+      color: #606060;
       border-right: 1px solid #404040;
       background: #2d323b;
       user-select: none;
       z-index: 1;
+      min-width: 40px;
 
       span {
         display: block;
@@ -1262,11 +1483,10 @@ export default {
       margin-left: 0;
       /* 移除margin */
       overflow-x: auto;
-      font-family: 'Fira Code', monospace;
+      font-family: "Fira Code", "SFMono-Regular", Consolas, Menlo, monospace;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
       position: relative;
-
     }
 
     /* 添加仿 macOS 风格的按钮 */
@@ -1301,7 +1521,7 @@ export default {
 
     /* 复制按钮样式 */
     .copy-button {
-      padding: 4px 8px;
+      padding: 5px 10px;
       background: rgba(255, 255, 255, 0.1);
       border: none;
       border-radius: 4px;
@@ -1331,7 +1551,7 @@ export default {
 
   :deep(img.lazy-image) {
     opacity: 0;
-
+    transition: opacity 0.5s ease, transform 0.3s ease;
 
     &.loaded {
       opacity: 1;
@@ -1345,10 +1565,11 @@ export default {
   :deep(img) {
     max-width: 100%;
     border-radius: $border-radius-md;
-    margin: $spacing-lg 0;
+    margin: $spacing-lg auto;
     transition: all 0.3s ease;
     box-shadow: $shadow-md;
     cursor: zoom-in;
+    display: block;
 
     &:hover {
       transform: translateY(-2px);
@@ -1362,22 +1583,38 @@ export default {
     border-collapse: collapse;
     border-radius: $border-radius-md;
     overflow: hidden;
+    box-shadow: 0 0 0 1px var(--border-color);
 
-    th,
-    td {
-      padding: $spacing-sm $spacing-md;
+    th, td {
+      padding: $spacing-md;
       border: 1px solid var(--border-color);
+      transition: background-color 0.2s ease;
     }
 
     th {
-      background: var(--hover-bg);
+      background: rgba($primary, 0.05);
       color: var(--text-primary);
-      font-weight: 500;
+      font-weight: 600;
       text-align: left;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: rgba($primary, 0.2);
+      }
     }
 
     tr:nth-child(even) {
       background: var(--hover-bg);
+    }
+    
+    tr:hover {
+      background: rgba($primary, 0.05);
     }
   }
 
@@ -1385,7 +1622,7 @@ export default {
     margin: $spacing-xl 0;
     border: none;
     height: 1px;
-    background: var(--border-color);
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
     position: relative;
 
     &::before {
@@ -1483,11 +1720,12 @@ export default {
 }
 
 .article-footer {
-  padding: $spacing-md * 2;
+  padding: $spacing-xl;
   border-top: 1px solid var(--border-color);
+  background: linear-gradient(to bottom, transparent, rgba($primary, 0.02));
 
-  @include responsive(lg) {
-    padding: $spacing-sm;
+  @include responsive(sm) {
+    padding: $spacing-md;
   }
 
   .copyright-notice {
@@ -1495,6 +1733,7 @@ export default {
     background: var(--hover-bg);
     border-radius: $border-radius-lg;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 
     .notice-header {
       padding: $spacing-md $spacing-lg;
@@ -1538,9 +1777,10 @@ export default {
 
         &.notice-warning {
           margin-top: $spacing-sm;
-          padding: $spacing-sm;
+          padding: $spacing-sm $spacing-md;
           background: rgba($primary, 0.05);
           border-radius: $border-radius-sm;
+          border-left: 3px solid #ff9800;
 
           i {
             color: #ff9800;
@@ -1555,6 +1795,7 @@ export default {
     align-items: center;
     gap: $spacing-md;
     margin-bottom: $spacing-xl;
+    flex-wrap: wrap;
 
     i {
       color: $primary;
@@ -1574,135 +1815,103 @@ export default {
       font-size: 0.9em;
       text-decoration: none;
       transition: all 0.3s ease;
+      border: 1px solid transparent;
 
       &:hover {
-        background: $primary;
-        color: white;
+        background: rgba($primary, 0.1);
+        color: $primary;
         transform: translateY(-2px);
+        border-color: rgba($primary, 0.2);
+        box-shadow: 0 3px 8px rgba($primary, 0.1);
       }
     }
   }
 
-  .article-actions {
-    display: flex;
-    justify-content: center;
-    gap: $spacing-lg;
+  .article-appreciation {
     margin-bottom: $spacing-xl;
 
-    .action-btn {
+    .appreciation-btn {
       display: inline-flex;
       align-items: center;
       gap: $spacing-sm;
       padding: $spacing-sm $spacing-xl;
       border: none;
-      border-radius: 20px;
+      border-radius: 24px;
       font-size: 1em;
       cursor: pointer;
       transition: all 0.3s ease;
 
-      &.like {
-        background: var(--hover-bg);
-        color: var(--text-secondary);
+      &.is-active {
+        background: rgba($primary, 0.1);
+        color: $primary;
+      }
 
-        &.active {
-          background: $primary;
-          color: white;
-        }
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba($primary, 0.1);
+      }
+    }
+  }
+
+  .share-section {
+    margin-bottom: $spacing-xl;
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-weight: 500;
+      margin-bottom: $spacing-md;
+    }
+
+    .share-buttons {
+      display: flex;
+      gap: $spacing-md;
+
+      .share-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-sm;
+        padding: $spacing-sm $spacing-xl;
+        border: none;
+        border-radius: 24px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
 
         &:hover {
           transform: scale(1.05);
-        }
-      }
-
-      &.share {
-        background: $primary;
-        color: white;
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba($primary, 0.2);
+          box-shadow: 0 4px 12px rgba($primary, 0.1);
         }
       }
     }
+  }
 
-    :deep(.share-dropdown) {
-      position: relative;
+  .article-nav {
+    margin-top: $spacing-xl;
 
-      .share-menu {
-        position: absolute;
-        bottom: calc(100% + 8px);
-        right: 0;
-        background: var(--card-bg);
-        border-radius: $border-radius-lg;
-        box-shadow: $shadow-lg;
-        padding: $spacing-xs;
-        min-width: 180px;
-        z-index: 100;
-        border: 1px solid var(--border-color);
-        transform-origin: bottom right;
-        animation: shareMenuIn 0.2s ease;
+    .nav-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-weight: 500;
+      margin-bottom: $spacing-md;
+    }
 
-        &::before {
-          content: '';
-          position: absolute;
-          bottom: -5px;
-          right: 20px;
-          width: 10px;
-          height: 10px;
-          background: var(--card-bg);
-          border-left: 1px solid var(--border-color);
-          border-top: 1px solid var(--border-color);
-          transform: rotate(225deg);
-        }
+    .nav-container {
+      display: flex;
+      gap: $spacing-md;
 
-        .share-item {
-          width: 100%;
-          padding: $spacing-sm $spacing-lg;
-          border: none;
-          background: none;
-          color: var(--text-secondary);
-          font-size: 0.95em;
-          display: flex;
-          align-items: center;
-          gap: $spacing-md;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border-radius: $border-radius-sm;
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        cursor: pointer;
+        transition: all 0.3s ease;
 
-          i {
-            width: 16px;
-            text-align: center;
-            font-size: 1.1em;
-
-            &.fa-qq {
-              color: #12B7F5;
-            }
-
-            &.fa-star {
-              color: #FFD700;
-            }
-
-            &.fa-weibo {
-              color: #E6162D;
-            }
-
-            &.fa-weixin {
-              color: #07C160;
-            }
-
-            &.fa-link {
-              color: $primary;
-            }
-          }
-
-          &:hover {
-            background: var(--hover-bg);
-            padding-left: $spacing-xl;
-          }
-
-          &:active {
-            transform: scale(0.95);
-          }
+        &:hover {
+          color: $primary;
+          transform: translateX(5px);
         }
       }
     }
@@ -1721,19 +1930,27 @@ export default {
     border: 1px solid var(--border-color);
     backdrop-filter: blur(10px);
 
+    &:hover {
+      box-shadow: $shadow-lg;
+      border-color: rgba($primary, 0.2);
+      
+      &::before {
+        opacity: 1;
+      }
+    }
+
     &::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(45deg, transparent, rgba($primary, 0.03), transparent);
+      background: linear-gradient(45deg, transparent, rgba($primary, 0.05), transparent);
       opacity: 0;
       transition: opacity 0.3s ease;
     }
 
-
     .toc-header {
       padding: $spacing-lg;
-      background: var(--hover-bg);
+      background: rgba($primary, 0.05);
       color: var(--text-primary);
       font-weight: 500;
       display: flex;
@@ -1752,6 +1969,7 @@ export default {
           color: $primary;
           font-size: 1.1em;
           transform-origin: center;
+          animation: tocIconPulse 2s infinite;
         }
       }
 
@@ -1761,10 +1979,19 @@ export default {
         display: flex;
         align-items: center;
         gap: $spacing-xs;
-        padding: 4px 8px;
-        background: rgba($primary, 0.05);
+        padding: 4px 10px;
+        background: rgba($primary, 0.1);
         border-radius: $border-radius-lg;
         transition: all 0.3s ease;
+
+        &.completed {
+          background: rgba(green, 0.1);
+          color: green;
+          
+          i {
+            color: green;
+          }
+        }
 
         i {
           color: $primary;
@@ -1791,6 +2018,20 @@ export default {
       overflow-y: auto;
       position: relative;
 
+      /* 添加美化滚动条 */
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: rgba($primary, 0.2);
+        border-radius: 3px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
       &::before {
         content: '';
         position: absolute;
@@ -1807,7 +2048,7 @@ export default {
 
       .toc-item {
         padding: $spacing-sm $spacing-md;
-        margin: 2px 0;
+        margin: 3px 0;
         cursor: pointer;
         border-radius: $border-radius-sm;
         color: var(--text-secondary);
@@ -1868,25 +2109,30 @@ export default {
         }
 
         &.level-1 {
-          font-weight: 500;
+          font-weight: 600;
           font-size: 1em;
+          padding-left: 12px;
         }
 
         &.level-2 {
           font-size: 0.95em;
+          margin-left: 8px;
         }
 
         &.level-3 {
           font-size: 0.9em;
+          margin-left: 16px;
         }
 
         &.level-4 {
           font-size: 0.88em;
+          margin-left: 24px;
         }
 
         &.level-5,
         &.level-6 {
           font-size: 0.86em;
+          margin-left: 32px;
           opacity: 0.8;
 
           &:hover {
@@ -1896,8 +2142,140 @@ export default {
       }
     }
   }
+
+  .author-card {
+    padding: $spacing-lg;
+    background: var(--card-bg);
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-md;
+    margin-top: $spacing-md;
+
+    .author-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      .author-large-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .author-large-name {
+        font-size: 1.4em;
+        font-weight: 600;
+      }
+
+      .author-description {
+        color: var(--text-secondary);
+        font-size: 0.9em;
+      }
+    }
+
+    .author-stats {
+      display: flex;
+      gap: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      .stat-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .stat-value {
+          font-size: 1.2em;
+          font-weight: 600;
+        }
+
+        .stat-label {
+          color: var(--text-secondary);
+          font-size: 0.9em;
+        }
+      }
+    }
+
+    .author-action {
+      text-align: right;
+    }
+  }
+
+  .related-articles {
+    padding: $spacing-lg;
+    background: var(--card-bg);
+    border-radius: $border-radius-lg;
+    margin-top: $spacing-md;
+
+    .related-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-weight: 500;
+      margin-bottom: $spacing-md;
+    }
+
+    .related-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-md;
+
+      .related-item {
+        width: calc(50% - 8px);
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: $primary;
+          transform: translateX(5px);
+        }
+
+        .related-cover {
+          width: 100px;
+          height: 100px;
+          border-radius: $border-radius-md;
+          overflow: hidden;
+          margin-right: $spacing-md;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .related-info {
+          flex: 1;
+
+          .related-title {
+            font-size: 1.2em;
+            font-weight: 600;
+          }
+
+          .related-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+
+            i {
+              margin-left: 4px;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
+@keyframes tocIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
 
 @keyframes tocDotPulse {
   0% {
@@ -1910,18 +2288,6 @@ export default {
 
   100% {
     box-shadow: 0 0 0 0 rgba($primary, 0);
-  }
-}
-
-@keyframes shareMenuIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -1948,17 +2314,20 @@ export default {
   }
 
   .action-item {
+    position: relative;
     cursor: pointer;
 
     .action-button {
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
       background: var(--card-bg);
       transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 2px solid transparent;
 
       i {
         font-size: 1.2em;
@@ -1982,6 +2351,8 @@ export default {
       .action-button {
         background: rgba($primary, 0.1);
         transform: translateY(-2px);
+        border-color: rgba($primary, 0.3);
+        box-shadow: 0 5px 15px rgba($primary, 0.2);
 
         i {
           color: $primary;
@@ -2001,13 +2372,14 @@ export default {
       transform: translateY(-50%);
       background: var(--card-bg);
       border-radius: $border-radius-lg;
-      padding: $spacing-md;
+      padding: $spacing-lg;
       box-shadow: $shadow-lg;
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
       pointer-events: none;
       width: 510px;
+      border: 1px solid var(--border-color);
 
       &::before {
         content: '';
@@ -2019,25 +2391,58 @@ export default {
         height: 12px;
         background: var(--card-bg);
         border-radius: 2px;
+        border-left: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .reward-title {
+        font-size: 1.4em;
+        font-weight: 500;
+        margin-bottom: $spacing-md;
       }
 
       .reward-content {
         display: flex;
         gap: $spacing-md;
-        margin-bottom: $spacing-sm;
+        margin-bottom: $spacing-md;
 
-        .reward-qr {
+        .reward-qr-container {
           width: 250px;
           height: 250px;
           border-radius: $border-radius-sm;
-          object-fit: cover;
+          overflow: hidden;
+          border: 1px solid rgba($primary, 0.1);
+          transition: transform 0.3s ease;
+          
+          &:hover {
+            transform: scale(1.02);
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .reward-label {
+          color: var(--text-secondary);
+          font-size: 0.9em;
+          padding: $spacing-sm;
+          background: rgba($primary, 0.05);
+          border-radius: $border-radius-sm;
+          font-weight: 500;
         }
       }
 
       .reward-text {
         text-align: center;
         color: var(--text-secondary);
-        font-size: 0.9em;
+        font-size: 0.95em;
+        padding: $spacing-sm;
+        background: rgba($primary, 0.05);
+        border-radius: $border-radius-sm;
+        font-weight: 500;
       }
     }
 
@@ -2055,16 +2460,15 @@ export default {
 .ai-description {
   margin: $spacing-md $spacing-xl;
   border-radius: $border-radius-lg;
-  background-image: linear-gradient(180deg, rgba(247, 232, 255, .54), rgba(191, 223, 255, .35));
+  background-image: linear-gradient(180deg, rgba(247, 232, 255, .6), rgba(191, 223, 255, .4));
   border: 1px solid rgba(0, 150, 136, 0.1);
   transition: all 0.3s ease;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba($primary, 0.1);
 
   @include responsive(sm) {
     margin: $spacing-sm;
   }
-
-
 
   .ai-header {
     padding: $spacing-sm $spacing-md;
@@ -2075,20 +2479,32 @@ export default {
     justify-content: flex-start;
     color: #a855f7;
     cursor: pointer;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
 
     i {
-      font-size: 1.1em;
+      font-size: 1.2em;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover i {
+      transform: rotate(15deg);
     }
   }
 
   .ai-content {
-    padding: $spacing-md;
+    padding: $spacing-md $spacing-lg;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.7);
+    border-top: 1px dashed rgba($primary, 0.2);
   }
 
   .ai-description-text {
     margin-top: $spacing-sm;
     color: #8c8a8e;
+    font-style: italic;
+    text-align: right;
+    font-size: 0.9em;
   }
 }
 

@@ -199,39 +199,292 @@ export default {
 };
 </script>
 
-<style scoped>
-.tag-cloud {
-  width: 300px;
-  height: 300px;
+<style lang="scss" scoped>
+.tag-wall {
   position: relative;
-  color: #333;
-  margin: 0 auto;
-  text-align: center;
-  cursor: default;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  perspective: 1000px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(0, 245, 255, 0.03) 15deg,
+      transparent 30deg
+    );
+    animation: rotate 20s linear infinite;
+    pointer-events: none;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 1px solid rgba(0, 245, 255, 0.2);
+    border-radius: 50%;
+    box-shadow: 
+      0 0 20px rgba(0, 245, 255, 0.1),
+      inset 0 0 20px rgba(0, 245, 255, 0.1);
+    pointer-events: none;
+  }
 }
 
-.tag-cloud p {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  color: #333;
-  font-family: Arial;
-  text-decoration: none;
-  margin: 0 10px 15px 0;
-  line-height: 18px;
-  text-align: center;
-  font-size: 16px;
-  padding: 4px 9px;
-  display: inline-block;
-  border-radius: 3px;
-  transition: opacity 0.3s ease;
+.tag-cloud {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  cursor: grab;
+  
+  &:active {
+    cursor: grabbing;
+  }
+  
+  p {
+    position: absolute;
+    margin: 0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-decoration: none;
+    user-select: none;
+    white-space: nowrap;
+    
+    // 基础科幻样式
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 245, 255, 0.3);
+    backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 10px currentColor;
+    box-shadow: 
+      0 0 10px rgba(0, 245, 255, 0.2),
+      inset 0 0 10px rgba(0, 245, 255, 0.05);
+    
+    // 每个标签随机的霓虹灯颜色
+    &:nth-child(6n+1) {
+      border-color: rgba(0, 245, 255, 0.4);
+      color: #00f5ff;
+      box-shadow: 
+        0 0 15px rgba(0, 245, 255, 0.3),
+        inset 0 0 15px rgba(0, 245, 255, 0.1);
+    }
+    
+    &:nth-child(6n+2) {
+      border-color: rgba(131, 56, 236, 0.4);
+      color: #8338ec;
+      box-shadow: 
+        0 0 15px rgba(131, 56, 236, 0.3),
+        inset 0 0 15px rgba(131, 56, 236, 0.1);
+    }
+    
+    &:nth-child(6n+3) {
+      border-color: rgba(255, 0, 110, 0.4);
+      color: #ff006e;
+      box-shadow: 
+        0 0 15px rgba(255, 0, 110, 0.3),
+        inset 0 0 15px rgba(255, 0, 110, 0.1);
+    }
+    
+    &:nth-child(6n+4) {
+      border-color: rgba(0, 128, 255, 0.4);
+      color: #0080ff;
+      box-shadow: 
+        0 0 15px rgba(0, 128, 255, 0.3),
+        inset 0 0 15px rgba(0, 128, 255, 0.1);
+    }
+    
+    &:nth-child(6n+5) {
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
+      box-shadow: 
+        0 0 15px rgba(16, 185, 129, 0.3),
+        inset 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+    
+    &:nth-child(6n) {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+      box-shadow: 
+        0 0 15px rgba(245, 158, 11, 0.3),
+        inset 0 0 15px rgba(245, 158, 11, 0.1);
+    }
+    
+    // 悬停效果
+    &:hover {
+      transform: scale(1.2) translateZ(20px);
+      background: rgba(0, 0, 0, 0.8);
+      border-width: 2px;
+      text-shadow: 0 0 20px currentColor;
+      z-index: 100;
+      
+      &:nth-child(6n+1) {
+        box-shadow: 
+          0 0 30px rgba(0, 245, 255, 0.6),
+          inset 0 0 20px rgba(0, 245, 255, 0.2);
+      }
+      
+      &:nth-child(6n+2) {
+        box-shadow: 
+          0 0 30px rgba(131, 56, 236, 0.6),
+          inset 0 0 20px rgba(131, 56, 236, 0.2);
+      }
+      
+      &:nth-child(6n+3) {
+        box-shadow: 
+          0 0 30px rgba(255, 0, 110, 0.6),
+          inset 0 0 20px rgba(255, 0, 110, 0.2);
+      }
+      
+      &:nth-child(6n+4) {
+        box-shadow: 
+          0 0 30px rgba(0, 128, 255, 0.6),
+          inset 0 0 20px rgba(0, 128, 255, 0.2);
+      }
+      
+      &:nth-child(6n+5) {
+        box-shadow: 
+          0 0 30px rgba(16, 185, 129, 0.6),
+          inset 0 0 20px rgba(16, 185, 129, 0.2);
+      }
+      
+      &:nth-child(6n) {
+        box-shadow: 
+          0 0 30px rgba(245, 158, 11, 0.6),
+          inset 0 0 20px rgba(245, 158, 11, 0.2);
+      }
+    }
+    
+    // 暗淡效果（当其他标签被hover时）
+    &.tag-dimmed {
+      opacity: 0.3;
+      transform: scale(0.9);
+      filter: blur(1px);
+    }
+    
+    // 点击效果
+    &:active {
+      transform: scale(1.1) translateZ(10px);
+      transition: transform 0.1s ease;
+    }
+    
+    // 扫描线效果
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+      border-radius: 20px;
+      transition: left 0.5s ease;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+  }
 }
 
-.tag-cloud p:hover {
-  cursor: pointer;
+// 旋转动画
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.tag-dimmed {
-  opacity: 0.05 !important;
+// 脉冲动画（用于强调某些标签）
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 10px rgba(0, 245, 255, 0.2),
+      inset 0 0 10px rgba(0, 245, 255, 0.05);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px rgba(0, 245, 255, 0.4),
+      inset 0 0 20px rgba(0, 245, 255, 0.1);
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .tag-wall {
+    height: 250px;
+    
+    &::after {
+      width: 150px;
+      height: 150px;
+    }
+  }
+  
+  .tag-cloud p {
+    padding: 6px 12px;
+    font-size: 12px;
+    
+    &:hover {
+      transform: scale(1.15) translateZ(15px);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-wall {
+    height: 200px;
+    
+    &::after {
+      width: 120px;
+      height: 120px;
+    }
+  }
+  
+  .tag-cloud p {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+// 特殊效果：当没有hover任何标签时，随机几个标签会发光
+.tag-cloud:not(:hover) {
+  p {
+    &:nth-child(7n+1) {
+      animation: pulse 3s ease-in-out infinite;
+      animation-delay: 0s;
+    }
+    
+    &:nth-child(11n+3) {
+      animation: pulse 3s ease-in-out infinite;
+      animation-delay: 1s;
+    }
+    
+    &:nth-child(13n+5) {
+      animation: pulse 3s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+  }
 }
 </style>
