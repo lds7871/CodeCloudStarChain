@@ -7,9 +7,8 @@
         <div class="avatar-section">
           <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
             <el-avatar :size="100" :src="userInfo.avatar || userInfo.headimgurl || userInfo.avatarUrl"
-                       alt="用户头像"></el-avatar>
-            <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0"
-                 aria-label="更换头像">
+              alt="用户头像"></el-avatar>
+            <div class="avatar-wrapper" @click="showCropper = true" role="button" tabindex="0" aria-label="更换头像">
               <el-avatar :size="100" :src="userInfo.avatar" alt="用户头像"></el-avatar>
               <div class="upload-overlay" inert>
                 <i class="el-icon-camera"></i>
@@ -21,13 +20,8 @@
 
           <!-- 添加签到按钮 -->
           <div class="sign-in-section">
-            <el-button
-                type="primary"
-                :disabled="signInStatus"
-                @click="handleSignIn"
-                size="small"
-                :loading="signInLoading"
-            >
+            <el-button type="primary" :disabled="signInStatus" @click="handleSignIn" size="small"
+              :loading="signInLoading">
               <i class="el-icon-check"></i>
               {{ signInStatus ? '今日已签到' : '立即签到' }}
             </el-button>
@@ -57,7 +51,7 @@
               <span class="label">获赞</span>
             </div>
           </div>
-          </div>
+        </div>
       </el-card>
 
       <!-- 导航菜单 -->
@@ -75,25 +69,20 @@
       <div v-if="currentTab === 'profile'" class="content-section">
         <h2 class="section-title">个人资料</h2>
         <el-form ref="profileForm" :model="profileForm" :rules="profileRules" label-width="80px" class="profile-form"
-                 @submit.prevent="submitProfile">
+          @submit.prevent="submitProfile">
           <el-form-item label="昵称" prop="nickname">
             <el-input v-model="profileForm.nickname" :placeholder="'请输入昵称'" aria-label="昵称输入框"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email">
-            <el-input
-              v-model="profileForm.email"
-              placeholder="点击绑定按钮绑定"
-              readonly
-              aria-label="邮箱输入框"
-            >
+            <el-input v-model="profileForm.email" placeholder="点击绑定按钮绑定" readonly aria-label="邮箱输入框">
               <template v-if="!profileForm.email" slot="append">
-                <span style="color:#409eff;cursor:pointer;" @click="$refs.bindingTab && ($refs.bindingTab.active = 'binding');showBindEmail = true">绑定</span>
+                <span style="color:#409eff;cursor:pointer;"
+                  @click="$refs.bindingTab && ($refs.bindingTab.active = 'binding'); showBindEmail = true">绑定</span>
               </template>
             </el-input>
           </el-form-item>
           <el-form-item label="个人简介">
-            <el-input type="textarea" v-model="profileForm.user_info" :rows="4"
-                      placeholder="介绍一下自己吧..."></el-input>
+            <el-input type="textarea" v-model="profileForm.user_info" :rows="4" placeholder="介绍一下自己吧..."></el-input>
           </el-form-item>
           <el-form-item label="性别">
             <el-radio-group v-model="profileForm.sex">
@@ -103,8 +92,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitProfile" :loading="loading" icon="el-icon-edit"
-                       size="small">保存修改
+            <el-button type="primary" @click="submitProfile" :loading="loading" icon="el-icon-edit" size="small">保存修改
             </el-button>
             <el-button size="small" @click="resetProfile" icon="el-icon-refresh">重置</el-button>
           </el-form-item>
@@ -115,9 +103,8 @@
       <div v-if="currentTab === 'binding'" cla1110ss="content-section">
         <h2 class="section-title">账号绑定</h2>
         <div class="binding-tips">
-          <el-alert title="账号绑定提示" type="info"
-                    description="绑定第三方账号后，您可以直接使用第三方账号登录本站，还可以同步您的个人信息。" show-icon
-                    :closable="false">
+          <el-alert title="账号绑定提示" type="info" description="绑定第三方账号后，您可以直接使用第三方账号登录本站，还可以同步您的个人信息。" show-icon
+            :closable="false">
           </el-alert>
         </div>
         <div class="binding-list">
@@ -137,8 +124,8 @@
                   {{ account.isBound ? '已绑定' : '未绑定' }}
                 </el-tag>
                 <el-button :type="account.isBound ? 'danger' : 'primary'" size="small"
-                           :icon="account.isBound ? 'el-icon-close' : 'el-icon-link'"
-                           @click="account.isBound ? unbindAccount(account.type) : bindAccount(account.type)">
+                  :icon="account.isBound ? 'el-icon-close' : 'el-icon-link'"
+                  @click="account.isBound ? unbindAccount(account.type) : bindAccount(account.type)">
                   {{ account.isBound ? '解除绑定' : '立即绑定' }}
                 </el-button>
               </div>
@@ -159,21 +146,10 @@
                 <el-tag :type="userInfo.email ? 'success' : 'info'" size="small" effect="dark" class="status-tag">
                   {{ userInfo.email ? '已绑定' : '未绑定' }}
                 </el-tag>
-                <el-button
-                  v-if="!userInfo.email"
-                  type="primary"
-                  size="small"
-                  icon="el-icon-link"
-                  @click="showBindEmail = true"
-                >立即绑定</el-button>
-                <el-button
-                  v-else
-                  type="danger"
-                  size="small"
-                  icon="el-icon-close"
-                  :loading="unbindEmailLoading"
-                  @click="handleUnbindEmail"
-                >解绑</el-button>
+                <el-button v-if="!userInfo.email" type="primary" size="small" icon="el-icon-link"
+                  @click="showBindEmail = true">立即绑定</el-button>
+                <el-button v-else type="danger" size="small" icon="el-icon-close" :loading="unbindEmailLoading"
+                  @click="handleUnbindEmail">解绑</el-button>
               </div>
             </div>
           </el-card>
@@ -186,9 +162,8 @@
         <h2 class="section-title">我的文章</h2>
         <div class="action-bar">
           <div>
-            <el-input v-model="params.title" size="mini" placeholder="输入文字标题搜索文章..."
-                      prefix-icon="el-icon-search"
-                      style="width: 300px;margin-right: 10px"></el-input>
+            <el-input v-model="params.title" size="mini" placeholder="输入文字标题搜索文章..." prefix-icon="el-icon-search"
+              style="width: 300px;margin-right: 10px"></el-input>
             <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
           </div>
 
@@ -219,8 +194,7 @@
 
           <div class="pagination-box">
             <el-pagination background @current-change="handlePostChange" :current-page="params.pageNum"
-                           :page-size="params.pageSize" :total="total" layout="prev, pager, next"
-                           class="pagination"></el-pagination>
+              :page-size="params.pageSize" :total="total" layout="prev, pager, next" class="pagination"></el-pagination>
           </div>
         </div>
         <el-empty v-else description="暂无文章，快去发布你的文章吧~~"></el-empty>
@@ -259,8 +233,7 @@
           <el-card v-for="comment in myComments" :key="comment.id" class="comment-item">
             <div class="comment-actions">
               <p class="comment-text" v-html="parseContent(comment.content)"></p>
-              <el-button type="text" icon="el-icon-delete" class="delete"
-                         @click="deleteComment(comment.id)">删除
+              <el-button type="text" icon="el-icon-delete" class="delete" @click="deleteComment(comment.id)">删除
               </el-button>
             </div>
             <div class="comment-meta">
@@ -270,16 +243,15 @@
                 {{ comment.createTime }}
               </el-tag>
               <el-tag size="small" type="success"><i class="el-icon-star-off"></i>{{
-                  comment.likeCount ?
-                      comment.likeCount : 0
-                }} 赞
+                comment.likeCount ?
+                  comment.likeCount : 0
+              }} 赞
               </el-tag>
             </div>
           </el-card>
           <div class="pagination-box">
             <el-pagination background v-if="myComments.length" @current-change="handlePageChange"
-                           :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next"
-                           :total="total">
+              :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next" :total="total">
             </el-pagination>
           </div>
         </div>
@@ -295,10 +267,9 @@
               <div class="comment-actions">
                 <p class="reply-text">
                   <el-tag size="small" type="info">回复 @{{ reply.replyNickname }}</el-tag>
-                  <p v-html="parseContent(reply.content)"></p>
+                <p v-html="parseContent(reply.content)"></p>
                 </p>
-                <el-button type="text" icon="el-icon-delete" class="delete"
-                           @click="deleteReply(reply.id)">删除
+                <el-button type="text" icon="el-icon-delete" class="delete" @click="deleteReply(reply.id)">删除
                 </el-button>
               </div>
               <div class="reply-meta">
@@ -313,8 +284,7 @@
 
           <div class="pagination-box">
             <el-pagination background v-if="myReplies.length" @current-change="handleReplyPageChange"
-                           :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next"
-                           :total="total">
+              :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next" :total="total">
             </el-pagination>
           </div>
         </div>
@@ -331,8 +301,7 @@
             <div class="like-content">
               <div class="comment-actions">
                 <el-link class="article-title" @click="viewPost(like.id)">{{ like.title }}</el-link>
-                <el-button type="text" icon="el-icon-star-off" class="delete"
-                           @click="cancelLike(like.id)">取消点赞
+                <el-button type="text" icon="el-icon-star-off" class="delete" @click="cancelLike(like.id)">取消点赞
                 </el-button>
               </div>
               <div class="like-meta">
@@ -346,8 +315,7 @@
           </el-card>
           <div class="pagination-box">
             <el-pagination background v-if="myLikes.length" @current-change="handleLikePageChange"
-                           :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next"
-                           :total="total">
+              :current-page="params.pageNum" :page-size="params.pageSize" layout="prev, pager, next" :total="total">
             </el-pagination>
           </div>
         </div>
@@ -360,28 +328,25 @@
         <h2 class="section-title">修改密码</h2>
 
         <div class="binding-tips">
-          <el-alert title="修改密码提示" type="info"
-                    description="只有邮箱登录的才可修改密码，其他第三方登录不存在修改密码功能。" show-icon
-                    :closable="false">
+          <el-alert title="修改密码提示" type="info" description="只有邮箱登录的才可修改密码，其他第三方登录不存在修改密码功能。" show-icon
+            :closable="false">
           </el-alert>
         </div>
         <el-form ref="passwordForm" :model="passwordForm" :rules="passwordRules" label-width="100px"
-                 class="security-form">
+          class="security-form">
           <el-form-item label="当前密码" prop="oldPassword">
-            <el-input type="password" v-model="passwordForm.oldPassword" show-password
-                      placeholder="请输入当前密码"></el-input>
+            <el-input type="password" v-model="passwordForm.oldPassword" show-password placeholder="请输入当前密码"></el-input>
           </el-form-item>
           <el-form-item label="新密码" prop="newPassword">
-            <el-input type="password" v-model="passwordForm.newPassword" show-password
-                      placeholder="请输入新密码"></el-input>
+            <el-input type="password" v-model="passwordForm.newPassword" show-password placeholder="请输入新密码"></el-input>
           </el-form-item>
           <el-form-item label="确认新密码" prop="confirmPassword">
             <el-input type="password" v-model="passwordForm.confirmPassword" show-password
-                      placeholder="请再次输入新密码"></el-input>
+              placeholder="请再次输入新密码"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button size="small" type="primary" @click="submitPasswordChange" icon="el-icon-edit"
-                       :loading="loading">确认修改
+              :loading="loading">确认修改
             </el-button>
           </el-form-item>
         </el-form>
@@ -393,7 +358,7 @@
         <el-tabs>
           <el-tab-pane label="提交反馈">
             <el-form ref="feedbackForm" :model="feedbackForm" :rules="feedbackRules" label-width="100px"
-                     class="feedback-form">
+              class="feedback-form">
               <el-form-item label="反馈类型" prop="type">
                 <el-select v-model="feedbackForm.type" placeholder="请选择反馈类型">
                   <el-option v-for="item in feedbackTypes" :label="item.label" :value="item.value"></el-option>
@@ -401,14 +366,13 @@
               </el-form-item>
               <el-form-item label="反馈内容" prop="content">
                 <el-input type="textarea" v-model="feedbackForm.content" :rows="5"
-                          placeholder="请详细描述您的问题或建议..."></el-input>
+                  placeholder="请详细描述您的问题或建议..."></el-input>
               </el-form-item>
               <el-form-item label="联系邮箱" prop="email">
                 <el-input v-model="feedbackForm.email" placeholder="请留下您的联系邮箱，方便我们回复您"></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="submitFeedback" icon="el-icon-check"
-                           :loading="loading">提交反馈
+                <el-button type="primary" @click="submitFeedback" icon="el-icon-check" :loading="loading">提交反馈
                 </el-button>
               </el-form-item>
             </el-form>
@@ -429,7 +393,7 @@
                       </span>
                     </div>
                     <el-tag v-if="item.value === String(feedback.status)" v-for="item in feedbackStatus"
-                            :type="item.style">
+                      :type="item.style">
                       {{ item.label }}
                     </el-tag>
                   </div>
@@ -445,7 +409,7 @@
                 </el-card>
                 <div class="pagination-box" v-if="myFeedbacks.length">
                   <el-pagination background @current-change="handleFeedbackPageChange" :current-page="params.pageNum"
-                                 :page-size="params.pageSize" layout="prev, pager, next" :total="total">
+                    :page-size="params.pageSize" layout="prev, pager, next" :total="total">
                   </el-pagination>
                 </div>
               </div>
@@ -457,41 +421,24 @@
 
     </main>
 
-    <AvatarCropper
-        :visible.sync="showCropper"
-        :user="userInfo"
-        @update-avatar="handleAvatarUpdate"
-    />
+    <AvatarCropper :visible.sync="showCropper" :user="userInfo" @update-avatar="handleAvatarUpdate" />
 
     <!-- 邮箱绑定弹窗 -->
-    <el-dialog
-      title="绑定邮箱"
-      :visible.sync="showBindEmail"
-      width="420px"
-      custom-class="bind-email-dialog"
-      @close="resetBindEmailForm"
-      append-to-body
-      :close-on-click-modal="true"
-    >
-      <el-alert
-        title="为了您的账户安全，绑定邮箱后部分操作将需要邮箱验证。"
-        type="info"
-        :closable="false"
-        show-icon
-        style="margin-bottom: 24px;"
-      >
+    <el-dialog title="绑定邮箱" :visible.sync="showBindEmail" width="420px" custom-class="bind-email-dialog"
+      @close="resetBindEmailForm" append-to-body :close-on-click-modal="true">
+      <el-alert title="为了您的账户安全，绑定邮箱后部分操作将需要邮箱验证。" type="info" :closable="false" show-icon style="margin-bottom: 24px;">
       </el-alert>
-      <el-form :model="bindEmailForm" :rules="bindEmailRules" ref="bindEmailForm" label-width="80px" class="bind-email-form">
+      <el-form :model="bindEmailForm" :rules="bindEmailRules" ref="bindEmailForm" label-width="80px"
+        class="bind-email-form">
         <el-form-item label="邮箱地址" prop="email">
-          <el-input v-model="bindEmailForm.email" placeholder="请输入您的邮箱" prefix-icon="el-icon-message" clearable></el-input>
+          <el-input v-model="bindEmailForm.email" placeholder="请输入您的邮箱" prefix-icon="el-icon-message"
+            clearable></el-input>
         </el-form-item>
         <el-form-item label="验证码" prop="code">
           <el-input v-model="bindEmailForm.code" placeholder="请输入6位验证码" prefix-icon="el-icon-key">
-            <el-button
-              slot="append"
+            <el-button slot="append"
               :disabled="emailCodeTimer > 0 || !bindEmailForm.email || !isValidEmail(bindEmailForm.email)"
-              @click="sendBindEmailCode"
-            >
+              @click="sendBindEmailCode">
               {{ emailCodeTimer > 0 ? `${emailCodeTimer}s 后重发` : '获取验证码' }}
             </el-button>
           </el-input>
@@ -499,7 +446,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="showBindEmail = false" size="medium">取 消</el-button>
-        <el-button type="primary" @click="submitBindEmail" :loading="bindEmailLoading" size="medium" icon="el-icon-check">确认绑定</el-button>
+        <el-button type="primary" @click="submitBindEmail" :loading="bindEmailLoading" size="medium"
+          icon="el-icon-check">确认绑定</el-button>
       </div>
     </el-dialog>
 
@@ -522,12 +470,12 @@ import {
   updatePasswordApi,
   updateProfileApi
 } from '@/api/user'
-import {delArticleApi, getMyArticleApi, likeArticleApi} from '@/api/article'
-import {getDictDataApi} from '@/api/dict'
+import { delArticleApi, getMyArticleApi, likeArticleApi } from '@/api/article'
+import { getDictDataApi } from '@/api/dict'
 import AvatarCropper from '@/components/common/AvatarCropper.vue'
-import {bindEmailApi, getwxUserInfoApi, giteeLoginApi, sendBindEmailCodeApi, unbindEmailApi} from '@/api/auth'
+import { bindEmailApi, getwxUserInfoApi, giteeLoginApi, sendBindEmailCodeApi, unbindEmailApi } from '@/api/auth'
 
-import {marked} from "marked";
+import { marked } from "marked";
 
 export default {
   name: 'Profile',
@@ -563,15 +511,15 @@ export default {
       },
       currentTab: 'profile',
       tabs: [
-        {key: 'profile', label: '个人资料', icon: 'fas fa-user'},
-        {key: 'binding', label: '账号绑定', icon: 'fas fa-link'},
-        {key: 'posts', label: '我的文章', icon: 'fas fa-file-alt'},
-        {key: 'pay', label: '我的余额', icon: 'fas fa-heart'},
-        {key: 'comments', label: '我的评论', icon: 'fas fa-comments'},
-        {key: 'replies', label: '我的回复', icon: 'fas fa-reply'},
-        {key: 'likes', label: '我的点赞', icon: 'fas fa-heart'},
-        {key: 'security', label: '修改密码', icon: 'fas fa-lock'},
-        {key: 'feedback', label: '反馈', icon: 'fas fa-comment-dots'}
+        { key: 'profile', label: '个人资料', icon: 'fas fa-user' },
+        { key: 'binding', label: '账号绑定', icon: 'fas fa-link' },
+        { key: 'posts', label: '我的文章', icon: 'fas fa-file-alt' },
+        { key: 'pay', label: '我的余额', icon: 'fas fa-heart' },
+        { key: 'comments', label: '我的评论', icon: 'fas fa-comments' },
+        { key: 'replies', label: '我的回复', icon: 'fas fa-reply' },
+        { key: 'likes', label: '我的点赞', icon: 'fas fa-heart' },
+        { key: 'security', label: '修改密码', icon: 'fas fa-lock' },
+        { key: 'feedback', label: '反馈', icon: 'fas fa-comment-dots' }
       ],
       boundAccounts: [
         {
@@ -605,16 +553,16 @@ export default {
       myLikes: [],
       passwordRules: {
         oldPassword: [
-          {required: true, message: '请输入当前密码', trigger: 'blur'},
-          {min: 6, message: '密码长度不能小于6位', trigger: 'blur'}
+          { required: true, message: '请输入当前密码', trigger: 'blur' },
+          { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
         ],
         newPassword: [
-          {required: true, message: '请输入新密码', trigger: 'blur'},
-          {min: 6, message: '密码长度不能小于6位', trigger: 'blur'}
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
         ],
         confirmPassword: [
-          {required: true, message: '请确认新密码', trigger: 'blur'},
-          {validator: validateConfirmPassword, trigger: 'blur'}
+          { required: true, message: '请确认新密码', trigger: 'blur' },
+          { validator: validateConfirmPassword, trigger: 'blur' }
         ]
       },
       // 个人资料表单
@@ -626,8 +574,8 @@ export default {
       },
       profileRules: {
         username: [
-          {required: true, message: '请输入用户名', trigger: 'blur'},
-          {min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur'}
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
         ],
       },
       params: {
@@ -648,14 +596,14 @@ export default {
       myFeedbacks: [],
       feedbackRules: {
         type: [
-          {required: true, message: '请选择反馈类型', trigger: 'blur'},
+          { required: true, message: '请选择反馈类型', trigger: 'blur' },
         ],
         content: [
-          {required: true, message: '请输入反馈内容', trigger: 'blur'},
+          { required: true, message: '请输入反馈内容', trigger: 'blur' },
         ],
         email: [
-          {required: false, message: '请输入联系邮箱', trigger: 'blur'},
-          {type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur'},
+          { required: false, message: '请输入联系邮箱', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
         ],
       },
       signInStatus: false,
@@ -980,7 +928,7 @@ export default {
           this.loading = true
           addFeedbackApi(this.feedbackForm).then(res => {
             this.$message.success('感谢您的反馈！')
-            this.feedbackForm = {...{}}
+            this.feedbackForm = { ...{} }
           }).finally(() => {
             this.loading = false
           })
@@ -1012,7 +960,7 @@ export default {
         this.$message.success('个人资料更新成功！')
         // 方案1：重新获取用户信息（推荐）
         this.refreshUserInfo()
-        
+
         // 方案2：整页刷新（可选，注释掉方案1使用此方案）
         // setTimeout(() => {
         //   window.location.reload()
@@ -1025,7 +973,7 @@ export default {
     },
     // 重置个人资料
     resetProfile() {
-      this.profileForm = {...{}}
+      this.profileForm = { ...{} }
     },
     /**
      * 获取我的回复
@@ -1221,7 +1169,7 @@ export default {
         }).finally(() => {
           this.unbindEmailLoading = false
         })
-      }).catch(() => {})
+      }).catch(() => { })
     },
   }
 }

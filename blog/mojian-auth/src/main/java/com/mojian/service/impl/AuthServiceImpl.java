@@ -144,6 +144,7 @@ public class AuthServiceImpl implements AuthService {
         // 获取当前登录用户ID
         Long userId = StpUtil.getLoginIdAsLong();
         Users user = userMapper.selectById(userId);
+        System.out.println(user);
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
@@ -151,7 +152,7 @@ public class AuthServiceImpl implements AuthService {
         LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
         
         // 确保type字段被正确设置
-        loginUserInfo.setType(user.getType());
+//        loginUserInfo.setType(user.getType());
 
         //获取菜单权限列表
 //        if (source.equalsIgnoreCase(Constants.ADMIN)) {
@@ -192,7 +193,7 @@ public class AuthServiceImpl implements AuthService {
         List<String> roleList = roleMapper.selectLists(userRoleId.longValue());
         //获取菜单权限列表
         List<String> permissions;
-        if (roleList.contains(Constants.ADMIN)) {
+        if (roleList.contains(Constants.ADMIN) || roleList.contains(Constants.SUPERADMIN)) {
             permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
             System.out.println("权限为：" + permissions);
         } else {

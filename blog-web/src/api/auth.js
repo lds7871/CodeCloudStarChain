@@ -84,12 +84,12 @@ export function getQrCode() {
   })
 }
 // 获取微信用户信息
-export function getwxUserInfoApi(openid) {
+export function getwxUserInfoApi(userId) {
   return request({
     url: "/auth/wxinfo",
     method: "get",
     params: {
-      openid: openid,
+      userId: userId,
     }
   })
 }

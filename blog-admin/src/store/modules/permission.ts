@@ -28,12 +28,13 @@ const filterAsyncRoutes = (routes: RouteRecordRaw[], isRoot = true) => {
     }
 
     if (tmpRoute.component) {
-      if (tmpRoute.component?.toString() == "Layout") {
+      const componentStr = tmpRoute.component.toString();
+      if (componentStr === "Layout") {
         tmpRoute.component = Layout;
-      } else if (tmpRoute.component === 'ParentView') {
+      } else if (componentStr === 'ParentView') {
         tmpRoute.component = ParentView
       } else {
-        const component = modules[`../../views${tmpRoute.component}.vue`];
+        const component = modules[`../../views${componentStr}.vue`];
         if (component) {
           tmpRoute.component = component;
         }
@@ -81,15 +82,20 @@ export const usePermissionStore = defineStore("permission", () => {
    */
   function generateRoutes() {
     return new Promise<RouteRecordRaw[]>((resolve, reject) => {
+      console.log('开始生成动态路由...');
       getRouters()
         .then(({ data: asyncRoutes }) => {
+          console.log('从API获取的路由数据:', asyncRoutes);
           const accessedRoutes = filterAsyncRoutes(asyncRoutes);
+          console.log('过滤后的可访问路由:', accessedRoutes);
           setRoutes(accessedRoutes);
           // 确保路由被正确设置
           routes.value = constantRoutes.concat(accessedRoutes);
+          console.log('最终设置的路由:', routes.value);
           resolve(accessedRoutes);
         })
         .catch((error) => {
+          console.error('生成路由失败:', error);
           reject(error);
         });
     });

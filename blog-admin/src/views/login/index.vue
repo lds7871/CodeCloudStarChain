@@ -342,7 +342,7 @@ watch(loginType, (newVal) => {
                 avatar = loginRes.headimgurl;
                 userId = loginRes.id;
 
-                // 同步权限信息到普通用户store（用于权限控制）
+                // 同步权限信息到普通用户store（用于权限控制和菜单生成）
                 if (loginRes.permissions && loginRes.roles) {
                   console.log('同步权限信息到普通用户store:', {
                     permissions: loginRes.permissions,
@@ -355,6 +355,8 @@ watch(loginType, (newVal) => {
                     nickname: nickname,
                     avatar: avatar
                   });
+
+                  console.log('普通用户store权限信息已更新:', userStore.user);
                 }
 
                 // 确保 openid 存在
@@ -544,6 +546,8 @@ onMounted(() => {
   localStorage.removeItem('openId');
   localStorage.removeItem('userId');
   localStorage.removeItem('headimgurl');
+  localStorage.removeItem('wxuser_permissions');
+  localStorage.removeItem('wxuser_roles');
 
   // 清理sessionStorage
   sessionStorage.removeItem('userInfo');
@@ -551,6 +555,8 @@ onMounted(() => {
   sessionStorage.removeItem('openId');
   sessionStorage.removeItem('userId');
   sessionStorage.removeItem('headimgurl');
+  sessionStorage.removeItem('wxuser_permissions');
+  sessionStorage.removeItem('wxuser_roles');
 
   // 清理store状态
   if (wxuserStore.wxuser) {

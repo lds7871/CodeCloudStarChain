@@ -102,7 +102,6 @@ public class WeChatServiceImpl implements WeChatService {
                 sysUserRole.setRoleId(2);
                 System.out.println(sysUserRole);
                 roleMapper.insertByUserId(sysUserRole);
-
                 List<String> permissions;
                 //刚注册的用户都为普通用户，因此这里直接给普通用户的值
                 List<String> roles = roleMapper.selectLists(Constants.UserType.longValue());
@@ -115,7 +114,6 @@ public class WeChatServiceImpl implements WeChatService {
                 }
                 weChatInfo.setRoles(roles);
                 weChatInfo.setPermissions(permissions);
-
                 StpUtil.getSession().set(Constants.CURRENT_USER, weChatInfo);
                 System.out.println(weChatInfo);
                 redisTemplate.opsForValue().set("userInfo", weChatInfo);

@@ -130,7 +130,8 @@ onMounted(async () => {
   if (localStorage.getItem('userInfo') == "weixin") {
     const { data } = await getWxUserApi(localStorage.getItem('userId'))
     console.log(data);
-    headimgurl.value = data.avatar
+    headimgurl.value = localStorage.getItem('headimgurl') || ''
+    nickname.value = localStorage.getItem('nickname') || ''
   } else {
     const { data } = await getUserProfileApi()
     console.log(data);

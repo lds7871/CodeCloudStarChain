@@ -145,8 +145,8 @@ public class AuthController {
     }
 
     @GetMapping("/auth/wxinfo")
-    public Result<WeChatInfo> getWxUserInfo(@RequestParam String openid) {
-        return Result.success(authService.getWxLoginUserInfo(openid));
+    public Result<WeChatInfo> getWxUserInfo(@RequestParam String userId) {
+        return Result.success(authService.getWxLoginUserInfo(userId));
     }
 
     /**

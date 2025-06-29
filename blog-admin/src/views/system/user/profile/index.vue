@@ -8,10 +8,10 @@
             <div class="header-backdrop"></div>
             <div class="header-content">
               <div class="avatar-wrapper" @click="showCropper = true">
-                <el-avatar :size="100" :src="userInfo.weChatInfo?.headimgurl || userInfo.sysUser?.avatar"
+                <el-avatar :size="100" :src="userInfo.users?.avatar || userInfo.sysUser?.avatar"
                   class="profile-avatar" />
               </div>
-              <h2 class="profile-name">{{ userInfo.weChatInfo?.nickname || userInfo.sysUser?.nickname }}</h2>
+              <h2 class="profile-name">{{ userInfo.users?.nickname || userInfo.sysUser?.nickname }}</h2>
             </div>
           </div>
           <div class="profile-info">
@@ -23,7 +23,7 @@
                   </el-icon>
                   <span>用户名称</span>
                 </div>
-                <div class="info-content">{{ userInfo.weChatInfo?.nickname || userInfo.sysUser?.nickname }}</div>
+                <div class="info-content">{{ userInfo.users?.nickname || userInfo.sysUser?.nickname }}</div>
               </li>
               <li>
                 <div class="info-label">
@@ -32,7 +32,7 @@
                   </el-icon>
                   <span>手机号码</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser.mobile || userInfo.weChatInfo?.mobile || '未设置' }}</div>
+                <div class="info-content">{{ userInfo.sysUser.mobile || userInfo.users?.mobile || '未设置' }}</div>
               </li>
               <li>
                 <div class="info-label">
@@ -41,7 +41,7 @@
                   </el-icon>
                   <span>用户邮箱</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser.email || userInfo.weChatInfo?.email || '未设置' }}</div>
+                <div class="info-content">{{ userInfo.sysUser.email || userInfo.users?.email || '未设置' }}</div>
               </li>
               <li>
                 <div class="info-label">
@@ -59,7 +59,7 @@
                   </el-icon>
                   <span>创建日期</span>
                 </div>
-                <div class="info-content">{{ userInfo.sysUser?.createTime || userInfo.weChatInfo?.createTime }}</div>
+                <div class="info-content">{{ userInfo.sysUser?.createTime || userInfo.users?.createTime }}</div>
               </li>
             </ul>
           </div>
@@ -127,7 +127,8 @@
         </el-card>
       </el-col>
     </el-row>
-    <AvatarCropper v-model="showCropper" :avatar="userInfo.sysUser.avatar" @success="onAvatarSuccess" />
+    <AvatarCropper v-model="showCropper" :avatar="userInfo.sysUser.avatar || userInfo.users.avatar"
+      @success="onAvatarSuccess" />
   </div>
 </template>
 
@@ -149,16 +150,19 @@ const flag = false;
 // 用户信息
 const userInfo = ref<any>({
   sysUser: {},
+  users: {},
   roles: []
 })
-
 // 表单数据
 const userForm = reactive({
   id: '',
   nickname: '',
   mobile: '',
   email: '',
-  sex: 1
+  sex: 1,
+  avatar: '',
+  createTime: '',
+  headimgurl: '',
 })
 
 const pwdForm = reactive({
@@ -216,11 +220,13 @@ const getUser = async () => {
       Object.assign(userInfo.value, data)
       console.log(userInfo.value);
       Object.assign(userForm, {
-        openid: data.weChatInfo.openId,
-        nickname: data.weChatInfo.nickname,
-        mobile: data.weChatInfo.mobile,
-        email: data.weChatInfo.email,
-        sex: data.weChatInfo.sex == "男" ? 1 : 2,
+        id: data.users.id,
+        nickname: data.users.nickname,
+        mobile: data.users.mobile,
+        email: data.users.email,
+        sex: data.users.sex == "男" ? 1 : 2,
+        headimgurl: data.users.avatar,
+        createTime: data.users.createTime,
       })
       console.log(userForm);
     }

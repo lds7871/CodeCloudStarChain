@@ -7,7 +7,7 @@ public class Constants {
 
     public static final String ADMIN = "admin";
 
-    public static final String SUPERADMIN = "superadmin";
+    public static final String SUPERADMIN = "super_admin";
 
     public static final Integer AdminType = 1;
     public static final Integer UserType = 2;

@@ -2,6 +2,7 @@ package com.mojian.vo.user;
 
 
 import com.mojian.dto.user.WeChatInfo;
+import com.mojian.entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,7 @@ import java.util.List;
 
 public class WxUserInfo {
 
-    private WeChatInfo weChatInfo;
+    private Users users;
 
     private List<String> roles;
 

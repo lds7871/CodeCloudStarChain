@@ -47,11 +47,12 @@
       class="custom-dialog">
       <el-form ref="momentFormRef" :model="momentForm" :rules="rules" label-width="80px" class="custom-form">
         <el-form-item label="内容" prop="content">
-            <div style="border: 1px solid #ccc;">
-                <Toolbar style="border-bottom: 1px solid #ccc;" :editor="editorRef" :defaultConfig="toolbarConfig" :mode="mode" />
-                <Editor style=" overflow-y: hidden;min-height: 300px;" v-model="momentForm.content" :defaultConfig="editorConfig" :mode="mode"
-                @onCreated="handleCreated"/>
-            </div>
+          <div style="border: 1px solid #ccc;">
+            <Toolbar style="border-bottom: 1px solid #ccc;" :editor="editorRef" :defaultConfig="toolbarConfig"
+              :mode="mode" />
+            <Editor style=" overflow-y: hidden;min-height: 300px;" v-model="momentForm.content"
+              :defaultConfig="editorConfig" :mode="mode" @onCreated="handleCreated" />
+          </div>
         </el-form-item>
         <el-form-item label="图片" prop="images">
           <UploadImage v-model="momentForm.images" :source="'moment'" :limit="9" :multiple="true" />
@@ -213,7 +214,7 @@ const handleUpdate = (row: any) => {
 }
 
 // 富文本编辑器创建完成
-const handleCreated = (editor:any) => {
+const handleCreated = (editor: any) => {
   editorRef.value = editor // 记录 editor 实例，重要！
 }
 
@@ -226,11 +227,11 @@ const submitForm = async () => {
       submitLoading.value = true
       try {
         // 确保 images 是字符串格式，处理各种可能的情形
-        if (momentForm.images) { 
+        if (momentForm.images) {
           // 如果 images 是数组，则转换为逗号分隔的字符串
           if (Array.isArray(momentForm.images)) {
             momentForm.images = momentForm.images.join(',')
-          } 
+          }
           // 如果 images 已经是字符串但包含逗号，确保格式正确
           else if (typeof momentForm.images === 'string' && momentForm.images.includes('[')) {
             try {

@@ -50,7 +50,27 @@ export const useUserStore = defineStore("user", () => {
           console.log(response);
 
           const { data } = response;
-          setToken(data.token)
+          setToken(data.token);
+
+          // 同时设置Authorization和blog_token cookie（与微信登录保持一致）
+          Cookies.set('Authorization', data.token, {
+            expires: 1, // 1天过期
+            path: '/',
+            sameSite: 'lax'
+          });
+
+          Cookies.set('blog_token', data.token, {
+            expires: 1, // 1天过期
+            path: '/',
+            sameSite: 'lax'
+          });
+
+          console.log('账号密码登录 - 所有token cookies已设置:', {
+            'Neat-Admin-Token': data.token,
+            'Authorization': data.token,
+            'blog_token': data.token
+          });
+
           localStorage.setItem('userId', data.id);
           localStorage.setItem('userInfo', 'email');
           resolve();
@@ -183,14 +203,26 @@ export const wxuseUserStore = defineStore("wxuser", () => {
               path: '/',
               sameSite: 'lax'
             });
-            console.log('Authorization cookie已设置:', userData.data.token);
+
+            // 设置blog_token以保持与账号密码登录的一致性
+            Cookies.set('blog_token', userData.data.token, {
+              expires: 1, // 1天过期
+              path: '/',
+              sameSite: 'lax'
+            });
+
+            console.log('所有token cookies已设置:', {
+              'Neat-Admin-Token': userData.data.token,
+              'Authorization': userData.data.token,
+              'blog_token': userData.data.token
+            });
 
             // 验证token是否设置成功
             setTimeout(() => {
               const currentToken = getToken();
               console.log('token设置验证:', currentToken);
               if (currentToken) {
-                // 保存权限信息到wxuser store
+                // 保存权限信息到wxuser store和localStorage
                 if (userData.data.permissions && userData.data.roles) {
                   console.log('保存权限信息到wxuser store:', {
                     permissions: userData.data.permissions,
@@ -204,6 +236,10 @@ export const wxuseUserStore = defineStore("wxuser", () => {
                     nickname: userData.data.nickname,
                     headimgurl: userData.data.headimgurl
                   });
+
+                  // 同时保存到localStorage，确保刷新后能恢复权限
+                  localStorage.setItem('wxuser_permissions', JSON.stringify(userData.data.permissions || []));
+                  localStorage.setItem('wxuser_roles', JSON.stringify(userData.data.roles || []));
                 }
 
                 resolve(userData.data);  // 返回实际的用户数据对象
@@ -260,6 +296,8 @@ export const wxuseUserStore = defineStore("wxuser", () => {
         localStorage.removeItem('headimgurl')
         localStorage.removeItem('nickname')
         localStorage.removeItem('userId')
+        localStorage.removeItem('wxuser_permissions')
+        localStorage.removeItem('wxuser_roles')
         // 重置微信用户状态
         Object.assign(wxuser.value, {
           roles: [],

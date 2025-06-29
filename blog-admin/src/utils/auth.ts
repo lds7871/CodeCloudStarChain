@@ -30,9 +30,10 @@ export function getToken() {
 
 export function removeToken() {
   console.log('removeToken called');
-  // 同时清理两个token相关的cookie
+  // 同时清理所有token相关的cookie
   Cookies.remove(TokenKey, { path: '/' });
   Cookies.remove('Authorization', { path: '/' });
+  Cookies.remove('blog_token', { path: '/' });
   return true;
 }
 
