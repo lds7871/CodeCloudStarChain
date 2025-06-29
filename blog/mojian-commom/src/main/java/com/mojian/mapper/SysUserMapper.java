@@ -3,7 +3,6 @@ package com.mojian.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mojian.entity.SysUser;
 import com.mojian.entity.Users;
 import com.mojian.vo.user.UsersVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,7 +20,9 @@ public interface SysUserMapper extends BaseMapper<Users> {
     Users selectByUsername(@Param("username") String username);
 
     IPage<UsersVo> selectUserPage(@Param("page") Page<Object> page, @Param("sysUser") Users sysUser);
-    Integer selectBalcanceByUser(@Param("userId") Integer userId);
+
+    Double selectBalcanceByUser(@Param("userId") Long userId);
+
     /**
      * gitee登录时，使用唯一的UniqueId 进行判断是否存在该用户的信息
      *
@@ -30,12 +31,11 @@ public interface SysUserMapper extends BaseMapper<Users> {
      */
     Users selectByUniqueId(@Param("uniqueId") Long id);
 
-    SysUser getUserInfo(@Param("userId") Integer userId);
+    Users getUserInfo(@Param("userId") Long userId);
 
-    Integer updateUserInfo(@Param("users") SysUser user);
+    Integer updateUserInfo(@Param("users") Users user);
 
-
-    SysUser selectByEmail(@Param("email")String email);
+    Users selectByEmail(@Param("email") String email);
 
     Users login(@Param("openId") String openId);
 }

@@ -72,8 +72,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         Object weChatInfoObj = redisTemplate.opsForValue().get("userInfo");
         if (weChatInfoObj instanceof WeChatInfo) {
             WeChatInfo weChatInfo = (WeChatInfo) weChatInfoObj;
-            Integer roleId = weChatInfo.getRoleId();
-            return roleId != null && roleId.equals(1);
+            Long roleId = weChatInfo.getRoleId();
+            return roleId != null && roleId.equals(1L);
         }
         return false;
     }
@@ -81,8 +81,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         Object giteeInfoObj = redisTemplate.opsForValue().get("giteeInfo");
         if (giteeInfoObj instanceof GiteeInfo) {
             GiteeInfo giteeInfo = (GiteeInfo) giteeInfoObj;
-            Integer roleId = giteeInfo.getRoleId();
-            return roleId != null && roleId.equals(1);
+            Long roleId = giteeInfo.getRoleId();
+            return roleId != null && roleId.equals(1L);
         }
         return false;
     }
@@ -104,7 +104,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .ne(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()));
         }
             else {
-            menus = baseMapper.getMenusByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
+            menus = baseMapper.getMenusByUserId(StpUtil.getLoginIdAsLong(), MenuTypeEnum.BUTTON.getCode());
         }
 
         return this.buildRouterTree(menus);

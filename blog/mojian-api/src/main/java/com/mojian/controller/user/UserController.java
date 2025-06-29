@@ -72,9 +72,9 @@ public class UserController {
     public Result<IPage<ArticleListVo>> selectMyArticle(SysArticle article){
         return Result.success(userService.selectMyArticle(article));
     }
-    @GetMapping("/balance")
+    @GetMapping("/selectMyBalance")
     @Operation(summary = "获取我的余额")
-    public Result<Integer>  selectMyBalance(){
-        return  Result.success(userService.selectMyBalance(StpUtil.getLoginIdAsInt()));
+    public Result<Double>  selectMyBalance(){
+        return  Result.success(userService.selectMyBalance(StpUtil.getLoginIdAsLong()));
     }
 }

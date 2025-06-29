@@ -17,5 +17,6 @@ import lombok.Data;
 public class SysUserRole {
     private Integer id;
     private Integer roleId;
-    private Integer userId;
+    @Schema(description = "用户ID")
+    private Long userId;
 }

@@ -14,8 +14,8 @@ import com.mojian.dto.user.LoginUserInfo;
 import com.mojian.dto.user.WeChatInfo;
 import com.mojian.entity.SysConfig;
 import com.mojian.entity.SysRole;
-import com.mojian.entity.SysUser;
 import com.mojian.entity.Users;
+import com.mojian.entity.SysMenu;
 import com.mojian.enums.LoginTypeEnum;
 import com.mojian.enums.MenuTypeEnum;
 import com.mojian.exception.ServiceException;
@@ -43,6 +43,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -95,26 +96,27 @@ public class AuthServiceImpl implements AuthService {
             //校验验证码
             CaptchaUtil.checkImageCode(loginDTO.getNonceStr(), loginDTO.getValue());
         }
+
+
         // 查询用户
         Users user = userMapper.selectByUsername(loginDTO.getUsername());
-        if(!(user ==null)){
-            //校验是否能够登录
-            System.out.println(user);
-            validateLogin(loginDTO, user);
 
-            // 执行登录
-            StpUtil.login(user.getId());
-            String tokenValue = StpUtil.getTokenValue();
+        //校验是否能够登录
+        validateLogin(loginDTO, user);
 
-            // 返回用户信息
-            LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
-            loginUserInfo.setToken(tokenValue);
+        // 执行登录
+        StpUtil.login(user.getId());
+        String tokenValue = StpUtil.getTokenValue();
 
-            StpUtil.getSession().set(Constants.CURRENT_USER, loginUserInfo);
-            return loginUserInfo;
-        }
-        throw new ServiceException("用户不存在");
+        // 返回用户信息
+        LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
+        loginUserInfo.setToken(tokenValue);
+        
+        // 确保type字段被正确设置
+        loginUserInfo.setType(user.getType());
 
+        StpUtil.getSession().set(Constants.CURRENT_USER, loginUserInfo);
+        return loginUserInfo;
     }
 
     private static void validateLogin(LoginDTO loginDTO, Users user) {
@@ -135,26 +137,21 @@ public class AuthServiceImpl implements AuthService {
         if (user.getUsername().equals(Constants.TEST) && loginDTO.getSource().equalsIgnoreCase("PC")) {
             throw new ServiceException("演示用户不允许门户登录！");
         }
-
-        if(loginDTO.getSource().equals("ADMIN")){
-            System.out.println(user.getType());
-            if(user.getType()==2){
-                throw new ServiceException("用户不允许登录管理系统");
-            }
-        }
-
     }
 
     @Override
     public LoginUserInfo getLoginUserInfo(String source) {
         // 获取当前登录用户ID
-        Integer userId = StpUtil.getLoginIdAsInt();
-        Users user = userMapper.selectById(1);
+        Long userId = StpUtil.getLoginIdAsLong();
+        Users user = userMapper.selectById(userId);
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
 
         LoginUserInfo loginUserInfo = BeanCopyUtil.copyObj(user, LoginUserInfo.class);
+        
+        // 确保type字段被正确设置
+        loginUserInfo.setType(user.getType());
 
         //获取菜单权限列表
 //        if (source.equalsIgnoreCase(Constants.ADMIN)) {
@@ -170,17 +167,16 @@ public class AuthServiceImpl implements AuthService {
 //        }
 
 
-
-            List<String> permissions;
-            Integer userRoleId = roleMapper.getUserRoleId(user.getId());
-            List<String> roleList = roleMapper.selectLists(userRoleId);
-            if (roleList.contains(Constants.ADMIN) || roleList.contains(Constants.SUPERADMIN)) {
-                permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
-            } else {
-                permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsInt(), MenuTypeEnum.BUTTON.getCode());
-            }
-            loginUserInfo.setRoles(roleList);
-            loginUserInfo.setPermissions(permissions);
+        List<String> permissions;
+        Integer userRoleId = roleMapper.getUserRoleId(user.getId());
+        List<String> roleList = roleMapper.selectLists(userRoleId.longValue());
+        if (roleList.contains(Constants.ADMIN)) {
+            permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+        } else {
+            permissions = menuMapper.getPermissionListByUserId(StpUtil.getLoginIdAsLong(), MenuTypeEnum.BUTTON.getCode());
+        }
+        loginUserInfo.setRoles(roleList);
+        loginUserInfo.setPermissions(permissions);
         return loginUserInfo;
     }
 
@@ -193,14 +189,14 @@ public class AuthServiceImpl implements AuthService {
         }
         WeChatInfo weChatInfo = new WeChatInfo();
         Integer userRoleId = roleMapper.getUserRoleId(user.getId());
-        List<String> roleList = roleMapper.selectLists(userRoleId);
+        List<String> roleList = roleMapper.selectLists(userRoleId.longValue());
         //获取菜单权限列表
         List<String> permissions;
-        if (roleList.contains(Constants.ADMIN) || roleList.contains(Constants.SUPERADMIN)) {
-                permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
-                System.out.println("权限为："+permissions);
+        if (roleList.contains(Constants.ADMIN)) {
+            permissions = menuMapper.getPermissionList(MenuTypeEnum.BUTTON.getCode());
+            System.out.println("权限为：" + permissions);
         } else {
-                permissions = menuMapper.getPermissionListByUserId(user.getId(), MenuTypeEnum.BUTTON.getCode());
+            permissions = menuMapper.getPermissionListByUserId(user.getId(), MenuTypeEnum.BUTTON.getCode());
         }
         weChatInfo.setRoles(roleList);
         weChatInfo.setId(user.getId());
@@ -208,6 +204,7 @@ public class AuthServiceImpl implements AuthService {
         weChatInfo.setHeadimgurl(user.getAvatar());
         weChatInfo.setOpenid(user.getUsername());
         weChatInfo.setSex(user.getSex());
+        weChatInfo.setType(user.getType());
         weChatInfo.setEmail(user.getEmail());
         weChatInfo.setMobile(user.getMobile());
         weChatInfo.setUserInfo(user.getUserInfo());
@@ -264,11 +261,6 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
-//    @Override
-//    public String renderAuth(String source) {
-//        return null;
-//    }
-
 
     @Override
     public String renderAuth(String source) throws AuthException {
@@ -290,7 +282,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("第三方登录验证结果:{}", result);
     }
 
-//    @Override
+    //    @Override
 //    public void authLogin(AuthCallback callback, HttpServletResponse httpServletResponse) throws IOException {
 //        AuthRequest authRequest = getAuthRequest(source);
 //        AuthResponse<AuthUser> response = authRequest.login(callback);
@@ -344,10 +336,6 @@ public class AuthServiceImpl implements AuthService {
             throw new ServiceException("验证码已过期或输入错误");
         }
     }
-
-
-    
-
 
     private LoginUserInfo wechatLogin(String openId) {
 
@@ -459,7 +447,7 @@ public class AuthServiceImpl implements AuthService {
         emailUtil.validateBindCode(dto.getEmail(), dto.getCode());
 
         // 获取当前登录用户
-        Integer userId = StpUtil.getLoginIdAsInt();
+        Long userId = StpUtil.getLoginIdAsLong();
         Users user = sysUserMapper.selectById(userId);
         if (user == null) {
             throw new ServiceException("用户不存在");
@@ -481,7 +469,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean unbindEmail() {
-        Integer userId = StpUtil.getLoginIdAsInt();
+        Long userId = StpUtil.getLoginIdAsLong();
         Users user = sysUserMapper.selectById(userId);
         if (user == null) {
             throw new ServiceException("用户不存在");

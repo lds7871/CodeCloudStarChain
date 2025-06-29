@@ -343,7 +343,7 @@
     <div v-if="selectedFriend" class="friend-details">
       <h3>{{ selectedFriend.name }}</h3>
       <p class="signature">
-        签名：{{ selectedFriend.signature || "这个人很懒，什么都没写。" }}
+        签名：{{ selectedFriend.userInfo || "这个人很懒，什么都没写。" }}
       </p>
       <p class="gender">性别：{{ selectedFriend.gender || "未知" }}</p>
       <el-button
@@ -395,7 +395,7 @@ export default {
           name: "张三",
           avatar:
             "https://foruda.gitee.com/avatar/1677004143848886034/2106773_hhf1237_1647845148.png",
-          signature: "热爱生活，热爱编程。",
+          userInfo: "热爱生活，热爱编程。",
           gender: "男",
         },
         {
@@ -403,7 +403,7 @@ export default {
           name: "李四",
           avatar:
             "https://foruda.gitee.com/avatar/1677079463351115261/7467101_unique_perfect_1638710768.png",
-          signature: "旅行是我的灵魂。",
+          userInfo: "旅行是我的灵魂。",
           gender: "女",
         },
       ],

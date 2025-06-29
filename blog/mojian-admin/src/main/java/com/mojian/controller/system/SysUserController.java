@@ -54,11 +54,10 @@ public class SysUserController {
         return Result.success();
     }
 
-    @DeleteMapping("/delete/{ids}")
-    @OperationLogger("批量删除用户")
-    @Operation(summary = "批量删除用户")
+    @DeleteMapping
+    @Operation(summary = "删除用户")
     @SaCheckPermission("sys:user:delete")
-    public Result<Void> delete(@PathVariable List<Integer> ids) {
+    public Result<Boolean> delete(@RequestBody List<Long> ids) {
         sysUserService.delete(ids);
         return Result.success();
     }

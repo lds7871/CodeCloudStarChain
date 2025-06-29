@@ -32,7 +32,7 @@ public interface SysUserService extends IService<Users> {
     /**
      * 删除用户
      */
-    void delete(List<Integer> ids);
+    void delete(List<Long> ids);
 
 
     /**

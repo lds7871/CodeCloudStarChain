@@ -9,7 +9,7 @@
             su.nickname,
             su.avatar
         from sys_feedback sf
-        left join sys_user su on su.id = sf.user_id
+        left join users su on su.id = sf.user_id
         <where>
             <if test="sysFeedback.userId != null">
                 and sf.user_id = #{sysFeedback.userId}

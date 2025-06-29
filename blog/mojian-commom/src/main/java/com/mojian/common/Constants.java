@@ -5,10 +5,9 @@ public class Constants {
 
     public static final String DEFAULT_PASSWORD = "123456";
 
-
-    public static final String SUPERADMIN = "super_admin";
-
     public static final String ADMIN = "admin";
+
+    public static final String SUPERADMIN = "superadmin";
 
     public static final Integer AdminType = 1;
     public static final Integer UserType = 2;
@@ -27,5 +26,5 @@ public class Constants {
 
     public static final Object USER = "user";
 
-    public static final Long XIAO_ASSISTANT_ID  = 2L;
+    public static final Long XIAO_ASSISTANT_ID = 2L;
 }

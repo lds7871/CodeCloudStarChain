@@ -297,6 +297,8 @@
           @comment-deleted="handleCommentDeleted" />
       </main>
 
+
+
       <!-- 侧边栏 -->
       <aside v-if="showSidebar" class="article-sidebar desktop-only">
         <div class="toc-container">
@@ -304,6 +306,10 @@
             <div class="title-wrapper">
               <i class="fas fa-list"></i>
               <span>目录</span>
+              <i class="fas fa-volume-up voice-indicator" 
+                 :class="{ 'active': speechSynthesis.speaking, 'paused': speechSynthesis.paused }"
+                 title="支持语音朗读"
+                 @click="toggleSpeechReading"></i>
             </div>
             <div class="progress-wrapper" :class="{ completed: readProgress === 100 }">
               <i class="fas fa-book-reader"></i>
@@ -322,36 +328,28 @@
             <i class="fas fa-info-circle"></i>
             <span>此文章没有目录</span>
           </div>
+          
+          <!-- 语音朗读控制 -->
+          <div class="voice-reading-section">
+            <div class="voice-divider"></div>
+            <el-tooltip :content="speechSynthesis.speaking ? '暂停朗读' : '开始朗读'" placement="top">
+              <button 
+                @click="toggleSpeechReading" 
+                class="voice-btn"
+                :class="{ 'active': speechSynthesis.speaking, 'paused': speechSynthesis.paused }"
+              >
+                <i class="fas" :class="getSpeechIcon()"></i>
+                <span class="voice-text">
+                  {{ speechSynthesis.speaking ? (speechSynthesis.paused ? '继续朗读' : '暂停朗读') : '语音朗读' }}
+                </span>
+              </button>
+            </el-tooltip>
+          </div>
         </div>
 
-        <div class="author-card">
-          <div class="author-header">
-            <img v-lazy="article.avatar" alt="作者头像" class="author-large-avatar">
-            <h3 class="author-large-name">{{ article.nickname }}</h3>
-            <p class="author-description" v-if="article.userIntro">{{ article.userIntro }}</p>
-            <p class="author-description" v-else>这个人很懒，还没有填写个人介绍</p>
-          </div>
-          <div class="author-stats">
-            <div class="stat-block">
-              <div class="stat-value">{{ article.articlesCount || 0 }}</div>
-              <div class="stat-label">文章</div>
-            </div>
-            <div class="stat-block">
-              <div class="stat-value">{{ article.viewsCount || 0 }}</div>
-              <div class="stat-label">阅读</div>
-            </div>
-            <div class="stat-block">
-              <div class="stat-value">{{ article.likesCount || 0 }}</div>
-              <div class="stat-label">获赞</div>
-            </div>
-          </div>
-          <div class="author-action">
-            <el-button type="primary" class="follow-button" @click="followAuthor" :disabled="isCurrentUser">
-              <i class="fas" :class="isFollowing ? 'fa-check' : 'fa-plus'"></i>
-              {{ isFollowing ? '已关注' : '关注' }}
-            </el-button>
-          </div>
-        </div>
+
+
+
 
         <div class="related-articles" v-if="recommendArticles && recommendArticles.length > 0">
           <div class="related-header">
@@ -440,9 +438,15 @@ export default {
       isAiDescriptionExpanded: true,
       isPaid: false,
       showBackToTop: false,
-      isFollowing: false,
-      isCurrentUser: false,
       recommendArticles: [],
+      // 语音阅读相关
+      speechSynthesis: {
+        speaking: false,
+        paused: false,
+        currentUtterance: null
+      },
+      articleTextParagraphs: [],
+      currentParagraphIndex: 0,
     }
   },
   computed: {
@@ -1024,14 +1028,209 @@ export default {
       })
     },
 
+
+
     /**
-     * 关注作者
+     * 获取语音图标
      */
-    followAuthor() {
-      // 这里需要实现关注作者的逻辑
-      // toggleFollow(this.article.userId).then(...)
-      this.$message.success(this.isFollowing ? '已取消关注' : '关注成功')
-      this.isFollowing = !this.isFollowing
+    getSpeechIcon() {
+      if (this.speechSynthesis.speaking) {
+        return this.speechSynthesis.paused ? 'fa-play-circle' : 'fa-pause-circle'
+      }
+      return 'fa-volume-up'
+    },
+
+    /**
+     * 切换语音阅读
+     */
+    toggleSpeechReading() {
+      if (this.speechSynthesis.speaking) {
+        if (this.speechSynthesis.paused) {
+          this.resumeSpeechReading()
+        } else {
+          this.pauseSpeechReading()
+        }
+      } else {
+        this.startSpeechReading()
+      }
+    },
+
+    /**
+     * 开始语音阅读
+     */
+    startSpeechReading() {
+      if (!('speechSynthesis' in window)) {
+        this.$message.error('您的浏览器不支持语音朗读功能')
+        return
+      }
+
+      // 获取文章内容文本
+      const articleContent = this.$refs.articleContent
+      if (!articleContent) {
+        this.$message.error('无法获取文章内容')
+        return
+      }
+
+      // 提取纯文本并分段
+      this.extractArticleText(articleContent)
+      
+      if (this.articleTextParagraphs.length === 0) {
+        this.$message.error('没有找到可朗读的内容')
+        return
+      }
+
+      // 停止之前的朗读
+      window.speechSynthesis.cancel()
+
+      this.speechSynthesis.speaking = true
+      this.speechSynthesis.paused = false
+      this.currentParagraphIndex = 0
+
+      this.speakCurrentParagraph()
+      this.$message.success('开始语音朗读')
+    },
+
+    /**
+     * 提取文章文本内容
+     */
+    extractArticleText(element) {
+      // 获取所有文本节点和段落
+      const textNodes = this.getTextNodes(element)
+      const paragraphs = []
+      let currentParagraph = ''
+
+      textNodes.forEach(node => {
+        const text = node.textContent.trim()
+        if (text) {
+          // 如果遇到段落分隔符或文本过长，分段
+          if (text.includes('\n') || currentParagraph.length > 200) {
+            if (currentParagraph.trim()) {
+              paragraphs.push(currentParagraph.trim())
+            }
+            currentParagraph = text
+          } else {
+            currentParagraph += (currentParagraph ? ' ' : '') + text
+          }
+        }
+      })
+
+      // 添加最后一段
+      if (currentParagraph.trim()) {
+        paragraphs.push(currentParagraph.trim())
+      }
+
+      this.articleTextParagraphs = paragraphs.filter(p => p.length > 10) // 过滤太短的段落
+    },
+
+    /**
+     * 获取文本节点
+     */
+    getTextNodes(element) {
+      const textNodes = []
+      const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: function(node) {
+            // 排除脚本、样式等标签内的文本
+            if (node.parentNode.tagName && 
+                ['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.parentNode.tagName)) {
+              return NodeFilter.FILTER_REJECT
+            }
+            return NodeFilter.FILTER_ACCEPT
+          }
+        },
+        false
+      )
+
+      let node
+      while (node = walker.nextNode()) {
+        textNodes.push(node)
+      }
+
+      return textNodes
+    },
+
+    /**
+     * 朗读当前段落
+     */
+    speakCurrentParagraph() {
+      if (this.currentParagraphIndex >= this.articleTextParagraphs.length) {
+        this.stopSpeechReading()
+        this.$message.success('朗读完成')
+        return
+      }
+
+      const text = this.articleTextParagraphs[this.currentParagraphIndex]
+      const utterance = new SpeechSynthesisUtterance(text)
+      
+      // 设置语音参数
+      utterance.rate = 0.9 // 语速
+      utterance.pitch = 1 // 音调
+      utterance.volume = 0.8 // 音量
+
+      // 尝试设置中文语音
+      const voices = window.speechSynthesis.getVoices()
+      const chineseVoice = voices.find(voice => 
+        voice.lang === 'zh-CN' || voice.lang === 'zh' || voice.name.includes('Chinese')
+      )
+      if (chineseVoice) {
+        utterance.voice = chineseVoice
+      }
+
+      utterance.onend = () => {
+        this.currentParagraphIndex++
+        if (this.speechSynthesis.speaking && !this.speechSynthesis.paused) {
+          // 短暂停顿后继续下一段
+          setTimeout(() => {
+            if (this.speechSynthesis.speaking && !this.speechSynthesis.paused) {
+              this.speakCurrentParagraph()
+            }
+          }, 500)
+        }
+      }
+
+      utterance.onerror = (event) => {
+        console.error('语音朗读错误:', event)
+        this.$message.error('语音朗读出错，请重试')
+        this.stopSpeechReading()
+      }
+
+      this.speechSynthesis.currentUtterance = utterance
+      window.speechSynthesis.speak(utterance)
+    },
+
+    /**
+     * 暂停语音阅读
+     */
+    pauseSpeechReading() {
+      if (this.speechSynthesis.speaking) {
+        window.speechSynthesis.pause()
+        this.speechSynthesis.paused = true
+        this.$message.info('语音朗读已暂停')
+      }
+    },
+
+    /**
+     * 恢复语音阅读
+     */
+    resumeSpeechReading() {
+      if (this.speechSynthesis.paused) {
+        window.speechSynthesis.resume()
+        this.speechSynthesis.paused = false
+        this.$message.info('继续语音朗读')
+      }
+    },
+
+    /**
+     * 停止语音阅读
+     */
+    stopSpeechReading() {
+      window.speechSynthesis.cancel()
+      this.speechSynthesis.speaking = false
+      this.speechSynthesis.paused = false
+      this.speechSynthesis.currentUtterance = null
+      this.currentParagraphIndex = 0
     },
   },
   async created() {
@@ -1056,13 +1255,17 @@ export default {
     images.forEach(img => {
       img.removeEventListener('click', this.handleImageClick)
     })
+    // 停止语音朗读
+    this.stopSpeechReading()
   },
   watch: {
     // 监听路由参数变化
     '$route'(to, from) {
       if (to.params.id !== from.params.id) {
+        // 停止当前的语音朗读
+        this.stopSpeechReading()
         // 重新获取文章数据
-        this.getArticleData()
+        this.getArticle()
       }
     }
   }
@@ -1971,6 +2174,34 @@ export default {
           transform-origin: center;
           animation: tocIconPulse 2s infinite;
         }
+
+        .voice-indicator {
+          margin-left: auto;
+          font-size: 0.9em;
+          color: var(--text-secondary);
+          opacity: 0.6;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          animation: none;
+
+          &:hover {
+            opacity: 1;
+            color: $primary;
+            transform: scale(1.1);
+          }
+
+          &.active {
+            color: #11998e;
+            opacity: 1;
+            animation: voicePulse 1.5s infinite;
+          }
+
+          &.paused {
+            color: #f5576c;
+            opacity: 1;
+            animation: voiceBlink 1s infinite;
+          }
+        }
       }
 
       .progress-wrapper {
@@ -2143,63 +2374,7 @@ export default {
     }
   }
 
-  .author-card {
-    padding: $spacing-lg;
-    background: var(--card-bg);
-    border-radius: $border-radius-lg;
-    box-shadow: $shadow-md;
-    margin-top: $spacing-md;
 
-    .author-header {
-      display: flex;
-      align-items: center;
-      gap: $spacing-md;
-      margin-bottom: $spacing-lg;
-
-      .author-large-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-
-      .author-large-name {
-        font-size: 1.4em;
-        font-weight: 600;
-      }
-
-      .author-description {
-        color: var(--text-secondary);
-        font-size: 0.9em;
-      }
-    }
-
-    .author-stats {
-      display: flex;
-      gap: $spacing-md;
-      margin-bottom: $spacing-lg;
-
-      .stat-block {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        .stat-value {
-          font-size: 1.2em;
-          font-weight: 600;
-        }
-
-        .stat-label {
-          color: var(--text-secondary);
-          font-size: 0.9em;
-        }
-      }
-    }
-
-    .author-action {
-      text-align: right;
-    }
-  }
 
   .related-articles {
     padding: $spacing-lg;
@@ -2523,5 +2698,152 @@ export default {
 .expand-enter-to,
 .expand-leave-from {
   opacity: 1;
+}
+
+/* 语音阅读控制样式（融合到目录中） */
+.voice-reading-section {
+  margin-top: $spacing-md;
+  
+  .voice-divider {
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba($primary, 0.2) 20%, 
+      rgba($primary, 0.2) 80%, 
+      transparent);
+    margin-bottom: $spacing-md;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      background: $primary;
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+  }
+  
+  .voice-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 13px;
+    font-weight: 500;
+    width: 100%;
+    border-radius: $border-radius-sm;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        rgba($primary, 0.1), 
+        rgba($primary, 0.05));
+      transition: width 0.3s ease;
+      z-index: 0;
+    }
+
+    &:hover {
+      color: $primary;
+      border-color: rgba($primary, 0.3);
+      
+      &::before {
+        width: 100%;
+      }
+    }
+
+    &.active {
+      color: $primary;
+      border-color: $primary;
+      background: rgba($primary, 0.05);
+      
+      &:hover {
+        background: rgba($primary, 0.1);
+      }
+    }
+
+    &.paused {
+      color: #f5576c;
+      border-color: rgba(#f5576c, 0.4);
+      background: rgba(#f5576c, 0.05);
+      animation: pulse 2s infinite;
+
+      &:hover {
+        background: rgba(#f5576c, 0.1);
+      }
+    }
+
+    i, .voice-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    i {
+      font-size: 14px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover i {
+      transform: scale(1.1);
+    }
+
+    .voice-text {
+      font-size: 13px;
+      white-space: nowrap;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes voicePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes voiceBlink {
+  0%, 50% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.3;
+  }
 }
 </style>
