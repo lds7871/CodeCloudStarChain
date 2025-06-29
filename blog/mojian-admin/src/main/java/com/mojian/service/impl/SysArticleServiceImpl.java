@@ -43,7 +43,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
 
     private final SysTagMapper sysTagMapper;
 
-//    private final AiUtil aiUtil;
+    // private final AiUtil aiUtil;
     private final SysCategoryMapper sysCategoryMapper;
 
     @Override
@@ -61,7 +61,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
         SysCategory sysCategory = sysCategoryMapper.selectById(sysArticle.getCategoryId());
         sysArticleDetailVo.setCategoryName(sysCategory.getName());
 
-        //获取标签
+        // 获取标签
         List<String> tags = sysTagMapper.getTagNameByArticleId(id);
         sysArticleDetailVo.setTags(tags);
         return sysArticleDetailVo;
@@ -75,7 +75,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
         BeanUtils.copyProperties(sysArticle, obj);
         obj.setUserId(StpUtil.getLoginIdAsLong());
 
-        //添加分类
+        // 添加分类
         addCategory(sysArticle, obj);
         baseMapper.insert(obj);
 
@@ -83,15 +83,14 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
 
         ThreadUtil.execAsync(() -> {
             // TODO: 2025/4/24 注释:ai模块未知原因用不了
-//            String res = aiUtil.send(obj.getContent() + "请提供一段简短的介绍描述该文章的内容");
-//            if (StringUtils.isNotBlank(res)) {
-//                obj.setAiDescribe(res);
-//                baseMapper.updateById(obj);
-//            }
+            // String res = aiUtil.send(obj.getContent() + "请提供一段简短的介绍描述该文章的内容");
+            // if (StringUtils.isNotBlank(res)) {
+            // obj.setAiDescribe(res);
+            // baseMapper.updateById(obj);
+            // }
         });
         return true;
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -100,7 +99,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
         SysArticle obj = new SysArticle();
         BeanUtils.copyProperties(sysArticle, obj);
 
-        //没有管理员权限就只能修改自己的文章
+        // 没有管理员权限就只能修改自己的文章
         if (!StpUtil.hasRole(Constants.ADMIN)) {
             SysArticle article = baseMapper.selectById(sysArticle.getId());
             if (article.getUserId() != StpUtil.getLoginIdAsLong()) {
@@ -110,7 +109,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
         addCategory(sysArticle, obj);
         baseMapper.updateById(obj);
 
-        //先删除标签在新增标签
+        // 先删除标签在新增标签
         sysTagMapper.deleteArticleTagsByArticleIds(Collections.singletonList(obj.getId()));
         addTags(sysArticle, obj);
         return true;
@@ -120,7 +119,7 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
     @Transactional(rollbackFor = Exception.class)
     public Boolean delete(List<Long> ids) {
 
-        //没有管理员权限就只能删除自己的文章
+        // 没有管理员权限就只能删除自己的文章
         if (!StpUtil.hasRole(Constants.ADMIN)) {
             List<SysArticle> sysArticles = baseMapper.selectBatchIds(ids);
             for (SysArticle sysArticle : sysArticles) {
@@ -135,7 +134,6 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
         return true;
     }
 
-
     @Override
     public void reptile(String url) {
         try {
@@ -147,17 +145,18 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
                 throw new ServiceException(ResultCode.CRAWLING_ARTICLE_FAILED.getDesc());
             }
 
-            //爬取的是HTML内容，需要转成MD格式的内容
+            // 爬取的是HTML内容，需要转成MD格式的内容
             String newContent = content.get(0).toString().replaceAll("<code>", "<code class=\"lang-java\">");
             String markdown = FlexmarkHtmlConverter.builder(new MutableDataSet()).build().convert(newContent)
                     .replace("lang-java", "java");
 
             SysArticle entity = SysArticle.builder().userId(StpUtil.getLoginIdAsLong()).contentMd(markdown)
                     .isOriginal(Constants.NO).originalUrl(url)
-                    .title(title.get(0).text()).cover("https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images").content(newContent).build();
+                    .title(title.get(0).text()).cover("https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images")
+                    .content(newContent).build();
 
             baseMapper.insert(entity);
-            //为该文章添加标签
+            // 为该文章添加标签
             List<Integer> tagIds = new ArrayList<>();
             tags.forEach(item -> {
                 String tag = item.text();
@@ -187,16 +186,27 @@ public class SysArticleServiceImpl extends ServiceImpl<SysArticleMapper, SysArti
     }
 
     private void addTags(SysArticleDetailVo sysArticle, SysArticle obj) {
-        //添加标签
+        // 添加标签
         List<Integer> tagIds = new ArrayList<>();
-        for (String tag : sysArticle.getTags()) {
-            SysTag sysTag = sysTagMapper.selectOne(new LambdaQueryWrapper<SysTag>().eq(SysTag::getName, tag));
-            if (sysTag == null) {
-                sysTag = SysTag.builder().name(tag).build();
-                sysTagMapper.insert(sysTag);
+
+        // 检查标签列表是否为null或空
+        if (sysArticle.getTags() != null && !sysArticle.getTags().isEmpty()) {
+            for (String tag : sysArticle.getTags()) {
+                // 检查单个标签是否为空
+                if (StringUtils.isNotBlank(tag)) {
+                    SysTag sysTag = sysTagMapper.selectOne(new LambdaQueryWrapper<SysTag>().eq(SysTag::getName, tag));
+                    if (sysTag == null) {
+                        sysTag = SysTag.builder().name(tag).build();
+                        sysTagMapper.insert(sysTag);
+                    }
+                    tagIds.add(sysTag.getId());
+                }
             }
-            tagIds.add(sysTag.getId());
         }
-        sysTagMapper.addArticleTagRelations(obj.getId(), tagIds);
+
+        // 只有当有标签时才建立关系
+        if (!tagIds.isEmpty()) {
+            sysTagMapper.addArticleTagRelations(obj.getId(), tagIds);
+        }
     }
 }
