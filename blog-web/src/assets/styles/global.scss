@@ -1,7 +1,3 @@
-
-
-
-
 #app {
   min-height: 100vh;
   padding-top: 70px;
@@ -11,7 +7,6 @@
   background: var(--background);
 }
 
-
 @font-face {
   font-family: 'font';
   src: url('@/assets/font/2.woff2') format('woff2');
@@ -19,7 +14,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 
 .underline {
   position: relative;
@@ -87,7 +81,6 @@
     }
   }
 }
-
 
 
 
@@ -178,9 +171,6 @@
   background-color: #45bcd1 !important;
   color: #fff;
 }
-
-
-
 
 
 :root {
