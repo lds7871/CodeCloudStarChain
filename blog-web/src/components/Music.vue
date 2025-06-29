@@ -30,7 +30,7 @@ export default {
   },
   mounted() {
     this.loadStyles();
-    this.initHeoMusic();
+    this.initPyjMusic();
   },
   beforeDestroy() {
     // 清理播放器实例
@@ -59,7 +59,7 @@ export default {
       }
     },
 
-    initHeoMusic() {
+    initPyjMusic() {
       // 设置全局配置变量
       window.userId = this.userId;
       window.userServer = this.userServer;
@@ -90,15 +90,15 @@ export default {
       // 首先确保APlayer已加载
       if (typeof APlayer === "undefined") {
         this.loadScript("/blogclient/music/js/APlayer.min.js", () => {
-          this.loadHeoMain();
+          this.loadPyjMain();
         });
       } else {
-        this.loadHeoMain();
+        this.loadPyjMain();
       }
     },
 
-    loadHeoMain() {
-      // 先加载main.js（包含heo对象）
+    loadPyjMain() {
+      // 先加载main.js
       this.loadScript("/blogclient/music/js/main.js", () => {
         this.loadMusicEngine();
       });
@@ -130,14 +130,14 @@ export default {
     },
 
     initPlayer() {
-      // 调用heo.init()来初始化播放器
-      if (window.heo && typeof window.heo.init === "function") {
-        window.heo.init();
+      // 调用pyj.init()来初始化播放器
+      if (window.pyj && typeof window.pyj.init === "function") {
+        window.pyj.init();
       } else {
-        // 如果heo对象还没有准备好，等待一下再调用
+        // 如果pyj对象还没有准备好，等待一下再调用
         setTimeout(() => {
-          if (window.heo && typeof window.heo.init === "function") {
-            window.heo.init();
+          if (window.pyj && typeof window.pyj.init === "function") {
+            window.pyj.init();
           }
         }, 100);
       }

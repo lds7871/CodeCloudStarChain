@@ -21,4 +21,4 @@ const ap = new APlayer({
   listFolded: window.innerWidth < 768 ? true : false
 });
 
-heo.setupMediaSessionHandlers(ap);
+pyj.setupMediaSessionHandlers(ap);

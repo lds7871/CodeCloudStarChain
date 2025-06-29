@@ -37,7 +37,7 @@ class MetingJSElement extends HTMLElement {
     }
     this.config = config
 
-    this.api = this.meta.api || window.meting_api || 'https://music.zhheo.com/meting-api/?server=:server&type=:type&id=:id&r=:r'
+    this.api = this.meta.api || window.meting_api || 'https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r'
     if (this.meta.auto) this._parse_link()
   }
 
@@ -133,7 +133,7 @@ class MetingJSElement extends HTMLElement {
     this.aplayer = new APlayer(options)
     window.ap = this.aplayer;
 
-    heo.setupMediaSessionHandlers(this.aplayer);
+    pyj.setupMediaSessionHandlers(this.aplayer);
   }
 
 }

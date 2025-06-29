@@ -51,7 +51,7 @@ var volume = 0.8;
 // 创建URLSearchParams对象并传入URL中的查询字符串
 const params = new URLSearchParams(window.location.search);
 
-var heo = {
+var pyj = {
   // 处理滚动和触摸事件的通用方法
   handleScrollOrTouch: function(event, isTouchEvent) {
     // 取消任何正在进行的动画
@@ -73,7 +73,7 @@ var heo = {
     const timeoutDuration = isTouchEvent ? 4500 : 4000;
     scrollTimer = setTimeout(function() {
       isScrolling = false;
-      heo.scrollLyric();
+      pyj.scrollLyric();
     }, timeoutDuration);
   },
   
@@ -144,17 +144,17 @@ var heo = {
   },
 
   getCustomPlayList: function () {
-    const heoMusicPage = document.getElementById("Music-page");
+    const pyjMusicPage = document.getElementById("Music-page");
     const playlistType = params.get("type") || "playlist";
 
     if (params.get("id") && params.get("server")) {
       console.log("获取到自定义内容")
       var id = params.get("id")
       var server = params.get("server")
-      heoMusicPage.innerHTML = `<meting-js id="${id}" server="${server}" type="${playlistType}" mutex="true" preload="auto" order="random"></meting-js>`;
+      pyjMusicPage.innerHTML = `<meting-js id="${id}" server="${server}" type="${playlistType}" mutex="true" preload="auto" order="random"></meting-js>`;
     } else {
       console.log("无自定义内容")
-      heoMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${userType}" mutex="true" preload="auto" order="random"></meting-js>`;
+      pyjMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${userType}" mutex="true" preload="auto" order="random"></meting-js>`;
     }
   },
 
@@ -285,27 +285,27 @@ var heo = {
 
       // 更新 Media Session 元数据
       aplayer.on('loadeddata', () => {
-        heo.setMediaMetadata(aplayer, false);
+        pyj.setMediaMetadata(aplayer, false);
       });
 
       // 更新播放状态
       aplayer.on('play', () => {
         if ('mediaSession' in navigator) {
           navigator.mediaSession.playbackState = 'playing';
-          heo.setMediaMetadata(aplayer, true);
+          pyj.setMediaMetadata(aplayer, true);
         }
       });
 
       aplayer.on('pause', () => {
         if ('mediaSession' in navigator) {
           navigator.mediaSession.playbackState = 'paused';
-          heo.setMediaMetadata(aplayer, false);
+          pyj.setMediaMetadata(aplayer, false);
         }
       });
 
       // 监听时间更新事件
       aplayer.on('timeupdate', () => {
-        heo.setMediaMetadata(aplayer, true);
+        pyj.setMediaMetadata(aplayer, true);
       });
     }
   },
@@ -403,4 +403,4 @@ window.addEventListener('resize', function() {
 });
 
 // 调用初始化 - 注释掉，由Vue组件控制
-// heo.init();
+// pyj.init();
