@@ -200,31 +200,7 @@
         <el-empty v-else description="暂无文章，快去发布你的文章吧~~"></el-empty>
       </div>
 
-      <!-- 我的余额 -->
-      <div v-if="currentTab === 'pay'" class="content-section">
-        <h2 class="section-title">我的余额</h2>
-        <div class="balance-container">
-          <!-- 左侧区域 - 占60% -->
-          <div class="balance-left">
-            <el-card class="balance-card">
-              <div class="balance-info">
-                <h3>账户余额</h3>
-                <div class="balance-amount">
-                  <span class="currency">¥</span>
-                  <span class="amount">{{ balance }}</span> <!-- 这里接受传值 -->
-                </div>
-                <el-button type="primary" size="medium">充值</el-button>
-              </div>
-            </el-card>
-          </div>
-          <!-- 右侧区域 - 占40% -->
-          <div class="balance-right">
-            <el-card class="balance-stats">
-              <span>理性消费提示：适度消费，量入为出，让每一分钱都创造价值。</span>
-            </el-card>
-          </div>
-        </div>
-      </div>
+
 
       <!-- 我的评论 -->
       <div v-if="currentTab === 'comments'" class="content-section">
@@ -352,72 +328,7 @@
         </el-form>
       </div>
 
-      <!-- 反馈 -->
-      <div v-if="currentTab === 'feedback'" class="content-section">
-        <h2 class="section-title">意见反馈</h2>
-        <el-tabs>
-          <el-tab-pane label="提交反馈">
-            <el-form ref="feedbackForm" :model="feedbackForm" :rules="feedbackRules" label-width="100px"
-              class="feedback-form">
-              <el-form-item label="反馈类型" prop="type">
-                <el-select v-model="feedbackForm.type" placeholder="请选择反馈类型">
-                  <el-option v-for="item in feedbackTypes" :label="item.label" :value="item.value"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="反馈内容" prop="content">
-                <el-input type="textarea" v-model="feedbackForm.content" :rows="5"
-                  placeholder="请详细描述您的问题或建议..."></el-input>
-              </el-form-item>
-              <el-form-item label="联系邮箱" prop="email">
-                <el-input v-model="feedbackForm.email" placeholder="请留下您的联系邮箱，方便我们回复您"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="submitFeedback" icon="el-icon-check" :loading="loading">提交反馈
-                </el-button>
-              </el-form-item>
-            </el-form>
-          </el-tab-pane>
 
-          <el-tab-pane label="我的反馈">
-            <div class="feedback-list">
-              <div v-loading="loading" v-if="myFeedbacks.length">
-                <el-card v-for="feedback in myFeedbacks" :key="feedback.id" class="feedback-item">
-                  <div class="feedback-header">
-                    <div class="feedback-info">
-                      <el-tag v-if="item.value === feedback.type" v-for="item in feedbackTypes" :type="item.style">
-                        {{ item.label }}
-                      </el-tag>
-                      <span class="feedback-time">
-                        <i class="far fa-clock"></i>
-                        {{ feedback.createTime }}
-                      </span>
-                    </div>
-                    <el-tag v-if="item.value === String(feedback.status)" v-for="item in feedbackStatus"
-                      :type="item.style">
-                      {{ item.label }}
-                    </el-tag>
-                  </div>
-                  <div class="feedback-content">
-                    <p>{{ feedback.content }}</p>
-                  </div>
-                  <div class="feedback-reply" v-if="feedback.replyContent">
-                    <div class="reply-title">
-                      <i class="el-icon-chat-line-round"></i> 管理员回复：
-                    </div>
-                    <p class="reply-content">{{ feedback.replyContent }}</p>
-                  </div>
-                </el-card>
-                <div class="pagination-box" v-if="myFeedbacks.length">
-                  <el-pagination background @current-change="handleFeedbackPageChange" :current-page="params.pageNum"
-                    :page-size="params.pageSize" layout="prev, pager, next" :total="total">
-                  </el-pagination>
-                </div>
-              </div>
-              <el-empty v-else description="暂无反馈记录"></el-empty>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
 
     </main>
 
@@ -456,11 +367,8 @@
 
 <script>
 import {
-  addFeedbackApi,
   delMyCommentApi,
-  getBalanceApi,
   getMyCommentApi,
-  getMyFeedbackApi,
   getMyLikeApi,
   getMyReplyApi,
   getSignInStatsApi,
@@ -514,12 +422,12 @@ export default {
         { key: 'profile', label: '个人资料', icon: 'fas fa-user' },
         { key: 'binding', label: '账号绑定', icon: 'fas fa-link' },
         { key: 'posts', label: '我的文章', icon: 'fas fa-file-alt' },
-        { key: 'pay', label: '我的余额', icon: 'fas fa-heart' },
+
         { key: 'comments', label: '我的评论', icon: 'fas fa-comments' },
         { key: 'replies', label: '我的回复', icon: 'fas fa-reply' },
         { key: 'likes', label: '我的点赞', icon: 'fas fa-heart' },
         { key: 'security', label: '修改密码', icon: 'fas fa-lock' },
-        { key: 'feedback', label: '反馈', icon: 'fas fa-comment-dots' }
+
       ],
       boundAccounts: [
         {
@@ -585,27 +493,7 @@ export default {
       },
       total: 0,
       loading: false,
-      // 添加反馈列表相关数据
-      feedbackTypes: [],
-      feedbackStatus: [],
-      feedbackForm: {
-        type: '',
-        content: '',
-        contact: ''
-      },
-      myFeedbacks: [],
-      feedbackRules: {
-        type: [
-          { required: true, message: '请选择反馈类型', trigger: 'blur' },
-        ],
-        content: [
-          { required: true, message: '请输入反馈内容', trigger: 'blur' },
-        ],
-        email: [
-          { required: false, message: '请输入联系邮箱', trigger: 'blur' },
-          { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
-        ],
-      },
+
       signInStatus: false,
       signInStats: {
         continuousDays: 0,
@@ -613,7 +501,7 @@ export default {
       },
       signInLoading: false,
       showCropper: false,
-      balance: 0,
+
       showBindEmail: false,
       bindEmailForm: { email: '', code: '' },
       bindEmailRules: {
@@ -659,10 +547,7 @@ export default {
           this.params.pageNum = 1
           this.getMyLikes()
           break
-        case 'feedback':
-          this.params.pageNum = 1
-          this.getMyFeedbacks()
-          break
+
         default:
           break
       }
@@ -723,30 +608,12 @@ export default {
       Object.assign(this.profileForm, res.data.sysUser)
     })
 
-    this.getFeedbackDict()
     // 获取签到状态和统计
     this.getSignInStatus()
     this.getSignInStats()
-    this.fetchBalance()
   },
   methods: {
-    /**
-     * 获取反馈类型字典
-     */
-    fetchBalance() {
-      getBalanceApi().then(res => {
-        this.balance = res.data.balance
-      })
-    },
-    getFeedbackDict() {
-      getDictDataApi(['feedback_type']).then(res => {
-        this.feedbackTypes = res.data
-      })
 
-      getDictDataApi(['feedback_status']).then(res => {
-        this.feedbackStatus = res.data
-      })
-    },
     /**
      * 获取我的评论
      */
@@ -919,23 +786,7 @@ export default {
       })
     },
 
-    /**
-     * 添加反馈
-     */
-    submitFeedback() {
-      this.$refs.feedbackForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          addFeedbackApi(this.feedbackForm).then(res => {
-            this.$message.success('感谢您的反馈！')
-            this.feedbackForm = { ...{} }
-          }).finally(() => {
-            this.loading = false
-          })
-        }
-      })
 
-    },
     // 提交密码修改
     submitPasswordChange() {
       this.$refs.passwordForm.validate(valid => {
@@ -1013,30 +864,7 @@ export default {
       this.params.pageNum = val
       this.getMyLikes()
     },
-    /**
-     * 获取我的反馈列表
-     */
-    getMyFeedbacks() {
-      this.loading = true
-      let params = {
-        ...this.params,
-        source: 'PC'
-      }
-      getMyFeedbackApi(params).then(res => {
-        this.myFeedbacks = res.data.records
-        this.total = res.data.total
-      }).finally(() => {
-        this.loading = false
-      })
-    },
 
-    /**
-     * 反馈列表分页
-     */
-    handleFeedbackPageChange(val) {
-      this.params.pageNum = val
-      this.getMyFeedbacks()
-    },
     /**
      * 获取签到状态
      */
@@ -1176,82 +1004,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.balance-container {
-  //display: flex;
-  //gap: 20px;
 
-
-  .balance-left {
-    flex: 0 0 60%;
-
-    .balance-card {
-      height: 100%;
-      background: var(--card-bg);
-
-      .balance-info {
-        text-align: center;
-        padding: 20px;
-        font-size: 34px;
-        letter-spacing: 10px;
-
-        h3 {
-          color: var(--text-secondary);
-          margin-bottom: 15px;
-        }
-
-        .balance-amount {
-          margin: 20px 0;
-
-          .currency {
-            font-size: 20px;
-            color: var(--text-primary);
-          }
-
-          .amount {
-            font-size: 36px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-left: 5px;
-          }
-        }
-      }
-    }
-  }
-
-  .balance-right {
-    flex: 0 0 40%;
-
-    .balance-stats {
-      height: 100%;
-      font-size: 24px;
-      background: var(--card-bg);
-
-      .stats-title {
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--text-primary);
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .stats-content {
-        min-height: 200px;
-      }
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .balance-container {
-    flex-direction: column;
-
-    .balance-left,
-    .balance-right {
-      flex: 0 0 100%;
-    }
-  }
-}
 
 
 :deep(input[aria-hidden=true]) {
@@ -1413,9 +1166,7 @@ export default {
 
 .profile-form,
 .security-form,
-.feedback-form {
-  max-width: 600px;
-}
+
 
 .post-item {
   margin-bottom: 16px;
@@ -1664,61 +1415,7 @@ export default {
   }
 }
 
-.feedback-list {
-  .feedback-item {
-    margin-bottom: 16px;
 
-    .feedback-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-
-      .feedback-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        .feedback-time {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          color: var(--text-secondary);
-          font-size: 14px;
-
-        }
-      }
-    }
-
-    .feedback-content {
-      color: var(--text-primary);
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-
-    .feedback-reply {
-      background: var(--hover-bg);
-      padding: 12px;
-      border-radius: 8px;
-
-      .reply-title {
-        color: var(--text-secondary);
-        font-weight: 500;
-        margin-bottom: 8px;
-
-        i {
-          margin-right: 4px;
-        }
-      }
-
-      .reply-content {
-        color: var(--text-secondary);
-        margin: 0;
-        line-height: 1.6;
-      }
-    }
-  }
-}
 
 .posts-header {
   display: flex;

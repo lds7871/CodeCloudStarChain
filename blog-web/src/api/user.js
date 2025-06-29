@@ -116,27 +116,7 @@ export function getMyLikeApi(params) {
     })
 }
 
-/**
- * 获取我的反馈
- */
-export function getMyFeedbackApi(params) {
-    return request({
-        url: '/sys/feedback/list',
-        method: 'get',
-        params
-    })
-}
 
-/**
- * 添加反馈
- */
-export function addFeedbackApi(data) {
-    return request({
-        url: '/sys/feedback/add',
-        method: 'post',
-        data
-    })
-}
 
 /**
  * 签到
@@ -167,15 +147,7 @@ export function getSignInStatsApi() {
         method: 'get'
     })
 }
-/**
- * 账户余额
- */
-export function getBalanceApi() {
-    return request({
-        url: '/protal/user/balance',
-        method: 'get'
-    })
-}
+
 
 
 

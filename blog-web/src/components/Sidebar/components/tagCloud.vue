@@ -206,9 +206,19 @@ export default {
   height: 300px;
   overflow: hidden;
   perspective: 1000px;
-  background: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(240, 248, 255, 0.95) 25%,
+    rgba(248, 250, 252, 0.9) 50%,
+    rgba(245, 245, 245, 0.95) 75%,
+    rgba(250, 250, 250, 0.9) 100%
+  );
   backdrop-filter: blur(10px);
   border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   
   &::before {
     content: '';
@@ -220,8 +230,10 @@ export default {
     background: repeating-conic-gradient(
       from 0deg at 50% 50%,
       transparent 0deg,
-      rgba(0, 245, 255, 0.03) 15deg,
-      transparent 30deg
+      rgba(59, 130, 246, 0.05) 15deg,
+      rgba(139, 92, 246, 0.03) 30deg,
+      rgba(236, 72, 153, 0.05) 45deg,
+      transparent 60deg
     );
     animation: rotate 20s linear infinite;
     pointer-events: none;
@@ -235,11 +247,16 @@ export default {
     transform: translate(-50%, -50%);
     width: 200px;
     height: 200px;
-    border: 1px solid rgba(0, 245, 255, 0.2);
+    border: 2px solid rgba(59, 130, 246, 0.2);
     border-radius: 50%;
+    background: radial-gradient(circle, 
+      rgba(59, 130, 246, 0.03) 0%,
+      rgba(139, 92, 246, 0.02) 50%,
+      transparent 100%
+    );
     box-shadow: 
-      0 0 20px rgba(0, 245, 255, 0.1),
-      inset 0 0 20px rgba(0, 245, 255, 0.1);
+      0 0 30px rgba(59, 130, 246, 0.15),
+      inset 0 0 30px rgba(139, 92, 246, 0.1);
     pointer-events: none;
   }
 }
@@ -268,107 +285,162 @@ export default {
     user-select: none;
     white-space: nowrap;
     
-    // 基础科幻样式
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(0, 245, 255, 0.3);
-    backdrop-filter: blur(10px);
-    color: rgba(255, 255, 255, 0.8);
-    text-shadow: 0 0 10px currentColor;
+    // 基础现代样式
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(249, 250, 251, 0.95) 100%
+    );
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    backdrop-filter: blur(8px);
+    color: rgba(55, 65, 81, 0.9);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
     box-shadow: 
-      0 0 10px rgba(0, 245, 255, 0.2),
-      inset 0 0 10px rgba(0, 245, 255, 0.05);
+      0 4px 6px rgba(0, 0, 0, 0.05),
+      0 1px 3px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
     
-    // 每个标签随机的霓虹灯颜色
-    &:nth-child(6n+1) {
-      border-color: rgba(0, 245, 255, 0.4);
-      color: #00f5ff;
+    // 每个标签彩色渐变样式
+    &:nth-child(8n+1) {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(102, 126, 234, 0.5);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       box-shadow: 
-        0 0 15px rgba(0, 245, 255, 0.3),
-        inset 0 0 15px rgba(0, 245, 255, 0.1);
+        0 4px 15px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
-    &:nth-child(6n+2) {
-      border-color: rgba(131, 56, 236, 0.4);
-      color: #8338ec;
+    &:nth-child(8n+2) {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-color: rgba(240, 147, 251, 0.5);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       box-shadow: 
-        0 0 15px rgba(131, 56, 236, 0.3),
-        inset 0 0 15px rgba(131, 56, 236, 0.1);
+        0 4px 15px rgba(240, 147, 251, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
-    &:nth-child(6n+3) {
-      border-color: rgba(255, 0, 110, 0.4);
-      color: #ff006e;
+    &:nth-child(8n+3) {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border-color: rgba(79, 172, 254, 0.5);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       box-shadow: 
-        0 0 15px rgba(255, 0, 110, 0.3),
-        inset 0 0 15px rgba(255, 0, 110, 0.1);
+        0 4px 15px rgba(79, 172, 254, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
-    &:nth-child(6n+4) {
-      border-color: rgba(0, 128, 255, 0.4);
-      color: #0080ff;
+    &:nth-child(8n+4) {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      border-color: rgba(67, 233, 123, 0.5);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       box-shadow: 
-        0 0 15px rgba(0, 128, 255, 0.3),
-        inset 0 0 15px rgba(0, 128, 255, 0.1);
+        0 4px 15px rgba(67, 233, 123, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
-    &:nth-child(6n+5) {
-      border-color: rgba(16, 185, 129, 0.4);
-      color: #10b981;
+    &:nth-child(8n+5) {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      border-color: rgba(250, 112, 154, 0.5);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       box-shadow: 
-        0 0 15px rgba(16, 185, 129, 0.3),
-        inset 0 0 15px rgba(16, 185, 129, 0.1);
+        0 4px 15px rgba(250, 112, 154, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
-    &:nth-child(6n) {
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #f59e0b;
+    &:nth-child(8n+6) {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      border-color: rgba(168, 237, 234, 0.5);
+      color: #4a5568;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
       box-shadow: 
-        0 0 15px rgba(245, 158, 11, 0.3),
-        inset 0 0 15px rgba(245, 158, 11, 0.1);
+        0 4px 15px rgba(168, 237, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    
+    &:nth-child(8n+7) {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      border-color: rgba(255, 236, 210, 0.5);
+      color: #744210;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+      box-shadow: 
+        0 4px 15px rgba(255, 236, 210, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    
+    &:nth-child(8n) {
+      background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+      border-color: rgba(210, 153, 194, 0.5);
+      color: #553c4e;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+      box-shadow: 
+        0 4px 15px rgba(210, 153, 194, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
     
     // 悬停效果
     &:hover {
       transform: scale(1.2) translateZ(20px);
-      background: rgba(0, 0, 0, 0.8);
       border-width: 2px;
-      text-shadow: 0 0 20px currentColor;
       z-index: 100;
+      filter: brightness(1.1) saturate(1.2);
       
-      &:nth-child(6n+1) {
+      &:nth-child(8n+1) {
         box-shadow: 
-          0 0 30px rgba(0, 245, 255, 0.6),
-          inset 0 0 20px rgba(0, 245, 255, 0.2);
+          0 8px 25px rgba(102, 126, 234, 0.4),
+          0 3px 10px rgba(102, 126, 234, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
       }
       
-      &:nth-child(6n+2) {
+      &:nth-child(8n+2) {
         box-shadow: 
-          0 0 30px rgba(131, 56, 236, 0.6),
-          inset 0 0 20px rgba(131, 56, 236, 0.2);
+          0 8px 25px rgba(240, 147, 251, 0.4),
+          0 3px 10px rgba(240, 147, 251, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
       }
       
-      &:nth-child(6n+3) {
+      &:nth-child(8n+3) {
         box-shadow: 
-          0 0 30px rgba(255, 0, 110, 0.6),
-          inset 0 0 20px rgba(255, 0, 110, 0.2);
+          0 8px 25px rgba(79, 172, 254, 0.4),
+          0 3px 10px rgba(79, 172, 254, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
       }
       
-      &:nth-child(6n+4) {
+      &:nth-child(8n+4) {
         box-shadow: 
-          0 0 30px rgba(0, 128, 255, 0.6),
-          inset 0 0 20px rgba(0, 128, 255, 0.2);
+          0 8px 25px rgba(67, 233, 123, 0.4),
+          0 3px 10px rgba(67, 233, 123, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
       }
       
-      &:nth-child(6n+5) {
+      &:nth-child(8n+5) {
         box-shadow: 
-          0 0 30px rgba(16, 185, 129, 0.6),
-          inset 0 0 20px rgba(16, 185, 129, 0.2);
+          0 8px 25px rgba(250, 112, 154, 0.4),
+          0 3px 10px rgba(250, 112, 154, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
       }
       
-      &:nth-child(6n) {
+      &:nth-child(8n+6) {
         box-shadow: 
-          0 0 30px rgba(245, 158, 11, 0.6),
-          inset 0 0 20px rgba(245, 158, 11, 0.2);
+          0 8px 25px rgba(168, 237, 234, 0.4),
+          0 3px 10px rgba(168, 237, 234, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+      
+      &:nth-child(8n+7) {
+        box-shadow: 
+          0 8px 25px rgba(255, 236, 210, 0.4),
+          0 3px 10px rgba(255, 236, 210, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+      
+      &:nth-child(8n) {
+        box-shadow: 
+          0 8px 25px rgba(210, 153, 194, 0.4),
+          0 3px 10px rgba(210, 153, 194, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
       }
     }
     
@@ -421,13 +493,16 @@ export default {
 @keyframes pulse {
   0%, 100% {
     box-shadow: 
-      0 0 10px rgba(0, 245, 255, 0.2),
-      inset 0 0 10px rgba(0, 245, 255, 0.05);
+      0 4px 6px rgba(0, 0, 0, 0.05),
+      0 1px 3px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
   50% {
     box-shadow: 
-      0 0 20px rgba(0, 245, 255, 0.4),
-      inset 0 0 20px rgba(0, 245, 255, 0.1);
+      0 8px 15px rgba(59, 130, 246, 0.2),
+      0 3px 6px rgba(59, 130, 246, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
   }
 }
 
