@@ -6,7 +6,7 @@ var encodedLocalMusic = localMusic.map(item => ({
   lrc: encodeNonAscii(item.lrc)
 }));
 
-document.getElementById('heoMusic-page').classList.add('localMusic');
+document.getElementById('Music-page').classList.add('localMusic');
 
 function encodeNonAscii(str) {
   return str.replace(/[^\x00-\x7F]/g, function(c) {
@@ -15,10 +15,10 @@ function encodeNonAscii(str) {
 }
 
 const ap = new APlayer({
-  container: document.getElementById('heoMusic-page'),
+  container: document.getElementById('Music-page'),
   lrcType: 3,
   audio: encodedLocalMusic,
   listFolded: window.innerWidth < 768 ? true : false
 });
 
-heo.setupMediaSessionHandlers(ap);
+pyj.setupMediaSessionHandlers(ap);

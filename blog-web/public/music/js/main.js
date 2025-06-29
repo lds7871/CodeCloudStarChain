@@ -1,4 +1,3 @@
-console.log("\n %c HeoMusic 开源静态音乐播放器 %c https://github.com/zhheo/HeoMusic \n", "color: #fadfa3; background: #030307; padding:5px 0;", "background: #fadfa3; padding:5px 0;")
 var local = false;
 var isScrolling = false; // 添加全局变量 isScrolling，默认为 false
 var scrollTimer = null; // 添加定时器变量
@@ -35,12 +34,12 @@ function loadMusicScript() {
   if (typeof localMusic === 'undefined' || !Array.isArray(localMusic) || localMusic.length === 0) {
     // 如果 localMusic 为空数组或未定义，加载 Meting2.min.js
     var script = document.createElement('script');
-    script.src = '/blogclient/heo-music/js/Meting.js';
+    script.src = '/blogclient/music/js/Meting.js';
     document.body.appendChild(script);
   } else {
     // 否则加载 localEngine.js
     var script = document.createElement('script');
-    script.src = '/blogclient/heo-music/js/localEngine.js';
+    script.src = '/blogclient/music/js/localEngine.js';
     document.body.appendChild(script);
     local = true;
   }
@@ -52,69 +51,45 @@ var volume = 0.8;
 // 创建URLSearchParams对象并传入URL中的查询字符串
 const params = new URLSearchParams(window.location.search);
 
-var heo = {
+var pyj = {
   // 处理滚动和触摸事件的通用方法
   handleScrollOrTouch: function(event, isTouchEvent) {
-    // 检查事件的目标元素是否在相关区域内部
-    let targetElement = event.target;
-    let isInTargetArea = false;
-    
-    // 向上遍历DOM树，检查是否在目标区域内
-    while (targetElement && targetElement !== document) {
-      if (targetElement.classList) {
-        if (isTouchEvent) {
-          // 触摸事件检查 aplayer-body 或 aplayer-lrc
-          if (targetElement.classList.contains('aplayer-body') || 
-              targetElement.classList.contains('aplayer-lrc')) {
-            isInTargetArea = true;
-            break;
-          }
-        } else {
-          // 鼠标滚轮事件只检查 aplayer-body
-          if (targetElement.classList.contains('aplayer-body')) {
-            isInTargetArea = true;
-            break;
-          }
-        }
-      }
-      targetElement = targetElement.parentNode;
+    // 取消任何正在进行的动画
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
     }
     
-    // 只有当在目标区域内时才改变 isScrolling
-    if (isInTargetArea) {
-      // 取消任何正在进行的动画
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-      
-      // 设置isScrolling为true
-      isScrolling = true;
-      
-      // 清除之前的定时器
-      if(scrollTimer !== null) {
-        clearTimeout(scrollTimer);
-      }
-      
-      // 设置新的定时器，恢复isScrolling为false
-      // 触摸事件给予更长的时间
-      const timeoutDuration = isTouchEvent ? 4500 : 4000;
-      scrollTimer = setTimeout(function() {
-        isScrolling = false;
-        heo.scrollLyric();
-      }, timeoutDuration);
+    // 设置isScrolling为true
+    isScrolling = true;
+    
+    // 清除之前的定时器
+    if(scrollTimer !== null) {
+      clearTimeout(scrollTimer);
     }
+    
+    // 设置新的定时器，恢复isScrolling为false
+    // 触摸事件给予更长的时间
+    const timeoutDuration = isTouchEvent ? 4500 : 4000;
+    scrollTimer = setTimeout(function() {
+      isScrolling = false;
+      pyj.scrollLyric();
+    }, timeoutDuration);
   },
   
   // 初始化滚动和触摸事件
   initScrollEvents: function() {
-    // 监听鼠标滚轮事件
-    document.addEventListener('wheel', (event) => {
+    // 获取音乐播放器容器
+    const musicContainer = document.getElementById('Music-page');
+    if (!musicContainer) return;
+    
+    // 只在音乐播放器容器内监听鼠标滚轮事件
+    musicContainer.addEventListener('wheel', (event) => {
       this.handleScrollOrTouch(event, false);
     }, { passive: true });
     
-    // 监听触摸滑动事件
-    document.addEventListener('touchmove', (event) => {
+    // 只在音乐播放器容器内监听触摸滑动事件
+    musicContainer.addEventListener('touchmove', (event) => {
       this.handleScrollOrTouch(event, true);
     }, { passive: true });
   },
@@ -169,17 +144,17 @@ var heo = {
   },
 
   getCustomPlayList: function () {
-    const heoMusicPage = document.getElementById("heoMusic-page");
+    const pyjMusicPage = document.getElementById("Music-page");
     const playlistType = params.get("type") || "playlist";
 
     if (params.get("id") && params.get("server")) {
       console.log("获取到自定义内容")
       var id = params.get("id")
       var server = params.get("server")
-      heoMusicPage.innerHTML = `<meting-js id="${id}" server="${server}" type="${playlistType}" mutex="true" preload="auto" order="random"></meting-js>`;
+      pyjMusicPage.innerHTML = `<meting-js id="${id}" server="${server}" type="${playlistType}" mutex="true" preload="auto" order="random"></meting-js>`;
     } else {
       console.log("无自定义内容")
-      heoMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${userType}" mutex="true" preload="auto" order="random"></meting-js>`;
+      pyjMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${userType}" mutex="true" preload="auto" order="random"></meting-js>`;
     }
   },
 
@@ -245,8 +220,8 @@ var heo = {
   },
   setMediaMetadata: function (aplayerObj, isSongPlaying) {
     const audio = aplayerObj.list.audios[aplayerObj.list.index]
-    const coverUrl = audio.cover || '/blogclient/heo-music/img/icon.webp';
-    const currentLrcContent = document.getElementById("heoMusic-page").querySelector(".aplayer-lrc-current").textContent;
+    const coverUrl = audio.cover || 'http://test.yudao.iocoder.cn/f5660f0f8998e8d89f2d742fedee7cbb7e85ecc505bd33b3cc0f75b6a0395931.png';
+    const currentLrcContent = document.getElementById("Music-page").querySelector(".aplayer-lrc-current").textContent;
     let songName, songArtist;
 
     if ('mediaSession' in navigator) {
@@ -310,27 +285,27 @@ var heo = {
 
       // 更新 Media Session 元数据
       aplayer.on('loadeddata', () => {
-        heo.setMediaMetadata(aplayer, false);
+        pyj.setMediaMetadata(aplayer, false);
       });
 
       // 更新播放状态
       aplayer.on('play', () => {
         if ('mediaSession' in navigator) {
           navigator.mediaSession.playbackState = 'playing';
-          heo.setMediaMetadata(aplayer, true);
+          pyj.setMediaMetadata(aplayer, true);
         }
       });
 
       aplayer.on('pause', () => {
         if ('mediaSession' in navigator) {
           navigator.mediaSession.playbackState = 'paused';
-          heo.setMediaMetadata(aplayer, false);
+          pyj.setMediaMetadata(aplayer, false);
         }
       });
 
       // 监听时间更新事件
       aplayer.on('timeupdate', () => {
-        heo.setMediaMetadata(aplayer, true);
+        pyj.setMediaMetadata(aplayer, true);
       });
     }
   },
@@ -350,7 +325,7 @@ var heo = {
 
       if (typeof ColorThief === 'undefined') {
         const script = document.createElement('script');
-        script.src = '/blogclient/heo-music/js/color-thief.min.js';
+        script.src = '/blogclient/music/js/color-thief.min.js';
         script.onload = () => updateThemeColor(new ColorThief());
         document.body.appendChild(script);
       } else {
@@ -428,5 +403,4 @@ window.addEventListener('resize', function() {
 });
 
 // 调用初始化 - 注释掉，由Vue组件控制
-// heo.init();
-
+// pyj.init();
