@@ -2,16 +2,8 @@
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-info">
-        <div class="running-time">
-          <span class="icon">⏱</span>
-          本站居然运行了 <span class="time-value">{{ days }}</span> 天
-          <span class="time-value">{{ hours }}</span> 时
-          <span class="time-value">{{ minutes }}</span> 分
-          <span class="time-value">{{ seconds }}</span> 秒
-        </div>
         <div class="copyright">
           Copyright©{{ startYear }}-{{ currentYear }} {{ $store.state.webSiteInfo.name }}
-          <span class="divider">·</span>
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="record">
             {{ $store.state.webSiteInfo.recordNum }}
           </a>
@@ -85,21 +77,6 @@ export default {
   gap: 8px;
 }
 
-.running-time {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-
-  .time-value {
-    color: #ff6b81;
-    font-family: 'Fira Code', monospace;
-  }
-
-  .icon {
-    color: #4CAF50;
-    margin-right: 4px;
-  }
-}
-
 .copyright {
   display: flex;
   align-items: center;
@@ -136,8 +113,5 @@ export default {
     gap: $spacing-xs;
   }
 
-  .running-time {
-    font-size: 0.8125rem;
-  }
 }
 </style>
