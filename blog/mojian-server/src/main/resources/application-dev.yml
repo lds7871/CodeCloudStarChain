@@ -6,7 +6,7 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
   datasource:
-    url: jdbc:mysql://113.45.240.54/blog?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://数据库?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     #url: jdbc:mysql://127.0.0.1:3307/mxxl?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     #username: LDS7871
@@ -41,8 +41,8 @@ spring:
   mail:
     host: smtp.qq.com
     port: 465
-    username: 2180323848@qq.com    # 修改为您的QQ邮箱
-    password: nsdrpzioyvbvdjdf    # 修改为您的QQ邮箱授权码
+    username:     # 修改为您的QQ邮箱
+    password:    # 修改为您的QQ邮箱授权码
     properties:
       mail:
         smtp:
@@ -68,9 +68,9 @@ knife4j:
 
 #==============================公众号配置==============================
 wechat:
-  app-id: wx9102d631d271b410
-  app-secret: beba658104a18fc76de51759129ba0e6
-  domain: http://4bfc2dea.r33.cpolar.top
+  app-id:
+  app-secret:
+  domain:
   redirect-uri: wechat/authCallback
 
 #==============================豆包推理AI配置=======================================
@@ -85,20 +85,20 @@ ai:
 qq:
   app-id:
   app-secret:
-  redirect-url: https://www.shiyit.com/mojian/api/auth/callback/qq
+  redirect-url:
 weibo:
   app-id:
   app-secret:
-  redirect-url: https://www.shiyit.com/mojian/api/auth/weibo
+  redirect-url:
 
 gitee:
-#  app-id: c8c7f63da2086c750aa5c6b504326267e5ce620f70f1924a3cc3b7c3b35dc8e8
-#  app-secret: da493a7bb94468e3b3e504f00103ae68d838c692f118ca807867b41e6b8f3121
+#  app-id: c8c7f63da2086*****0f70f1924a3cc3b7c3b35dc8e8
+#  app-secret: da493a7bb94468e3*****8c692f118ca807867b41e6b8f3121
 #  redirect-url: http://127.0.0.1:3000/login/oauth2/code/gitee
   # 在Gitee上注册后分配的id
-  clientId: c8c7f63da2086c750aa5c6b504326267e5ce620f70f1924a3cc3b7c3b35dc8e8
+  clientId:
   # 在Gitee上注册后分配的secret
-  clientSecret: da493a7bb94468e3b3e504f00103ae68d838c692f118ca807867b41e6b8f3121
+  clientSecret:
 #  # 授权类型
 #  authorizationGrantType: authorization_code
   # 回调地址
@@ -113,4 +113,4 @@ gitee:
 github:
   app-id:
   app-secret:
-  redirect-url: https://www.shiyit.com/shiyi/mojian/api/auth/callback/github
+  redirect-url: #
